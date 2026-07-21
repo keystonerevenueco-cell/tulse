@@ -1,0 +1,595 @@
+/* ==========================
+FADE ANIMATIONS
+========================== */
+
+
+@keyframes fadeIn {
+
+
+from {
+
+opacity:0;
+
+transform:translateY(30px);
+
+}
+
+
+to {
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+
+}
+
+
+
+
+
+
+
+@keyframes fadeUp {
+
+
+from {
+
+opacity:0;
+
+transform:translateY(50px);
+
+}
+
+
+to {
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+
+}
+
+
+
+
+
+
+
+@keyframes fadeLeft {
+
+
+from {
+
+opacity:0;
+
+transform:translateX(-50px);
+
+}
+
+
+to {
+
+opacity:1;
+
+transform:translateX(0);
+
+}
+
+
+}
+
+
+
+
+
+
+
+@keyframes fadeRight {
+
+
+from {
+
+opacity:0;
+
+transform:translateX(50px);
+
+}
+
+
+to {
+
+opacity:1;
+
+transform:translateX(0);
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+HERO ANIMATIONS
+========================== */
+
+
+
+.hero-badge {
+
+animation:fadeIn .8s ease forwards;
+
+}
+
+
+
+
+
+.hero h1 {
+
+animation:fadeUp 1s ease .2s forwards;
+
+opacity:0;
+
+}
+
+
+
+
+
+.hero p {
+
+animation:fadeUp 1s ease .4s forwards;
+
+opacity:0;
+
+}
+
+
+
+
+
+.hero-buttons {
+
+animation:fadeUp 1s ease .6s forwards;
+
+opacity:0;
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+PAGE HERO
+========================== */
+
+
+
+.page-hero-content {
+
+animation:fadeUp 1s ease forwards;
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+SCROLL REVEAL
+========================== */
+
+
+.reveal {
+
+opacity:0;
+
+transform:translateY(40px);
+
+transition:
+
+opacity .8s ease,
+
+transform .8s ease;
+
+}
+
+
+
+
+.reveal.active {
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+CARD ANIMATIONS
+========================== */
+
+
+
+.industry-card,
+.service-box,
+.portfolio-card,
+.value-card,
+.stat-card,
+.info-card {
+
+transition:
+
+transform .35s ease,
+
+box-shadow .35s ease;
+
+}
+
+
+
+
+
+
+
+.industry-card:hover,
+.service-box:hover,
+.portfolio-card:hover,
+.value-card:hover,
+.stat-card:hover,
+.info-card:hover {
+
+
+transform:translateY(-10px);
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+BUTTON EFFECTS
+========================== */
+
+
+
+.primary-btn {
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+
+
+
+
+
+.primary-btn::before {
+
+
+content:"";
+
+position:absolute;
+
+top:0;
+
+left:-100%;
+
+height:100%;
+
+width:100%;
+
+background:
+
+rgba(255,255,255,.25);
+
+
+transition:.5s ease;
+
+
+}
+
+
+
+
+
+.primary-btn:hover::before {
+
+
+left:100%;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+IMAGE EFFECTS
+========================== */
+
+
+.portfolio-image img {
+
+
+transition:
+
+transform .7s ease;
+
+
+}
+
+
+
+
+.portfolio-card:hover img {
+
+
+transform:scale(1.08);
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+PROCESS ANIMATION
+========================== */
+
+
+
+.process-card {
+
+
+transition:
+
+transform .4s ease,
+
+box-shadow .4s ease;
+
+
+}
+
+
+
+
+.process-card:hover {
+
+
+transform:translateX(10px);
+
+
+box-shadow:var(--shadow-medium);
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+NAVBAR ANIMATION
+========================== */
+
+
+.navbar {
+
+
+animation:
+
+fadeIn .8s ease forwards;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+LOADING ANIMATION
+========================== */
+
+
+
+.loading {
+
+
+animation:
+
+pulse 2s infinite;
+
+
+}
+
+
+
+
+
+
+@keyframes pulse {
+
+
+0% {
+
+
+opacity:1;
+
+
+}
+
+
+
+50% {
+
+
+opacity:.5;
+
+
+}
+
+
+
+100% {
+
+
+opacity:1;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+SCROLL INDICATOR
+========================== */
+
+
+
+.mouse {
+
+
+animation:
+
+bounce 2s infinite;
+
+
+}
+
+
+
+
+
+
+@keyframes bounce {
+
+
+0%,
+100% {
+
+
+transform:translateY(0);
+
+
+}
+
+
+
+50% {
+
+
+transform:translateY(10px);
+
+
+}
+
+
+
+}/* ==========================
+CARD SCROLL REVEAL FIX
+========================== */
+
+
+.service-box,
+.industry-card,
+.portfolio-card,
+.value-card,
+.stat-card,
+.process-card,
+.info-card {
+
+opacity:0;
+
+transform:translateY(40px);
+
+transition:
+
+opacity .8s ease,
+
+transform .8s ease;
+
+}
+
+
+
+.service-box.active,
+.industry-card.active,
+.portfolio-card.active,
+.value-card.active,
+.stat-card.active,
+.process-card.active,
+.info-card.active {
+
+opacity:1;
+
+transform:translateY(0);
+
+}

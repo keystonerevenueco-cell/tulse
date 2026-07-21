@@ -1,0 +1,198 @@
+:root {
+
+
+/* ==========================
+TULSE BRAND COLORS
+========================== */
+
+
+/* Main brand colors */
+
+--primary-color: #0B1F3A;
+
+--secondary-color: #123A5A;
+
+--accent-color: #C9A227;
+
+
+
+/* Backgrounds */
+
+--background-dark: #07111F;
+
+--background-light: #FFFFFF;
+
+--background-soft: #F6F7F9;
+
+--card-background: #FFFFFF;
+
+
+
+/* Text */
+
+--text-dark: #0B1220;
+
+--text-light: #FFFFFF;
+
+--text-muted: #64748B;
+
+
+
+
+
+/* ==========================
+TYPOGRAPHY
+========================== */
+
+
+
+--font-main: "Manrope", sans-serif;
+
+
+
+--heading-weight: 700;
+
+--bold-weight: 800;
+
+--normal-weight: 400;
+
+
+
+
+
+/* ==========================
+FONT SIZES
+========================== */
+
+
+
+--hero-title-size: clamp(3rem, 6vw, 5.5rem);
+
+
+--section-title-size: clamp(2rem, 4vw, 3.5rem);
+
+
+--sub-title-size: 1.5rem;
+
+
+--body-size: 1rem;
+
+
+--small-size: 0.875rem;
+
+
+
+
+
+/* ==========================
+SPACING SYSTEM
+========================== */
+
+
+
+--section-padding: 120px;
+
+
+--container-width: 1200px;
+
+
+
+--spacing-xs: 10px;
+
+--spacing-sm: 20px;
+
+--spacing-md: 40px;
+
+--spacing-lg: 70px;
+
+--spacing-xl: 120px;
+
+
+
+
+
+/* ==========================
+BORDERS
+========================== */
+
+
+
+--border-light: rgba(255,255,255,0.15);
+
+
+--border-dark: rgba(15,23,42,0.1);
+
+
+
+
+/* ==========================
+RADIUS
+========================== */
+
+
+
+--radius-small: 8px;
+
+
+--radius-medium: 16px;
+
+
+--radius-large: 28px;
+
+
+
+
+
+
+/* ==========================
+SHADOWS
+========================== */
+
+
+
+--shadow-small:
+0 10px 30px rgba(0,0,0,0.08);
+
+
+
+--shadow-medium:
+0 20px 50px rgba(0,0,0,0.12);
+
+
+
+--shadow-large:
+0 30px 80px rgba(0,0,0,0.18);
+
+
+
+
+
+
+
+/* ==========================
+TRANSITIONS
+========================== */
+
+
+--transition-fast: 0.2s ease;
+
+
+--transition-normal: 0.4s ease;
+
+
+--transition-slow: 0.7s ease;
+
+
+
+
+/* ==========================
+LAYOUT
+========================== */
+
+
+
+--header-height: 90px;
+
+
+
+}
