@@ -33,14 +33,6 @@ grid-template-columns:repeat(2,1fr);
 
 
 
-.stats-grid{
-
-grid-template-columns:1fr;
-
-}
-
-
-
 .service-feature,
 .difference-grid,
 .contact-grid{
@@ -314,8 +306,6 @@ gap:15px;
 }
 
 
-
-
 /* ==========================
 SMALL PHONES
 ========================== */
@@ -339,6 +329,243 @@ font-size:2.2rem;
 
 }
 
+}
 
 
+/* ==========================
+SERVICES - MOBILE FIX
+========================== */
+
+@media(max-width:900px) {
+.services-grid {
+grid-template-columns: 1fr !important;
+gap: 25px !important;
+}
+
+.service-box {
+padding: 30px 20px !important;
+}
+}
+
+/* ==========================
+COMPARISON - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.comparison-section {
+padding: 60px 5% !important;
+}
+
+.comparison-section > div {
+grid-template-columns: 1fr !important;
+gap: 20px !important;
+}
+
+.comparison-section > div > div {
+padding: 30px 20px !important;
+}
+}
+
+/* ==========================
+FAQ - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.faq-section {
+padding: 60px 5% !important;
+}
+
+.faq-section .faq-item {
+padding: 15px 20px !important;
+}
+
+.faq-section .faq-item h3 {
+font-size: 0.95rem !important;
+}
+}
+
+/* ==========================
+PRICING - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.pricing-section {
+padding: 60px 5% !important;
+}
+
+.pricing-card {
+padding: 30px 20px !important;
+}
+}
+
+/* ==========================
+PROCESS CARDS - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.process-card {
+flex-direction: column !important;
+align-items: center !important;
+text-align: center !important;
+padding: 25px 20px !important;
+gap: 15px !important;
+}
+
+.process-card .process-number {
+min-width: 50px !important;
+height: 50px !important;
+font-size: 0.9rem !important;
+}
+
+.process-card i {
+font-size: 1rem !important;
+}
+
+.process-card h3 {
+font-size: 1.1rem !important;
+}
+
+.process-card p {
+font-size: 0.9rem !important;
+}
+
+.timeline {
+gap: 20px !important;
+}
+}
+
+/* ==========================
+HERO - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.hero {
+min-height: 600px !important;
+padding: 120px 0 40px !important;
+}
+
+.hero h1 {
+font-size: 2.2rem !important;
+line-height: 1.15 !important;
+}
+
+.hero p {
+font-size: 1rem !important;
+}
+
+.hero-buttons {
+flex-direction: column !important;
+align-items: center !important;
+gap: 12px !important;
+}
+
+.hero-buttons a {
+width: 100% !important;
+justify-content: center !important;
+}
+
+.scroll-indicator {
+display: none !important;
+}
+}
+
+@media(max-width:450px) {
+.hero {
+min-height: 550px !important;
+padding: 100px 0 30px !important;
+}
+
+.hero h1 {
+font-size: 1.8rem !important;
+}
+
+.hero p {
+font-size: 0.95rem !important;
+}
+}
+
+/* ==========================
+PAGE HERO - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.page-hero {
+min-height: 50vh !important;
+padding: 120px 20px 60px !important;
+}
+
+.page-hero h1 {
+font-size: 2.2rem !important;
+}
+
+.page-hero p {
+font-size: 1rem !important;
+}
+}
+
+/* ==========================
+SECTION PADDING - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+section {
+padding: 60px 5% !important;
+}
+
+.section-intro {
+margin: 0 auto 40px !important;
+}
+
+.section-intro h2 {
+font-size: 1.8rem !important;
+}
+
+.section-intro p:last-child {
+font-size: 0.95rem !important;
+}
+}
+
+/* ==========================
+CONTENT PROCESS - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.content-process {
+padding: 60px 5% !important;
+}
+
+.content-process > div > div {
+flex-direction: column !important;
+align-items: center !important;
+text-align: center !important;
+padding: 25px 20px !important;
+}
+
+.content-process > div > div > div:first-child {
+min-width: 50px !important;
+height: 50px !important;
+}
+
+.content-process > div > div > div:first-child i {
+font-size: 1.2rem !important;
+}
+
+.content-process > div > div > div:last-child h3 {
+font-size: 1.1rem !important;
+}
+}
+
+/* ==========================
+PRICING GRID - MOBILE FIX
+========================== */
+
+@media(max-width:768px) {
+.pricing-section > div {
+grid-template-columns: 1fr !important;
+gap: 25px !important;
+}
+
+.pricing-section > div > div {
+padding: 30px 20px !important;
+}
 }
