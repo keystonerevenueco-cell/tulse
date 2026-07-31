@@ -34,7 +34,9 @@ TULSE BRAND COLORS
 
 --text-light: #FFFFFF;
 
---text-muted: #64748B;
+--text-muted: #4A5568; /* Darkened from #64748B for better readability */
+
+--text-muted-light: #94A3B8; /* For dark backgrounds */
 
 
 
@@ -163,7 +165,9 @@ SHADOWS
 --shadow-large:
 0 30px 80px rgba(0,0,0,0.18);
 
+--shadow-card: 0 8px 30px rgba(0,0,0,0.06); /* Soft shadow for cards */
 
+--shadow-card-hover: 0 16px 50px rgba(0,0,0,0.12); /* Hover shadow for cards */
 
 
 
