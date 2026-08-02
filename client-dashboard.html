@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal | Tulse</title>
+    
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 600px;
+        }
+        .dashboard-sidebar {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            padding: 30px 20px;
+            height: fit-content;
+        }
+        .dashboard-sidebar .user-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .dashboard-sidebar .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #000;
+            margin: 0 auto 12px;
+        }
+        .dashboard-sidebar .user-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .dashboard-sidebar .user-email {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .dashboard-sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #64748b;
+            text-decoration: none;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+        .dashboard-sidebar .nav-item:hover {
+            background: #f8fafc;
+            color: #000;
+        }
+        .dashboard-sidebar .nav-item.active {
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 600;
+        }
+        .dashboard-sidebar .nav-item i {
+            width: 20px;
+        }
+        .dashboard-content {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            padding: 30px;
+        }
+        .dashboard-content .tab {
+            display: none;
+        }
+        .dashboard-content .tab.active {
+            display: block;
+        }
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .project-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+        .project-header .status {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-in-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .progress-tracker {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 25px 0 30px;
+        }
+        .progress-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        .progress-item .check {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            line-height: 30px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+        .progress-item.completed .check {
+            background: #22c55e;
+            color: white;
+        }
+        .progress-item.active .check {
+            background: var(--accent-color);
+            color: #000;
+        }
+        .progress-item .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .progress-item.active .label {
+            color: #000;
+        }
+        .greeting-message {
+            background: #f8fafc;
+            padding: 20px 25px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 25px;
+        }
+        .greeting-message p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+        .greeting-message strong {
+            color: #000;
+        }
+        .message-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .message-item:last-child {
+            border-bottom: none;
+        }
+        .message-item .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .message-item .sender {
+            font-weight: 600;
+            color: #000;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        .file-item i {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+        .file-item .file-info {
+            flex: 1;
+        }
+        .file-item .file-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .file-item .file-size {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .file-item .download-btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-item .download-btn:hover {
+            opacity: 0.8;
+        }
+        .locked-overlay {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .locked-overlay i {
+            font-size: 4rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        .locked-overlay h2 {
+            margin-bottom: 10px;
+        }
+        .locked-overlay p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .progress-tracker {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 450px) {
+            .progress-tracker {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ==========================
+    NAVBAR (NO CLIENT LOGIN - HIDDEN FROM PUBLIC)
+    ========================== -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="index.html" class="logo">
+                <img src="assets/logo.png" alt="Tulse Logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="services.html">Services</a></li>
+                <li><a href="process.html">How It Works</a></li>
+                <li><a href="portfolio.html">Results</a></li>
+                <li><a href="free-sample.html">Free Sample</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="free-sample.html" class="nav-btn">Free 10-Lead Sample</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==========================
+    DASHBOARD - AUTHENTICATION REQUIRED
+    ========================== -->
+    <section style="background: #f8fafc; padding: 100px 5%; min-height: 80vh;">
+        <div class="dashboard-grid" id="dashboardContainer">
+
+            <!-- SIDEBAR -->
+            <div class="dashboard-sidebar">
+                <div class="user-info">
+                    <div class="avatar" id="userAvatar">JD</div>
+                    <div class="user-name" id="userName">John Doe</div>
+                    <div class="user-email" id="userEmail">john@example.com</div>
+                </div>
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-tab="projects">
+                    <i class="fas fa-folder"></i> Projects
+                </a>
+                <a href="#" class="nav-item" data-tab="messages">
+                    <i class="fas fa-envelope"></i> Messages
+                </a>
+                <a href="#" class="nav-item" data-tab="files">
+                    <i class="fas fa-file"></i> Files
+                </a>
+                <div style="border-top: 1px solid #e5e7eb; margin: 15px 0; padding-top: 15px;">
+                    <a href="#" class="nav-item" id="logoutBtn" style="color: #ef4444;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="dashboard-content" id="dashboardContent">
+
+                <!-- LOCKED STATE (if not authenticated) -->
+                <div id="lockedState">
+                    <div class="locked-overlay">
+                        <i class="fas fa-lock"></i>
+                        <h2>Access Restricted</h2>
+                        <p>This portal is for paying clients only.</p>
+                        <a href="services.html" class="primary-btn">
+                            View Our Services
+                        </a>
+                    </div>
+                </div>
+
+                <!-- DASHBOARD TAB -->
+                <div class="tab active" id="tab-dashboard" style="display: none;">
+                    <div class="greeting-message">
+                        <p>👋 Hey <strong id="greetingName">John</strong>! Here's what's happening with your project.</p>
+                    </div>
+
+                    <div class="project-header">
+                        <div>
+                            <h2 id="projectName">Orlando Roofing Prospect List</h2>
+                            <span class="status status-in-progress" id="projectStatus">In Progress</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.85rem; color: #64748b;">Package</span>
+                            <div style="font-weight: 700; font-size: 1.1rem;" id="projectPackage">Lead Intelligence - Professional</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-tracker">
+                        <div class="progress-item completed">
+                            <div class="check"><i class="fas fa-check"></i></div>
+                            <div class="label">Payment Received</div>
+                        </div>
+                        <div class="progress-item completed">
+                            <div class="check"><i class="fas fa-check"></i></div>
+                            <div class="label">Targeting Confirmed</div>
+                        </div>
+                        <div class="progress-item active">
+                            <div class="check"><i class="fas fa-spinner fa-spin"></i></div>
+                            <div class="label">Researching Prospects</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="check">4</div>
+                            <div class="label">Quality Review</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                        <h4 style="margin-bottom: 10px;">Project Summary</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                            <div><span style="color: #64748b;">Industry:</span> <strong id="projectIndustry">Roofing</strong></div>
+                            <div><span style="color: #64748b;">Location:</span> <strong id="projectLocation">Orlando, FL</strong></div>
+                            <div><span style="color: #64748b;">Leads:</span> <strong id="projectLeads">500</strong></div>
+                            <div><span style="color: #64748b;">Delivery:</span> <strong id="projectDelivery">CSV</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROJECTS TAB -->
+                <div class="tab" id="tab-projects" style="display: none;">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Your Projects</h2>
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <h4 id="projectName2">Orlando Roofing Prospect List</h4>
+                            <p style="font-size: 0.85rem; color: #64748b;">Started: Aug 2, 2026</p>
+                        </div>
+                        <div>
+                            <span class="status status-in-progress">In Progress</span>
+                            <a href="#" style="margin-left: 15px; color: var(--accent-color); font-weight: 600;">View →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MESSAGES TAB -->
+                <div class="tab" id="tab-messages" style="display: none;">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
+                    <div class="message-item">
+                        <div class="meta">
+                            <span class="sender">Tulse Team</span>
+                            <span>Today, 10:30 AM</span>
+                        </div>
+                        <p>We've started research on your prospect list. We'll update you when we have the first batch ready for review.</p>
+                    </div>
+                    <div class="message-item">
+                        <div class="meta">
+                            <span class="sender">Tulse Team</span>
+                            <span>Yesterday, 4:15 PM</span>
+                        </div>
+                        <p>Thanks for confirming the targeting details! We're moving forward with the custom criteria.</p>
+                    </div>
+                    <div class="message-item">
+                        <div class="meta">
+                            <span class="sender">You</span>
+                            <span>Yesterday, 2:00 PM</span>
+                        </div>
+                        <p>Great, I've confirmed the targeting criteria. Let me know if you need anything else.</p>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <textarea placeholder="Type your message here..." style="width: 100%; padding: 15px; border: 1px solid #e5e7eb; border-radius: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
+                        <button class="primary-btn" style="margin-top: 10px;">
+                            <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
+                            Send Message
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FILES TAB -->
+                <div class="tab" id="tab-files" style="display: none;">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Project Files</h2>
+                    <div class="file-item">
+                        <i class="fas fa-file-excel"></i>
+                        <div class="file-info">
+                            <div class="file-name">Prospect_List_Sample.xlsx</div>
+                            <div class="file-size">45 KB</div>
+                        </div>
+                        <button class="download-btn">Download</button>
+                    </div>
+                    <div class="file-item">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="file-info">
+                            <div class="file-name">Targeting_Strategy.pdf</div>
+                            <div class="file-size">120 KB</div>
+                        </div>
+                        <button class="download-btn">Download</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================
+    FOOTER (NO CLIENT LOGIN)
+    ========================== -->
+    <footer class="footer">
+        <div class="footer-logo">
+            <img src="assets/logo.png" alt="Tulse Logo">
+        </div>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="lead-intelligence.html">Lead Intelligence</a>
+            <a href="free-sample.html">Free Sample</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms</a>
+        </div>
+        <p>© 2026 Tulse. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // ==========================
+        // REAL AUTHENTICATION CHECK
+        // ==========================
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('tulse_logged_in') === 'true';
+            const sessionId = localStorage.getItem('tulse_session_id');
+            const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
+            const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
+
+            // Check if user is authenticated with valid session
+            if (!isLoggedIn || !sessionId || !accountData.client_email) {
+                // Not authenticated - show locked state
+                document.getElementById('lockedState').style.display = 'block';
+                document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
+                return;
+            }
+
+            // Authenticated - show dashboard
+            document.getElementById('lockedState').style.display = 'none';
+            document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'block');
+
+            // Load user data
+            const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
+            const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+            
+            document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('greetingName').textContent = displayName;
+            document.getElementById('userAvatar').textContent = displayName.charAt(0);
+
+            // Load project data
+            if (projectData.target_industry) {
+                document.getElementById('projectIndustry').textContent = projectData.target_industry;
+            }
+            if (projectData.target_location) {
+                document.getElementById('projectLocation').textContent = projectData.target_location;
+            }
+
+            // Package info
+            const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
+            const packageNames = {
+                'lead-intelligence-standard': 'Lead Intelligence - Standard',
+                'lead-intelligence-growth': 'Lead Intelligence - Growth',
+                'lead-intelligence-professional': 'Lead Intelligence - Professional',
+                'content-remote-one-time': 'Content - Remote One-Time',
+                'content-remote-monthly': 'Content - Remote Monthly',
+                'content-onsite-one-time': 'Content - On-Site One-Time',
+                'content-onsite-monthly': 'Content - On-Site Monthly'
+            };
+            document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence - Professional';
+        });
+
+        // ==========================
+        // TAB SWITCHING
+        // ==========================
+        document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+                const tabId = this.dataset.tab;
+                document.querySelectorAll('.dashboard-content .tab').forEach(el => el.classList.remove('active'));
+                const targetTab = document.getElementById('tab-' + tabId);
+                if (targetTab) targetTab.classList.add('active');
+            });
+        });
+
+        // ==========================
+        // LOGOUT - CLEAR SESSION
+        // ==========================
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Logout from your client portal?')) {
+                localStorage.removeItem('tulse_logged_in');
+                localStorage.removeItem('tulse_session_id');
+                localStorage.removeItem('tulse_account_data');
+                localStorage.removeItem('tulse_payment_verified');
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Onboarding | Tulse</title>
+    
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .onboarding-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+        .onboarding-container h2 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .onboarding-container .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+        .onboarding-container .form-group {
+            margin-bottom: 18px;
+        }
+        .onboarding-container .form-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .onboarding-container .form-group input,
+        .onboarding-container .form-group select,
+        .onboarding-container .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+        .onboarding-container .form-group input:focus,
+        .onboarding-container .form-group select:focus,
+        .onboarding-container .form-group textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+        }
+        .onboarding-container .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .onboarding-container .primary-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 16px;
+            font-size: 1rem;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .step-indicator .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        .step-indicator .step.active {
+            opacity: 1;
+        }
+        .step-indicator .step .number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+        .step-indicator .step.active .number {
+            background: var(--accent-color);
+            color: #000;
+        }
+        .step-indicator .step .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .step-indicator .step.active .label {
+            color: #000;
+        }
+        .onboarding-step {
+            display: none;
+        }
+        .onboarding-step.active {
+            display: block;
+        }
+        .success-box {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .success-box i {
+            font-size: 4rem;
+            color: #22c55e;
+            margin-bottom: 15px;
+        }
+        .success-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .success-box p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .success-box .portal-link {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #000;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .success-box .portal-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(201, 162, 39, 0.3);
+        }
+        .package-summary {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .package-summary .package-name {
+            font-weight: 700;
+        }
+        .package-summary .package-price {
+            font-weight: 800;
+            color: var(--accent-color);
+        }
+        .error-msg {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .error-msg.show {
+            display: block;
+        }
+        .payment-required {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .payment-required i {
+            font-size: 4rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        .payment-required h2 {
+            margin-bottom: 10px;
+        }
+        .payment-required p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ==========================
+    NAVBAR (NO CLIENT LOGIN)
+    ========================== -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="index.html" class="logo">
+                <img src="assets/logo.png" alt="Tulse Logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="services.html">Services</a></li>
+                <li><a href="process.html">How It Works</a></li>
+                <li><a href="portfolio.html">Results</a></li>
+                <li><a href="free-sample.html">Free Sample</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="free-sample.html" class="nav-btn">Free 10-Lead Sample</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==========================
+    ONBOARDING HERO
+    ========================== -->
+    <section style="background: linear-gradient(135deg, #07111F, #0B1F3A); padding: 80px 5% 40px;">
+        <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+            <p style="color: var(--accent-color); font-weight: 700; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">PAYMENT CONFIRMED</p>
+            <h1 style="color: white; font-size: clamp(2rem, 4vw, 2.8rem); margin: 10px 0;">Welcome to Tulse</h1>
+            <p style="color: #94a3b8;">Set up your account to get started.</p>
+        </div>
+    </section>
+
+    <!-- ==========================
+    ONBOARDING FORM
+    ========================== -->
+    <section style="background: #f8fafc; padding: 40px 5% 80px;">
+        <div class="onboarding-container" id="onboardingContainer">
+
+            <!-- PAYMENT REQUIRED STATE -->
+            <div id="paymentRequired" style="display: none;">
+                <div class="payment-required">
+                    <i class="fas fa-lock"></i>
+                    <h2>Payment Required</h2>
+                    <p>Please complete your purchase before setting up your account.</p>
+                    <a href="services.html" class="primary-btn">
+                        View Services
+                    </a>
+                </div>
+            </div>
+
+            <!-- STEP INDICATOR -->
+            <div class="step-indicator" id="stepIndicator">
+                <div class="step active" id="step1Indicator">
+                    <div class="number">1</div>
+                    <span class="label">Account</span>
+                </div>
+                <div class="step" id="step2Indicator">
+                    <div class="number">2</div>
+                    <span class="label">Project</span>
+                </div>
+                <div class="step" id="step3Indicator">
+                    <div class="number">3</div>
+                    <span class="label">Complete</span>
+                </div>
+            </div>
+
+            <!-- PACKAGE SUMMARY -->
+            <div class="package-summary">
+                <span class="package-name" id="packageName">Loading...</span>
+                <span class="package-price" id="packagePrice">$0</span>
+            </div>
+
+            <!-- ==========================
+            STEP 1: CREATE ACCOUNT
+            ========================== -->
+            <div class="onboarding-step active" id="step1">
+                <h2>Create Your Account</h2>
+                <p class="subtitle">Set up your client portal access.</p>
+
+                <div class="error-msg" id="step1Error">Passwords do not match. Please try again.</div>
+
+                <form id="step1Form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="full_name" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="client_email" id="clientEmail" placeholder="you@yourbusiness.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Create Password</label>
+                        <input type="password" name="client_password" placeholder="Min 8 characters" required minlength="8">
+                        <span style="font-size: 0.75rem; color: #94a3b8;">Must be at least 8 characters</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" name="confirm_password" placeholder="Confirm your password" required>
+                    </div>
+
+                    <button type="submit" class="primary-btn">
+                        Continue <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- ==========================
+            STEP 2: PROJECT DETAILS
+            ========================== -->
+            <div class="onboarding-step" id="step2">
+                <h2>Project Details</h2>
+                <p class="subtitle">Tell us what you need.</p>
+
+                <form id="step2Form">
+                    <!-- LEAD INTELLIGENCE QUESTIONS -->
+                    <div id="leadQuestions">
+                        <div class="form-group">
+                            <label>Target Industry</label>
+                            <input type="text" name="target_industry" placeholder="e.g., Roofing, HVAC, Cleaning" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Target Location</label>
+                            <input type="text" name="target_location" placeholder="e.g., Orlando, FL" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ideal Company Size</label>
+                            <select name="company_size">
+                                <option value="any">Any size</option>
+                                <option value="small">Small (1-10 employees)</option>
+                                <option value="medium">Medium (11-50 employees)</option>
+                                <option value="large">Large (50+ employees)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Intended Outreach Method</label>
+                            <input type="text" name="outreach_method" placeholder="e.g., Email, Cold call, LinkedIn">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Example Ideal Customer</label>
+                            <textarea name="example_customer" placeholder="Describe your perfect customer..." rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Delivery Format</label>
+                            <select name="delivery_format">
+                                <option value="csv">CSV (Excel)</option>
+                                <option value="pdf">PDF</option>
+                                <option value="google_sheets">Google Sheets</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- CONTENT PRODUCTION QUESTIONS -->
+                    <div id="contentQuestions" style="display: none;">
+                        <div class="form-group">
+                            <label>Content Type</label>
+                            <select name="content_type">
+                                <option value="short_form">Short-form videos</option>
+                                <option value="long_form">Long-form videos</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>How Many Videos Per Month?</label>
+                            <input type="number" name="video_count" placeholder="e.g., 10" value="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Content Strategy</label>
+                            <select name="content_strategy">
+                                <option value="onsite">On-site filming</option>
+                                <option value="remote">Remote (send us footage)</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Social Platforms</label>
+                            <input type="text" name="platforms" placeholder="e.g., Instagram, TikTok, LinkedIn">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Brand Guidelines</label>
+                            <textarea name="brand_guidelines" placeholder="Any specific colors, fonts, or style preferences?" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="primary-btn">
+                        Complete Setup <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- ==========================
+            STEP 3: COMPLETE
+            ========================== -->
+            <div class="onboarding-step" id="step3">
+                <div class="success-box">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Account Created!</h3>
+                    <p>Your client portal is ready. Access it anytime using the link below.</p>
+                    <a href="client-dashboard.html" class="portal-link" id="portalLink">
+                        <i class="fas fa-arrow-right" style="margin-right: 10px;"></i>
+                        Go to Your Portal
+                    </a>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: #94a3b8;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                        Bookmark this link for future access.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================
+    FOOTER (NO CLIENT LOGIN)
+    ========================== -->
+    <footer class="footer">
+        <div class="footer-logo">
+            <img src="assets/logo.png" alt="Tulse Logo">
+        </div>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="lead-intelligence.html">Lead Intelligence</a>
+            <a href="free-sample.html">Free Sample</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms</a>
+        </div>
+        <p>© 2026 Tulse. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // ==========================
+        // VERIFY PAYMENT BEFORE ONBOARDING
+        // ==========================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            const paymentVerified = localStorage.getItem('tulse_payment_verified') === 'true';
+            
+            // Check if user came from Stripe checkout with payment verified
+            if (!sessionId || !paymentVerified) {
+                // No payment detected - show payment required state
+                document.getElementById('paymentRequired').style.display = 'block';
+                document.getElementById('stepIndicator').style.display = 'none';
+                document.querySelector('.package-summary').style.display = 'none';
+                document.querySelectorAll('.onboarding-step').forEach(el => el.style.display = 'none');
+                return;
+            }
+            
+            // Payment verified - show onboarding
+            document.getElementById('paymentRequired').style.display = 'none';
+            document.getElementById('stepIndicator').style.display = 'flex';
+            document.querySelector('.package-summary').style.display = 'flex';
+            document.querySelectorAll('.onboarding-step').forEach(el => el.style.display = 'block');
+            
+            // Store session for later verification
+            localStorage.setItem('tulse_session_id', sessionId);
+        });
+
+        // ==========================
+        // PACKAGE INFO
+        // ==========================
+        const PACKAGE_INFO = {
+            'lead-intelligence-standard': { name: 'Lead Intelligence - Standard', price: '$299', type: 'lead' },
+            'lead-intelligence-growth': { name: 'Lead Intelligence - Growth', price: '$399', type: 'lead' },
+            'lead-intelligence-professional': { name: 'Lead Intelligence - Professional', price: '$699', type: 'lead' },
+            'content-remote-one-time': { name: 'Content - Remote One-Time', price: '$750', type: 'content' },
+            'content-remote-monthly': { name: 'Content - Remote Monthly', price: '$750/mo', type: 'content' },
+            'content-onsite-one-time': { name: 'Content - On-Site One-Time', price: '$1,250', type: 'content' },
+            'content-onsite-monthly': { name: 'Content - On-Site Monthly', price: '$1,250/mo', type: 'content' }
+        };
+
+        const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-standard';
+        const packageInfo = PACKAGE_INFO[packageKey] || PACKAGE_INFO['lead-intelligence-standard'];
+
+        document.getElementById('packageName').textContent = packageInfo.name;
+        document.getElementById('packagePrice').textContent = packageInfo.price;
+
+        if (packageInfo.type === 'lead') {
+            document.getElementById('leadQuestions').style.display = 'block';
+        } else {
+            document.getElementById('contentQuestions').style.display = 'block';
+        }
+
+        // ==========================
+        // STEP 1: ACCOUNT CREATION
+        // ==========================
+        document.getElementById('step1Form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = this.querySelector('input[name="client_password"]').value;
+            const confirm = this.querySelector('input[name="confirm_password"]').value;
+
+            if (password !== confirm) {
+                document.getElementById('step1Error').classList.add('show');
+                return;
+            }
+            document.getElementById('step1Error').classList.remove('show');
+
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+            localStorage.setItem('tulse_account_data', JSON.stringify(data));
+
+            showStep(2);
+        });
+
+        // ==========================
+        // STEP 2: PROJECT DETAILS
+        // ==========================
+        document.getElementById('step2Form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+            localStorage.setItem('tulse_project_data', JSON.stringify(data));
+            localStorage.setItem('tulse_logged_in', 'true');
+
+            showStep(3);
+        });
+
+        // ==========================
+        // STEP NAVIGATION
+        // ==========================
+        function showStep(step) {
+            document.querySelectorAll('.onboarding-step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+
+            for (let i = 1; i <= 3; i++) {
+                const indicator = document.getElementById('step' + i + 'Indicator');
+                indicator.classList.remove('active');
+                if (i <= step) indicator.classList.add('active');
+            }
+        }
+    </script>
+
+</body>
+
+</html>

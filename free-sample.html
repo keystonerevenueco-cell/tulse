@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free 10-Lead Sample | Tulse</title>
+    <meta name="description" content="Request a free 10-lead sample from Tulse. See the quality before you buy.">
+    
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+    <!-- ==========================
+    NAVBAR (NO CLIENT LOGIN)
+    ========================== -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="index.html" class="logo">
+                <img src="assets/logo.png" alt="Tulse Logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="services.html">Services</a></li>
+                <li><a href="process.html">How It Works</a></li>
+                <li><a href="portfolio.html">Results</a></li>
+                <li><a href="free-sample.html">Free Sample</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="free-sample.html" class="nav-btn">Free 10-Lead Sample</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==========================
+    HERO SECTION
+    ========================== -->
+    <section class="page-hero" style="background: linear-gradient(135deg, #07111F, #0B1F3A);">
+        <div class="page-hero-content">
+            <p class="hero-label">FREE SAMPLE</p>
+            <h1>See The Quality Before You Buy.</h1>
+            <p>Request your free 10-lead sample and discover how Tulse Lead Intelligence can help you find better prospects.</p>
+        </div>
+    </section>
+
+    <!-- ==========================
+    FORM SECTION
+    ========================== -->
+    <section style="background: white; padding: 80px 5%;">
+        <div style="max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px;">
+            
+            <!-- FORM -->
+            <div style="background: #f8fafc; padding: 50px; border-radius: 20px; border: 1px solid #e5e7eb;">
+                <h2 style="font-size: 1.8rem; margin-bottom: 10px;">Request Your Free Sample</h2>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Complete the form below and we'll deliver 10 qualified prospects to you.</p>
+                
+                <form action="https://api.web3forms.com/submit" method="POST" class="contact-form" id="freeSampleForm">
+                    
+                    <input type="hidden" name="access_key" value="52800e16-01d7-49bb-a37b-b7e9ab0a0596">
+                    <input type="hidden" name="subject" value="New Tulse Free Sample Request">
+                    <input type="hidden" name="from_name" value="Tulse Website">
+                    
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" name="name" placeholder="Your full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <input type="text" name="business_name" placeholder="Your business name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Business Email</label>
+                        <input type="email" name="email" placeholder="Your business email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Target Industry</label>
+                        <input type="text" name="industry" placeholder="e.g., Roofing, HVAC, Cleaning" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Target Location</label>
+                        <input type="text" name="location" placeholder="e.g., Orlando, FL" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ideal Customer Description</label>
+                        <textarea name="customer_description" placeholder="Describe your ideal customer. What type of businesses do you want to target?" required rows="4"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="primary-btn" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-download" style="margin-right: 10px;"></i>
+                        Request Free 10-Lead Sample
+                    </button>
+                    
+                </form>
+
+                <div class="audit-success" id="formSuccess" style="display: none; text-align: center; padding: 40px 20px;">
+                    <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--accent-color); margin-bottom: 20px;"></i>
+                    <h2>Your Request Has Been Received!</h2>
+                    <p>We'll prepare your 10-lead sample and reach out to schedule your consultation.</p>
+                    <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                        <a href="#" class="primary-btn" onclick="bookConsultation(); return false;">
+                            <i class="fas fa-calendar" style="margin-right: 10px;"></i>
+                            Book Your Consultation
+                        </a>
+                        <a href="index.html" class="secondary-btn" style="border-color: #000; color: #000;">
+                            Return Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- ==========================
+    WHAT HAPPENS NEXT
+    ========================== -->
+    <section style="background: #f8fafc; padding: 80px 5%;">
+        <div class="section-intro">
+            <p>WHAT HAPPENS NEXT</p>
+            <h2>Your Free Sample Process.</h2>
+        </div>
+        <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+            <div style="background: white; padding: 40px 30px; border-radius: 16px; text-align: center; border: 1px solid #e5e7eb;">
+                <div style="font-size: 2.5rem; color: var(--accent-color); font-weight: 800; margin-bottom: 15px;">01</div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Submit Your Request</h3>
+                <p style="color: var(--text-muted);">Complete the form with your target criteria.</p>
+            </div>
+            <div style="background: white; padding: 40px 30px; border-radius: 16px; text-align: center; border: 1px solid #e5e7eb;">
+                <div style="font-size: 2.5rem; color: var(--accent-color); font-weight: 800; margin-bottom: 15px;">02</div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Receive Your Sample</h3>
+                <p style="color: var(--text-muted);">We deliver 10 qualified prospects to you.</p>
+            </div>
+            <div style="background: white; padding: 40px 30px; border-radius: 16px; text-align: center; border: 1px solid #e5e7eb;">
+                <div style="font-size: 2.5rem; color: var(--accent-color); font-weight: 800; margin-bottom: 15px;">03</div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Review Together</h3>
+                <p style="color: var(--text-muted);">We review the sample and recommend the best package.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================
+    FOOTER (NO CLIENT LOGIN)
+    ========================== -->
+    <footer class="footer">
+        <div class="footer-logo">
+            <img src="assets/logo.png" alt="Tulse Logo">
+        </div>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="lead-intelligence.html">Lead Intelligence</a>
+            <a href="free-sample.html">Free Sample</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms</a>
+        </div>
+        <p>© 2026 Tulse. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script src="js/navbar.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/scroll.js"></script>
+    <script>
+        // ==========================
+        // FORM HANDLING
+        // ==========================
+        const form = document.getElementById('freeSampleForm');
+        const successDiv = document.getElementById('formSuccess');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                form.style.display = 'none';
+                successDiv.style.display = 'block';
+            })
+            .catch(error => {
+                alert('Something went wrong. Please try again.');
+            });
+        });
+
+        function bookConsultation() {
+            // Replace with your actual Calendly or booking link
+            window.open('https://calendly.com/tulse/consultation', '_blank');
+        }
+    </script>
+
+</body>
+
+</html>
