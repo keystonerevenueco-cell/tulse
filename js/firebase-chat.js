@@ -541,3 +541,26 @@ function initFirebaseChat() {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initFirebaseChat, 500);
 });
+// ==========================
+// GET ALL FIREBASE CLIENTS
+// ==========================
+
+function getAllFirebaseClients() {
+    return new Promise((resolve) => {
+        console.log('🔍 Fetching all chat rooms...');
+        db.collection('chats')
+            .get()
+            .then((snapshot) => {
+                const clients = [];
+                snapshot.forEach((doc) => {
+                    clients.push({ email: doc.id });
+                });
+                console.log('🔍 Found', clients.length, 'chat rooms');
+                resolve(clients);
+            })
+            .catch((error) => {
+                console.error('Error getting clients:', error);
+                resolve([]);
+            });
+    });
+}
