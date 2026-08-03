@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Tulse</title>
+    
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        /* ==========================
+        ADMIN DASHBOARD STYLES
+        ========================== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            padding: 25px 20px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        .sidebar .user {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .sidebar .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #000;
+            margin: 0 auto 10px;
+        }
+        .sidebar .name { font-weight: 700; }
+        .sidebar .email { font-size: 0.8rem; color: #64748b; }
+        .sidebar .admin-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 50px;
+            margin-top: 5px;
+        }
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.3s ease;
+            margin-bottom: 2px;
+        }
+        .sidebar .nav-item:hover { background: #f8fafc; color: #000; }
+        .sidebar .nav-item.active { background: var(--accent-color); color: #000; font-weight: 600; }
+        .sidebar .nav-item .badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            padding: 1px 8px;
+            border-radius: 50px;
+            margin-left: auto;
+        }
+        .sidebar .nav-item .badge.hidden { display: none; }
+        .sidebar .logout {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+            margin-top: 15px;
+            color: #ef4444;
+            cursor: pointer;
+        }
+        .sidebar .logout:hover { background: #fef2f2; }
+        
+        .main {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            padding: 30px;
+            min-height: 500px;
+        }
+        .tab { display: none; }
+        .tab.active { display: block; }
+        
+        /* ==========================
+        ADMIN CHAT
+        ========================== */
+        .chat-admin {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            height: 520px;
+            max-height: 70vh;
+        }
+        .chat-client-list {
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-client-list .header {
+            padding: 14px 18px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-client-list .header .count {
+            background: #e5e7eb;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+        }
+        .chat-client-list .items { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 8px;
+        }
+        .chat-client-list .client-item {
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 4px;
+            background: white;
+            border: 1px solid transparent;
+        }
+        .chat-client-list .client-item:hover { 
+            background: #f1f5f9;
+            border-color: #e5e7eb;
+        }
+        .chat-client-list .client-item.active { 
+            background: var(--accent-color); 
+            color: #000;
+            border-color: var(--accent-color);
+        }
+        .chat-client-list .client-item .client-name { 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-client-list .client-item .client-email { 
+            font-size: 0.7rem; 
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        .chat-client-list .client-item.active .client-email {
+            color: #555;
+        }
+        .chat-client-list .client-item .unread {
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 50px;
+        }
+        .chat-client-list .client-item .last-msg {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-client-list .client-item.active .last-msg {
+            color: #555;
+        }
+        .chat-client-list .client-item .time {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        
+        .chat-messages {
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages .header {
+            padding: 14px 18px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-messages .header .client-name {
+            font-weight: 700;
+        }
+        .chat-messages .header button {
+            background: var(--accent-color);
+            border: none;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .chat-messages .header button:hover {
+            opacity: 0.8;
+        }
+        .chat-messages .messages { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 16px; 
+            background: #fafafa;
+        }
+        .chat-messages .messages .empty { 
+            text-align: center; 
+            padding: 40px 20px; 
+            color: #94a3b8; 
+        }
+        .chat-messages .messages .empty i { 
+            font-size: 3rem; 
+            display: block; 
+            margin-bottom: 10px; 
+            color: #e5e7eb; 
+        }
+        .chat-messages .reply {
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-messages .reply input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            font-family: inherit;
+        }
+        .chat-messages .reply input:focus { border-color: var(--accent-color); }
+        .chat-messages .reply button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--accent-color);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .chat-messages .reply button:hover {
+            opacity: 0.8;
+        }
+        
+        /* ==========================
+        MESSAGE BUBBLES
+        ========================== */
+        .msg { display: flex; margin-bottom: 12px; }
+        .msg .bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            word-wrap: break-word;
+        }
+        .msg.client .bubble {
+            background: #f1f5f9;
+            color: #1a1a2e;
+            border-bottom-left-radius: 4px;
+        }
+        .msg.admin .bubble {
+            background: var(--accent-color);
+            color: #000;
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+        }
+        .msg .bubble .sender {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+            opacity: 0.7;
+        }
+        .msg .bubble .text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .msg .bubble .time {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
+        }
+        .msg .bubble .read-status {
+            font-size: 0.6rem;
+            margin-left: 6px;
+            opacity: 0.6;
+        }
+        
+        /* ==========================
+        ADMIN OVERVIEW TAB
+        ========================== */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .admin-stat-card {
+            background: #f8fafc;
+            padding: 25px 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .admin-stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-color);
+        }
+        .admin-stat-card .label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        .admin-message-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .admin-message-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .admin-message-item:last-child { border-bottom: none; }
+        .admin-message-item .msg-sender { font-weight: 600; font-size: 0.9rem; }
+        .admin-message-item .msg-text { font-size: 0.85rem; color: #64748b; }
+        .admin-message-item .msg-time { font-size: 0.7rem; color: #94a3b8; }
+        .admin-message-item .msg-status { font-size: 0.9rem; }
+        .admin-message-item .mark-read-btn {
+            padding: 3px 12px;
+            border-radius: 6px;
+            background: var(--accent-color);
+            border: none;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        
+        /* ==========================
+        RESPONSIVE
+        ========================== */
+        @media (max-width: 900px) {
+            .chat-admin {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .chat-client-list {
+                max-height: 200px;
+            }
+            .chat-messages {
+                min-height: 350px;
+            }
+            .admin-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+            }
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+            .main { padding: 15px; }
+            .chat-messages .reply { flex-direction: column; }
+            .chat-messages .reply button { width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <nav class="navbar">
+            <a href="index.html" class="logo"><img src="assets/logo.png" alt="Tulse Logo"></a>
+            <ul class="nav-links">
+                <li><a href="services.html">Services</a></li>
+                <li><a href="process.html">How It Works</a></li>
+                <li><a href="portfolio.html">Results</a></li>
+                <li><a href="free-sample.html">Free Sample</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="free-sample.html" class="nav-btn">Free 10-Lead Sample</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <section style="background: #f8fafc; padding: 100px 5%; min-height: 80vh;">
+        <div class="dashboard-grid">
+            
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <div class="user">
+                    <div class="avatar" id="adminAvatar">A</div>
+                    <div class="name" id="adminName">Admin</div>
+                    <div class="email" id="adminEmail">admin@tulse.agency</div>
+                    <div class="admin-badge">Admin</div>
+                </div>
+                <div class="nav-item active" data-tab="overview"><i class="fas fa-th-large"></i> Overview</div>
+                <div class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages <span class="badge hidden" id="adminMessageBadge">0</span></div>
+                <div class="nav-item" data-tab="clients"><i class="fas fa-users"></i> Clients</div>
+                <div class="nav-item" data-tab="files"><i class="fas fa-file"></i> Files</div>
+                <div class="nav-item logout" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="main">
+
+                <!-- TAB: OVERVIEW -->
+                <div class="tab active" id="tab-overview">
+                    <h2 style="font-size:1.5rem; margin-bottom:5px;">👋 Admin Dashboard</h2>
+                    <p style="color:#64748b; margin-bottom:25px;">Manage your clients and messages.</p>
+                    
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <div class="number" id="statClients">0</div>
+                            <div class="label">Total Clients</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="number" id="statUnread">0</div>
+                            <div class="label">Unread Messages</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="number" id="statTotalMessages">0</div>
+                            <div class="label">Total Messages</div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom:15px;">📨 Recent Client Messages</h4>
+                    <div class="admin-message-list" id="adminRecentMessages">
+                        <p style="color:#94a3b8; text-align:center; padding:30px 0;">Loading messages...</p>
+                    </div>
+                </div>
+
+                <!-- TAB: MESSAGES (CHAT) -->
+                <div class="tab" id="tab-messages">
+                    <h2 style="font-size:1.5rem; margin-bottom:20px;">💬 Client Messaging</h2>
+                    
+                    <div class="chat-admin">
+                        <!-- Client List -->
+                        <div class="chat-client-list">
+                            <div class="header">
+                                <span><i class="fas fa-users" style="margin-right:8px;"></i> Clients</span>
+                                <span class="count" id="clientCount">0</span>
+                            </div>
+                            <div class="items" id="adminClientList">
+                                <div style="text-align:center; padding:30px 20px; color:#94a3b8;">
+                                    <i class="fas fa-spinner fa-spin" style="display:block; font-size:1.5rem; margin-bottom:10px;"></i>
+                                    Loading clients...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Area -->
+                        <div class="chat-messages">
+                            <div class="header">
+                                <span><i class="fas fa-comment" style="margin-right:8px;"></i> <span class="client-name" id="chatClientName">Select a client</span></span>
+                                <button onclick="markAllRead()" id="markReadBtn" style="display:none;">Mark All Read</button>
+                            </div>
+                            <div class="messages" id="adminMessagesContainer">
+                                <div class="empty">
+                                    <i class="fas fa-user-circle"></i>
+                                    <p>Select a client from the list to start chatting.</p>
+                                </div>
+                            </div>
+                            <div class="reply" id="adminReplyArea" style="display:none;">
+                                <input type="text" id="adminReplyInput" placeholder="Type your reply...">
+                                <button onclick="sendAdminReply()"><i class="fas fa-paper-plane"></i> Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: CLIENTS -->
+                <div class="tab" id="tab-clients">
+                    <h2 style="font-size:1.5rem; margin-bottom:20px;">👥 All Clients</h2>
+                    <div id="allClientsList">
+                        <p style="color:#94a3b8; text-align:center; padding:30px 0;">Loading clients...</p>
+                    </div>
+                </div>
+
+                <!-- TAB: FILES -->
+                <div class="tab" id="tab-files">
+                    <h2 style="font-size:1.5rem; margin-bottom:20px;">📁 Client Files</h2>
+                    <div id="adminFilesList">
+                        <p style="color:#94a3b8; text-align:center; padding:30px 0;">No files uploaded yet.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-logo"><img src="assets/logo.png" alt="Tulse Logo"></div>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="lead-intelligence.html">Lead Intelligence</a>
+            <a href="free-sample.html">Free Sample</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms</a>
+        </div>
+        <p>© 2026 Tulse. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // ==========================
+        // FIREBASE CONFIG
+        // ==========================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRkzYNYGXXKsaZmR0Jh9IgQsmTeUP23-g",
+            authDomain: "tulse-chat.firebaseapp.com",
+            projectId: "tulse-chat",
+            storageBucket: "tulse-chat.firebasestorage.app",
+            messagingSenderId: "948935694228",
+            appId: "1:948935694228:web:9f716b4df941a8f387e181",
+            measurementId: "G-HXXMQWJSG0"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ==========================
+        // STATE
+        // ==========================
+        let currentClientEmail = null;
+        let allClients = [];
+        let allMessages = [];
+        let unreadListener = null;
+
+        // ==========================
+        // ADMIN AUTH CHECK
+        // ==========================
+        function checkAdminAuth() {
+            const isAdmin = localStorage.getItem('tulse_is_admin') === 'true';
+            if (!isAdmin) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            return true;
+        }
+
+        // ==========================
+        // LOAD ADMIN INFO
+        // ==========================
+        function loadAdminInfo() {
+            document.getElementById('adminName').textContent = 'Admin';
+            document.getElementById('adminEmail').textContent = 'admin@tulse.agency';
+            document.getElementById('adminAvatar').textContent = 'A';
+        }
+
+        // ==========================
+        // LOAD CLIENTS
+        // ==========================
+        function loadClients() {
+            const container = document.getElementById('adminClientList');
+            const clientsContainer = document.getElementById('allClientsList');
+            
+            db.collection('chats')
+                .get()
+                .then((snapshot) => {
+                    allClients = [];
+                    snapshot.forEach((doc) => {
+                        allClients.push({ email: doc.id });
+                    });
+                    
+                    // Update stats
+                    document.getElementById('statClients').textContent = allClients.length;
+                    document.getElementById('clientCount').textContent = allClients.length;
+                    
+                    renderClientList();
+                    renderAllClients();
+                    updateStats();
+                })
+                .catch((error) => {
+                    console.error('Error loading clients:', error);
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:30px 20px; color:#94a3b8;">
+                            <p>Error loading clients. Please refresh.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // ==========================
+        // RENDER CLIENT LIST
+        // ==========================
+        function renderClientList() {
+            const container = document.getElementById('adminClientList');
+            
+            if (allClients.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:30px 20px; color:#94a3b8;">
+                        <p>No clients yet. They'll appear here when they start chatting.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            allClients.forEach((client) => {
+                const email = client.email;
+                const name = getClientName(email);
+                const isActive = currentClientEmail === email;
+                
+                // Get unread count and last message
+                db.collection('chats')
+                    .doc(email)
+                    .collection('messages')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get()
+                    .then((snapshot) => {
+                        let lastMsg = '';
+                        let lastTime = '';
+                        if (!snapshot.empty) {
+                            const data = snapshot.docs[0].data();
+                            lastMsg = data.message || '';
+                            if (data.timestamp) {
+                                const d = data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
+                                lastTime = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            }
+                        }
+                        
+                        // Update the client item with last message
+                        const item = document.querySelector(`.client-item[data-email="${email}"]`);
+                        if (item) {
+                            const lastMsgEl = item.querySelector('.last-msg');
+                            const timeEl = item.querySelector('.time');
+                            if (lastMsgEl) lastMsgEl.textContent = lastMsg.substring(0, 50) + (lastMsg.length > 50 ? '...' : '');
+                            if (timeEl) timeEl.textContent = lastTime;
+                        }
+                    });
+                
+                // Get unread count
+                db.collection('chats')
+                    .doc(email)
+                    .collection('messages')
+                    .where('read', '==', false)
+                    .where('sender', '==', 'client')
+                    .get()
+                    .then((snapshot) => {
+                        const unread = snapshot.size;
+                        const badge = document.querySelector(`.client-item[data-email="${email}"] .unread`);
+                        if (badge) {
+                            if (unread > 0) {
+                                badge.textContent = unread;
+                                badge.style.display = 'inline-block';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    });
+                
+                html += `
+                    <div class="client-item ${isActive ? 'active' : ''}" data-email="${email}" onclick="selectClient('${email}')">
+                        <div>
+                            <div class="client-name">
+                                <span>${escapeHtml(name)}</span>
+                                <span class="unread" style="display:none;">0</span>
+                            </div>
+                            <div class="client-email">${escapeHtml(email)}</div>
+                            <div class="last-msg">Loading...</div>
+                            <div class="time"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // ==========================
+        // RENDER ALL CLIENTS
+        // ==========================
+        function renderAllClients() {
+            const container = document.getElementById('allClientsList');
+            
+            if (allClients.length === 0) {
+                container.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:30px 0;">No clients yet.</p>';
+                return;
+            }
+            
+            let html = '';
+            allClients.forEach((client) => {
+                const email = client.email;
+                const name = getClientName(email);
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f1f5f9;">
+                        <div>
+                            <div style="font-weight:600;">${escapeHtml(name)}</div>
+                            <div style="font-size:0.8rem; color:#64748b;">${escapeHtml(email)}</div>
+                        </div>
+                        <button onclick="selectClient('${email}')" style="padding:6px 16px; border-radius:8px; background:var(--accent-color); border:none; font-weight:600; cursor:pointer;">
+                            Chat
+                        </button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // ==========================
+        // GET CLIENT NAME
+        // ==========================
+        function getClientName(email) {
+            const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
+            if (email === accountData.client_email && accountData.full_name) {
+                return accountData.full_name;
+            }
+            // Try to get from first message
+            const name = email.split('@')[0];
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        }
+
+        // ==========================
+        // SELECT CLIENT
+        // ==========================
+        function selectClient(email) {
+            currentClientEmail = email;
+            
+            // Update active state
+            document.querySelectorAll('.client-item').forEach(el => el.classList.remove('active'));
+            const selected = document.querySelector(`.client-item[data-email="${email}"]`);
+            if (selected) selected.classList.add('active');
+            
+            // Show reply area
+            document.getElementById('adminReplyArea').style.display = 'flex';
+            document.getElementById('markReadBtn').style.display = 'inline-block';
+            
+            // Update header
+            const name = getClientName(email);
+            document.getElementById('chatClientName').textContent = name;
+            
+            // Load messages
+            loadClientMessages(email);
+            
+            // Mark messages as read
+            markMessagesAsRead(email);
+        }
+
+        // ==========================
+        // LOAD CLIENT MESSAGES
+        // ==========================
+        function loadClientMessages(email) {
+            const container = document.getElementById('adminMessagesContainer');
+            
+            if (!email) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <i class="fas fa-user-circle"></i>
+                        <p>Select a client from the list to start chatting.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Listen for messages
+            if (unreadListener) {
+                unreadListener();
+            }
+            
+            unreadListener = db.collection('chats')
+                .doc(email)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    const messages = [];
+                    snapshot.forEach((doc) => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    allMessages = messages;
+                    
+                    if (messages.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-comment-dots"></i>
+                                <p>No messages with this client yet.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    let html = '';
+                    messages.forEach((msg) => {
+                        const isClient = msg.sender === 'client';
+                        const senderName = isClient ? (msg.senderName || 'Client') : 'You (Admin)';
+                        const time = msg.timestamp ? 
+                            (msg.timestamp.toDate ? 
+                                new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
+                                '') : '';
+                        const readStatus = isClient && msg.read ? ' ✓' : '';
+                        
+                        html += `
+                            <div class="msg ${isClient ? 'client' : 'admin'}">
+                                <div class="bubble">
+                                    <div class="sender">${escapeHtml(senderName)}${readStatus}</div>
+                                    <div class="text">${escapeHtml(msg.message || '')}</div>
+                                    <div class="time">${time}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight;
+                    
+                    // Update stats
+                    updateStats();
+                });
+        }
+
+        // ==========================
+        // SEND ADMIN REPLY
+        // ==========================
+        function sendAdminReply() {
+            const input = document.getElementById('adminReplyInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            if (!currentClientEmail) {
+                alert('Please select a client first.');
+                return;
+            }
+            
+            db.collection('chats')
+                .doc(currentClientEmail)
+                .collection('messages')
+                .add({
+                    id: Date.now(),
+                    sender: 'admin',
+                    senderName: 'Tulse Team',
+                    senderEmail: 'admin@tulse.agency',
+                    message: message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: true
+                })
+                .then(() => {
+                    input.value = '';
+                    // The snapshot listener will update the view
+                })
+                .catch((error) => {
+                    console.error('Error sending message:', error);
+                    alert('Failed to send message. Please try again.');
+                });
+        }
+
+        // ==========================
+        // MARK MESSAGES AS READ
+        // ==========================
+        function markMessagesAsRead(email) {
+            if (!email) return;
+            
+            db.collection('chats')
+                .doc(email)
+                .collection('messages')
+                .where('read', '==', false)
+                .where('sender', '==', 'client')
+                .get()
+                .then((snapshot) => {
+                    if (snapshot.empty) return;
+                    
+                    const batch = db.batch();
+                    snapshot.forEach((doc) => {
+                        batch.update(doc.ref, { read: true });
+                    });
+                    return batch.commit();
+                })
+                .then(() => {
+                    updateStats();
+                    updateBadges();
+                    // Update client list to refresh unread counts
+                    renderClientList();
+                })
+                .catch((error) => {
+                    console.error('Error marking messages as read:', error);
+                });
+        }
+
+        // ==========================
+        // MARK ALL READ
+        // ==========================
+        function markAllRead() {
+            if (currentClientEmail) {
+                markMessagesAsRead(currentClientEmail);
+            }
+        }
+
+        // ==========================
+        // UPDATE STATS
+        // ==========================
+        function updateStats() {
+            // Count all messages across all clients
+            let totalUnread = 0;
+            let totalMessages = 0;
+            
+            allClients.forEach((client) => {
+                db.collection('chats')
+                    .doc(client.email)
+                    .collection('messages')
+                    .get()
+                    .then((snapshot) => {
+                        totalMessages += snapshot.size;
+                        document.getElementById('statTotalMessages').textContent = totalMessages;
+                    });
+                
+                db.collection('chats')
+                    .doc(client.email)
+                    .collection('messages')
+                    .where('read', '==', false)
+                    .where('sender', '==', 'client')
+                    .get()
+                    .then((snapshot) => {
+                        totalUnread += snapshot.size;
+                        document.getElementById('statUnread').textContent = totalUnread;
+                        updateBadges();
+                    });
+            });
+        }
+
+        // ==========================
+        // UPDATE BADGES
+        // ==========================
+        function updateBadges() {
+            let totalUnread = 0;
+            const promises = [];
+            
+            allClients.forEach((client) => {
+                promises.push(
+                    db.collection('chats')
+                        .doc(client.email)
+                        .collection('messages')
+                        .where('read', '==', false)
+                        .where('sender', '==', 'client')
+                        .get()
+                        .then((snapshot) => {
+                            totalUnread += snapshot.size;
+                        })
+                );
+            });
+            
+            Promise.all(promises).then(() => {
+                const badge = document.getElementById('adminMessageBadge');
+                if (totalUnread > 0) {
+                    badge.textContent = totalUnread;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+                
+                // Update page title
+                if (totalUnread > 0) {
+                    document.title = `(${totalUnread}) Admin Dashboard | Tulse`;
+                } else {
+                    document.title = 'Admin Dashboard | Tulse';
+                }
+            });
+        }
+
+        // ==========================
+        // LOAD RECENT MESSAGES
+        // ==========================
+        function loadRecentMessages() {
+            const container = document.getElementById('adminRecentMessages');
+            let allRecent = [];
+            let processed = 0;
+            
+            if (allClients.length === 0) {
+                container.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:30px 0;">No messages yet.</p>';
+                return;
+            }
+            
+            allClients.forEach((client) => {
+                db.collection('chats')
+                    .doc(client.email)
+                    .collection('messages')
+                    .orderBy('timestamp', 'desc')
+                    .limit(5)
+                    .get()
+                    .then((snapshot) => {
+                        snapshot.forEach((doc) => {
+                            const data = doc.data();
+                            if (data.sender === 'client') {
+                                allRecent.push({
+                                    ...data,
+                                    clientEmail: client.email,
+                                    id: doc.id
+                                });
+                            }
+                        });
+                        
+                        processed++;
+                        if (processed === allClients.length) {
+                            // Sort by timestamp desc
+                            allRecent.sort((a, b) => {
+                                const timeA = a.timestamp ? (a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp)) : new Date(0);
+                                const timeB = b.timestamp ? (b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp)) : new Date(0);
+                                return timeB - timeA;
+                            });
+                            
+                            if (allRecent.length === 0) {
+                                container.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:30px 0;">No client messages yet.</p>';
+                                return;
+                            }
+                            
+                            let html = '';
+                            allRecent.slice(0, 10).forEach((msg) => {
+                                const time = msg.timestamp ? 
+                                    (msg.timestamp.toDate ? 
+                                        new Date(msg.timestamp.toDate()).toLocaleString() : 
+                                        '') : 'Unknown';
+                                const name = getClientName(msg.clientEmail);
+                                const isRead = msg.read ? '✅' : '🔴';
+                                
+                                html += `
+                                    <div class="admin-message-item" onclick="selectClient('${msg.clientEmail}')" style="cursor:pointer;">
+                                        <div style="flex:1;">
+                                            <div class="msg-sender">${escapeHtml(name)}</div>
+                                            <div class="msg-text">${escapeHtml(msg.message || '')}</div>
+                                            <div class="msg-time">${time}</div>
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <span class="msg-status">${isRead}</span>
+                                            ${!msg.read ? `<button class="mark-read-btn" onclick="event.stopPropagation(); markMessagesAsRead('${msg.clientEmail}')">Mark Read</button>` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            container.innerHTML = html;
+                        }
+                    });
+            });
+        }
+
+        // ==========================
+        // LOAD FILES
+        // ==========================
+        function loadAdminFiles() {
+            const container = document.getElementById('adminFilesList');
+            const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
+            
+            if (files.length === 0) {
+                container.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:30px 0;">No files uploaded yet.</p>';
+                return;
+            }
+            
+            let html = '';
+            files.forEach((file) => {
+                const size = file.size < 1024 ? file.size + ' B' : 
+                             file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' : 
+                             (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f1f5f9;">
+                        <div>
+                            <div style="font-weight:600;">${escapeHtml(file.name)}</div>
+                            <div style="font-size:0.8rem; color:#64748b;">${size}</div>
+                        </div>
+                        <a href="${file.data}" download="${file.name}" style="padding:4px 14px; border-radius:6px; background:var(--accent-color); color:#000; font-weight:600; font-size:0.8rem; text-decoration:none;">
+                            Download
+                        </a>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // ==========================
+        // TAB SWITCHING
+        // ==========================
+        document.querySelectorAll('.nav-item[data-tab]').forEach((item) => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tabId = this.dataset.tab;
+                document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+                document.getElementById('tab-' + tabId).classList.add('active');
+                
+                if (tabId === 'messages') {
+                    // Refresh client list and messages
+                    renderClientList();
+                    if (currentClientEmail) {
+                        loadClientMessages(currentClientEmail);
+                    }
+                }
+            });
+        });
+
+        // ==========================
+        // LOGOUT
+        // ==========================
+        document.getElementById('adminLogoutBtn').addEventListener('click', function() {
+            if (confirm('Logout from admin dashboard?')) {
+                localStorage.removeItem('tulse_is_admin');
+                localStorage.removeItem('tulse_logged_in');
+                localStorage.removeItem('tulse_session_id');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ==========================
+        // ESCAPE HTML
+        // ==========================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==========================
+        // INIT
+        // ==========================
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkAdminAuth()) return;
+            
+            loadAdminInfo();
+            loadClients();
+            loadRecentMessages();
+            loadAdminFiles();
+            updateBadges();
+            
+            // Auto-refresh every 10 seconds
+            setInterval(() => {
+                loadClients();
+                loadRecentMessages();
+                updateBadges();
+            }, 10000);
+        });
+
+        // Expose functions globally
+        window.selectClient = selectClient;
+        window.sendAdminReply = sendAdminReply;
+        window.markAllRead = markAllRead;
+        window.markMessagesAsRead = markMessagesAsRead;
+        window.escapeHtml = escapeHtml;
+    </script>
+
+</body>
+
+</html>
