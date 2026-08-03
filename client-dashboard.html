@@ -1,687 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Dashboard | Tulse</title>
-    
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <title>Client Dashboard - Tulse</title>
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+    <link rel="stylesheet" href="./css/animations.css">
     
     <style>
-        /* ==========================
-        CLIENT DASHBOARD STYLES
-        ========================== */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .sidebar {
-            background: white;
-            border-radius: 16px;
-            border: 1px solid #e5e7eb;
-            padding: 25px 20px;
-            height: fit-content;
-            position: sticky;
-            top: 100px;
-        }
-        .sidebar .user {
-            text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 20px;
-        }
-        .sidebar .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--accent-color);
+        .client-wrapper {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100vh;
+            background: #f7fafc;
+        }
+        
+        .client-sidebar {
+            width: 280px;
+            background: white;
+            padding: 30px 20px;
+            border-right: 1px solid #e2e8f0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .client-logo {
             font-size: 1.8rem;
             font-weight: 800;
-            color: #000;
-            margin: 0 auto 10px;
+            color: #1a202c;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
         }
-        .sidebar .name {
-            font-weight: 700;
+        
+        .client-logo span {
+            color: var(--accent-color, #ff6b35);
         }
-        .sidebar .email {
-            font-size: 0.8rem;
-            color: #64748b;
+        
+        .client-nav {
+            list-style: none;
+            padding: 0;
         }
-        .sidebar .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 15px;
-            border-radius: 10px;
+        
+        .client-nav li {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
             cursor: pointer;
-            color: #64748b;
             transition: all 0.3s ease;
-            margin-bottom: 2px;
-        }
-        .sidebar .nav-item:hover {
-            background: #f8fafc;
-            color: #000;
-        }
-        .sidebar .nav-item.active {
-            background: var(--accent-color);
-            color: #000;
-            font-weight: 600;
-        }
-        .sidebar .logout {
-            border-top: 1px solid #e5e7eb;
-            padding-top: 15px;
-            margin-top: 15px;
-            color: #ef4444;
-            cursor: pointer;
-        }
-        .sidebar .logout:hover {
-            background: #fef2f2;
-        }
-        .main {
-            background: white;
-            border-radius: 16px;
-            border: 1px solid #e5e7eb;
-            padding: 30px;
-            min-height: 500px;
-        }
-        .tab { display: none; }
-        .tab.active { display: block; }
-        
-        /* ==========================
-        CHAT
-        ========================== */
-        .chat-container {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .chat-messages {
-            padding: 16px;
-            height: 350px;
-            overflow-y: auto;
-            background: #fafafa;
-        }
-        .chat-messages .empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: #94a3b8;
-        }
-        .chat-messages .empty i {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 10px;
-            color: #e5e7eb;
-        }
-        .chat-input {
-            padding: 12px 16px;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 10px;
-        }
-        .chat-input input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            outline: none;
-            font-family: inherit;
-        }
-        .chat-input input:focus {
-            border-color: var(--accent-color);
-        }
-        .chat-input button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            background: var(--accent-color);
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        
-        /* ==========================
-        MESSAGE BUBBLES
-        ========================== */
-        .msg {
-            display: flex;
-            margin-bottom: 10px;
-        }
-        .msg .bubble {
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 12px;
-        }
-        .msg.client .bubble {
-            background: #f1f5f9;
-            color: #1a1a2e;
-            border-bottom-left-radius: 4px;
-        }
-        .msg.admin .bubble {
-            background: var(--accent-color);
-            color: #000;
-            border-bottom-right-radius: 4px;
-            margin-left: auto;
-        }
-        .msg .bubble .sender {
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 2px;
-            opacity: 0.7;
-        }
-        .msg .bubble .text {
-            font-size: 0.95rem;
-        }
-        .msg .bubble .time {
-            font-size: 0.6rem;
-            opacity: 0.6;
-            margin-top: 4px;
-            text-align: right;
-        }
-        
-        /* ==========================
-        FILES
-        ========================== */
-        .file-upload {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .file-upload input[type="file"] { display: none; }
-        .file-upload .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            background: var(--accent-color);
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .file-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 14px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 8px;
-        }
-        .file-item .info { flex: 1; }
-        .file-item .info .name { font-weight: 600; font-size: 0.9rem; }
-        .file-item .info .size { font-size: 0.75rem; color: #64748b; }
-        .file-item .download {
-            padding: 4px 14px;
-            border-radius: 6px;
-            background: var(--accent-color);
-            border: none;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            text-decoration: none;
-            color: #000;
+            color: #4a5568;
         }
         
-        /* ==========================
-        LOCKED STATE
-        ========================== */
-        .locked {
-            text-align: center;
-            padding: 60px 20px;
+        .client-nav li:hover,
+        .client-nav li.active {
+            background: #edf2f7;
+            color: #1a202c;
         }
-        .locked i { font-size: 4rem; color: #94a3b8; margin-bottom: 20px; }
-        .locked h2 { margin-bottom: 10px; }
-        .locked p { color: var(--text-muted); margin-bottom: 20px; }
         
-        /* ==========================
-        PROJECTS
-        ========================== */
-        .project-card {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
+        .client-main {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .client-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .project-card .status {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 4px 14px;
-            border-radius: 50px;
-            font-size: 0.75rem;
+        
+        .client-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color, #ff6b35);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
             font-weight: 600;
+            color: #1a202c;
+        }
+        
+        .user-email {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        
+        .welcome-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .welcome-section h1 {
+            font-size: 2rem;
+            color: #1a202c;
+        }
+        
+        .welcome-section h1 span {
+            color: var(--accent-color, #ff6b35);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .dashboard-card h3 {
+            color: #1a202c;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #edf2f7;
+        }
+        
+        .project-item, .file-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .project-item:hover, .file-item:hover {
+            background: #edf2f7;
+        }
+        
+        .project-name {
+            font-weight: 600;
+            color: #1a202c;
+        }
+        
+        .project-status {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .download-btn {
+            padding: 4px 12px;
+            background: var(--accent-color, #ff6b35);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            margin-left: 5px;
         }
         
         @media (max-width: 768px) {
+            .client-sidebar {
+                display: none;
+            }
+            .client-main {
+                margin-left: 0;
+                padding: 15px;
+            }
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-            .sidebar {
-                position: static;
-            }
-            .chat-messages { height: 250px; }
-        }
-        @media (max-width: 450px) {
-            .main { padding: 15px; }
-            .chat-input { flex-direction: column; }
-            .chat-input button { width: 100%; }
-            .file-upload { flex-direction: column; }
-            .file-upload .btn { width: 100%; text-align: center; }
         }
     </style>
 </head>
-
 <body>
 
-    <header class="header">
-        <nav class="navbar">
-            <a href="index.html" class="logo"><img src="assets/logo.png" alt="Tulse Logo"></a>
-            <ul class="nav-links">
-                <li><a href="services.html">Services</a></li>
-                <li><a href="process.html">How It Works</a></li>
-                <li><a href="portfolio.html">Results</a></li>
-                <li><a href="free-sample.html">Free Sample</a></li>
-            </ul>
-            <div class="nav-buttons">
-                <a href="free-sample.html" class="nav-btn">Free 10-Lead Sample</a>
-            </div>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </nav>
-    </header>
+<div class="client-wrapper">
+    <!-- Sidebar -->
+    <aside class="client-sidebar">
+        <div class="client-logo">Tulse<span>.</span></div>
+        <ul class="client-nav">
+            <li class="active"><i class="fas fa-home"></i> Dashboard</li>
+            <li><i class="fas fa-file-alt"></i> Projects</li>
+            <li><i class="fas fa-envelope"></i> Messages <span class="unread-badge" id="clientUnread" style="display:none;">0</span></li>
+            <li><i class="fas fa-download"></i> Files</li>
+            <li><i class="fas fa-user"></i> Profile</li>
+        </ul>
+    </aside>
 
-    <section style="background: #f8fafc; padding: 100px 5%; min-height: 80vh;">
+    <!-- Main Content -->
+    <main class="client-main">
+        <!-- Header -->
+        <header class="client-header">
+            <h1>Dashboard</h1>
+            <div class="client-profile">
+                <div class="profile-avatar" id="clientAvatar">C</div>
+                <div class="profile-info">
+                    <span class="user-name" id="clientName">Client</span>
+                    <span class="user-email" id="clientEmail">client@email.com</span>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Welcome -->
+        <div class="welcome-section">
+            <h1>Welcome back, <span id="welcomeName">Client</span>!</h1>
+            <p style="color: #718096; margin-top: 5px;">Here's what's happening with your projects.</p>
+        </div>
+
+        <!-- Dashboard Grid -->
         <div class="dashboard-grid">
-            <!-- SIDEBAR -->
-            <div class="sidebar">
-                <div class="user">
-                    <div class="avatar" id="avatar">JD</div>
-                    <div class="name" id="userName">John Doe</div>
-                    <div class="email" id="userEmail">john@example.com</div>
+            <!-- Projects -->
+            <div class="dashboard-card">
+                <h3><i class="fas fa-file-alt"></i> Your Projects</h3>
+                <div id="projectsContainer">
+                    <p style="color: #718096;">Loading projects...</p>
                 </div>
-                <div class="nav-item active" data-tab="dashboard"><i class="fas fa-th-large"></i> Dashboard</div>
-                <div class="nav-item" data-tab="projects"><i class="fas fa-folder"></i> Projects</div>
-                <div class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</div>
-                <div class="nav-item" data-tab="files"><i class="fas fa-file"></i> Files</div>
-                <div class="nav-item logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
             </div>
 
-            <!-- CONTENT -->
-            <div class="main">
-                <!-- LOCKED STATE -->
-                <div id="lockedState">
-                    <div class="locked">
-                        <i class="fas fa-lock"></i>
-                        <h2>Access Restricted</h2>
-                        <p>This portal is for paying clients only.</p>
-                        <a href="services.html" class="primary-btn">View Our Services</a>
-                    </div>
+            <!-- Messages -->
+            <div class="dashboard-card">
+                <h3><i class="fas fa-envelope"></i> Messages</h3>
+                <div id="messagesContainer">
+                    <p style="color: #718096;">Loading messages...</p>
                 </div>
+            </div>
 
-                <!-- TAB: DASHBOARD -->
-                <div class="tab active" id="tab-dashboard">
-                    <h2 style="font-size:1.5rem; margin-bottom:4px;">👋 Hey <span id="greetingName">John</span>!</h2>
-                    <p style="color:#64748b; margin-bottom:25px;">Here's what's happening with your project.</p>
-                    <div class="project-card">
-                        <div>
-                            <h4 id="projectName">Orlando Roofing Prospect List</h4>
-                            <p style="font-size:0.85rem; color:#64748b;">Started: Aug 2, 2026</p>
-                        </div>
-                        <div>
-                            <span class="status" id="projectStatus">In Progress</span>
-                        </div>
-                    </div>
-                    <div style="margin-top:20px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e5e7eb;">
-                        <h4 style="margin-bottom:10px;">Project Summary</h4>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.9rem;">
-                            <div><span style="color:#64748b;">Industry:</span> <strong id="industry">Roofing</strong></div>
-                            <div><span style="color:#64748b;">Location:</span> <strong id="location">Orlando, FL</strong></div>
-                            <div><span style="color:#64748b;">Leads:</span> <strong id="leads">500</strong></div>
-                            <div><span style="color:#64748b;">Delivery:</span> <strong id="delivery">CSV</strong></div>
-                        </div>
-                    </div>
+            <!-- Files -->
+            <div class="dashboard-card" style="grid-column: span 2;">
+                <h3><i class="fas fa-download"></i> Available Files</h3>
+                <div id="fileContainer">
+                    <p style="color: #718096;">Loading files...</p>
                 </div>
-
-                <!-- TAB: PROJECTS -->
-                <div class="tab" id="tab-projects">
-                    <h2 style="font-size:1.5rem; margin-bottom:20px;">Your Projects</h2>
-                    <div class="project-card">
-                        <div>
-                            <h4>Orlando Roofing Prospect List</h4>
-                            <p style="font-size:0.85rem; color:#64748b;">Started: Aug 2, 2026</p>
-                        </div>
-                        <div><span class="status">In Progress</span></div>
-                    </div>
-                </div>
-
-                <!-- TAB: MESSAGES -->
-                <div class="tab" id="tab-messages">
-                    <h2 style="font-size:1.5rem; margin-bottom:20px;">Private Messaging</h2>
-                    <div class="chat-container">
-                        <div class="chat-messages" id="clientMessages">
-                            <div class="empty">
-                                <i class="fas fa-comment-dots"></i>
-                                <p>No messages yet. Start the conversation!</p>
-                            </div>
-                        </div>
-                        <div class="chat-input">
-                            <input type="text" id="clientMessageInput" placeholder="Type your message...">
-                            <button onclick="sendClientMessage()"><i class="fas fa-paper-plane"></i> Send</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB: FILES -->
-                <div class="tab" id="tab-files">
-                    <h2 style="font-size:1.5rem; margin-bottom:20px;">Project Files</h2>
-                    <div class="file-upload">
-                        <button class="btn" onclick="document.getElementById('fileInput').click()"><i class="fas fa-upload"></i> Upload File</button>
-                        <input type="file" id="fileInput">
-                        <span style="font-size:0.8rem; color:#94a3b8; align-self:center;">Upload files for your project</span>
-                    </div>
-                    <div id="fileList">
-                        <div style="text-align:center; padding:40px 20px; color:#94a3b8;">
-                            <i class="fas fa-folder-open" style="font-size:3rem; display:block; margin-bottom:10px; color:#e5e7eb;"></i>
-                            <p>No files uploaded yet.</p>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
-    </section>
+    </main>
+</div>
 
-    <footer class="footer">
-        <div class="footer-logo"><img src="assets/logo.png" alt="Tulse Logo"></div>
-        <div class="footer-links">
-            <a href="index.html">Home</a>
-            <a href="services.html">Services</a>
-            <a href="lead-intelligence.html">Lead Intelligence</a>
-            <a href="free-sample.html">Free Sample</a>
-            <a href="contact.html">Contact</a>
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms</a>
-        </div>
-        <p>© 2026 Tulse. All Rights Reserved.</p>
-    </footer>
+<!-- Firebase Import Map -->
+<script type="importmap">
+{
+    "imports": {
+        "firebase": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js",
+        "firebase/storage": "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"
+    }
+}
+</script>
 
-    <script>
-        // ==========================
-        // FIREBASE CONFIG
-        // ==========================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCRkzYNYGXXKsaZmR0Jh9IgQsmTeUP23-g",
-            authDomain: "tulse-chat.firebaseapp.com",
-            projectId: "tulse-chat",
-            storageBucket: "tulse-chat.firebasestorage.app",
-            messagingSenderId: "948935694228",
-            appId: "1:948935694228:web:9f716b4df941a8f387e181",
-            measurementId: "G-HXXMQWJSG0"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+<!-- Main Script -->
+<script type="module">
+// ==========================
+// IMPORTS
+// ==========================
+import { auth, onAuthStateChangedListener } from './js/firebase/index.js';
+import { logoutUser } from './js/firebase/auth.js';
+import { getUserProjects, getMessages, getUnreadCount } from './js/firebase/db.js';
+import { getUserFiles } from './js/firebase/storage.js';
 
-        // ==========================
-        // STATE
-        // ==========================
-        let accountData = {};
-        let projectData = {};
-        let packageKey = 'lead-intelligence-professional';
-        const packageNames = {
-            'lead-intelligence-standard': 'Lead Intelligence - Standard',
-            'lead-intelligence-growth': 'Lead Intelligence - Growth',
-            'lead-intelligence-professional': 'Lead Intelligence - Professional',
-            'content-remote-one-time': 'Content - Remote One-Time',
-            'content-remote-monthly': 'Content - Remote Monthly',
-            'content-onsite-one-time': 'Content - On-Site One-Time',
-            'content-onsite-monthly': 'Content - On-Site Monthly'
-        };
+// ==========================
+// GLOBALS
+// ==========================
+let currentUser = null;
+let currentUserData = null;
 
-        // ==========================
-        // AUTH CHECK
-        // ==========================
-        function checkAuth() {
-            const loggedIn = localStorage.getItem('tulse_logged_in') === 'true';
-            const sessionId = localStorage.getItem('tulse_session_id');
-            accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-            projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
-            packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
+// ==========================
+// AUTH CHECK
+// ==========================
+onAuthStateChangedListener(async (userState) => {
+    if (!userState.isAuthenticated) {
+        window.location.href = '/client-login.html';
+        return;
+    }
+    
+    currentUser = userState.user;
+    currentUserData = userState.userData;
+    
+    // Check if admin (redirect if needed)
+    if (userState.userData?.role === 'admin') {
+        window.location.href = '/admin-dashboard.html';
+        return;
+    }
+    
+    // Update UI
+    const name = userState.userData?.fullName || userState.user.email.split('@')[0];
+    document.getElementById('clientName').textContent = name;
+    document.getElementById('clientEmail').textContent = userState.user.email;
+    document.getElementById('clientAvatar').textContent = name[0].toUpperCase();
+    document.getElementById('welcomeName').textContent = name;
+    
+    // Load data
+    await loadDashboardData();
+});
 
-            const locked = document.getElementById('lockedState');
-            const tabs = document.querySelectorAll('.tab');
-
-            if (!loggedIn || !sessionId || !accountData.client_email) {
-                locked.style.display = 'block';
-                tabs.forEach(t => t.style.display = 'none');
-                return false;
-            }
-
-            locked.style.display = 'none';
-            tabs.forEach(t => t.style.display = 'block');
-            return true;
+// ==========================
+// LOAD DASHBOARD DATA
+// ==========================
+async function loadDashboardData() {
+    try {
+        const email = currentUser.email;
+        
+        // Load projects
+        const projectsResult = await getUserProjects(currentUser.uid);
+        if (projectsResult.success) {
+            renderProjects(projectsResult.data);
         }
-
-        // ==========================
-        // LOAD USER
-        // ==========================
-        function loadUserData() {
-            const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
-            const displayName = name.charAt(0).toUpperCase() + name.slice(1);
-            
-            document.getElementById('avatar').textContent = displayName.charAt(0);
-            document.getElementById('userName').textContent = displayName;
-            document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
-            document.getElementById('greetingName').textContent = displayName;
-            
-            if (projectData.target_industry) document.getElementById('industry').textContent = projectData.target_industry;
-            if (projectData.target_location) document.getElementById('location').textContent = projectData.target_location;
-            document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence';
+        
+        // Load messages
+        const messagesResult = await getMessages(email, 5);
+        if (messagesResult.success) {
+            renderMessages(messagesResult.data);
         }
-
-        // ==========================
-        // TAB SWITCHING
-        // ==========================
-        document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.remove('active'));
-                this.classList.add('active');
-                const tabId = this.dataset.tab;
-                document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-                document.getElementById('tab-' + tabId).classList.add('active');
-                if (tabId === 'messages') loadClientMessages();
-                if (tabId === 'files') loadFiles();
-            });
-        });
-
-        // ==========================
-        // LOGOUT
-        // ==========================
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            if (confirm('Logout from your client portal?')) {
-                localStorage.removeItem('tulse_logged_in');
-                localStorage.removeItem('tulse_session_id');
-                localStorage.removeItem('tulse_account_data');
-                localStorage.removeItem('tulse_payment_verified');
-                window.location.href = 'index.html';
-            }
-        });
-
-        // ==========================
-        // SEND MESSAGE
-        // ==========================
-        function sendClientMessage() {
-            const input = document.getElementById('clientMessageInput');
-            const message = input.value.trim();
-            if (!message) return;
-            
-            const userEmail = accountData.client_email || 'client@example.com';
-            const userName = accountData.full_name || 'Client';
-            
-            db.collection('chats').doc(userEmail).collection('messages').add({
-                id: Date.now(),
-                sender: 'client',
-                senderName: userName,
-                senderEmail: userEmail,
-                message: message,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                read: false
-            }).then(() => {
-                input.value = '';
-                loadClientMessages();
-            }).catch(err => console.error('Error sending message:', err));
+        
+        // Load files
+        const filesResult = await getUserFiles();
+        if (filesResult.success) {
+            renderFiles(filesResult.data);
         }
-
-        // ==========================
-        // LOAD MESSAGES
-        // ==========================
-        function loadClientMessages() {
-            const container = document.getElementById('clientMessages');
-            const userEmail = accountData.client_email || 'client@example.com';
-            
-            db.collection('chats').doc(userEmail).collection('messages').orderBy('timestamp', 'asc')
-                .onSnapshot((snapshot) => {
-                    const messages = [];
-                    snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
-                    
-                    if (messages.length === 0) {
-                        container.innerHTML = `
-                            <div class="empty">
-                                <i class="fas fa-comment-dots"></i>
-                                <p>No messages yet. Start the conversation!</p>
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    let html = '';
-                    messages.forEach(msg => {
-                        const isClient = msg.sender === 'client';
-                        html += `
-                            <div class="msg ${isClient ? 'client' : 'admin'}">
-                                <div class="bubble">
-                                    <div class="sender">${isClient ? 'You' : 'Tulse Team'}</div>
-                                    <div class="text">${msg.message}</div>
-                                    <div class="time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : ''}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    container.innerHTML = html;
-                    container.scrollTop = container.scrollHeight;
-                });
+        
+        // Get unread count
+        const unreadResult = await getUnreadCount(email);
+        if (unreadResult.success && unreadResult.count > 0) {
+            const badge = document.getElementById('clientUnread');
+            badge.textContent = unreadResult.count;
+            badge.style.display = 'inline';
         }
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
 
-        // ==========================
-        // FILES
-        // ==========================
-        function uploadFile(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
-                    files.push({
-                        id: Date.now(),
-                        name: file.name,
-                        size: file.size,
-                        type: file.type,
-                        data: e.target.result,
-                        uploadDate: new Date().toISOString()
-                    });
-                    localStorage.setItem('tulse_project_files', JSON.stringify(files));
-                    resolve();
-                };
-                reader.readAsDataURL(file);
-            });
+// ==========================
+// RENDER PROJECTS
+// ==========================
+function renderProjects(projects) {
+    const container = document.getElementById('projectsContainer');
+    
+    if (!projects || projects.length === 0) {
+        container.innerHTML = '<p style="color: #718096;">No projects yet.</p>';
+        return;
+    }
+    
+    let html = '';
+    projects.slice(0, 3).forEach(project => {
+        html += `
+            <div class="project-item">
+                <div>
+                    <div class="project-name">${project.name}</div>
+                    <div style="font-size:0.8rem;color:#718096;">${project.description || 'No description'}</div>
+                </div>
+                <span class="project-status">${project.status || 'Active'}</span>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// ==========================
+// RENDER MESSAGES
+// ==========================
+function renderMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    
+    if (!messages || messages.length === 0) {
+        container.innerHTML = '<p style="color: #718096;">No messages yet.</p>';
+        return;
+    }
+    
+    let html = '';
+    messages.slice(0, 5).forEach(msg => {
+        html += `
+            <div class="project-item" style="${msg.sender === 'admin' ? 'border-left: 3px solid var(--accent-color);' : ''}">
+                <div>
+                    <div style="font-weight:600;color:#1a202c;">${msg.sender === 'admin' ? '📩 Admin' : 'You'}</div>
+                    <div style="font-size:0.9rem;color:#4a5568;">${msg.text}</div>
+                    <div style="font-size:0.7rem;color:#a0aec0;">${new Date(msg.timestamp).toLocaleString()}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// ==========================
+// RENDER FILES
+// ==========================
+function renderFiles(files) {
+    const container = document.getElementById('fileContainer');
+    
+    if (!files || files.length === 0) {
+        container.innerHTML = '<p style="color: #718096;">No files available.</p>';
+        return;
+    }
+    
+    let html = '';
+    files.forEach(file => {
+        html += `
+            <div class="file-item">
+                <span><i class="fas fa-file"></i> ${file.name}</span>
+                <a href="${file.downloadURL}" download class="download-btn">Download</a>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// ==========================
+// LOGOUT
+// ==========================
+window.handleLogout = async function() {
+    if (confirm('Are you sure you want to logout?')) {
+        const result = await logoutUser();
+        if (result.success) {
+            window.location.href = '/client-login.html';
         }
+    }
+};
 
-        function loadFiles() {
-            const container = document.getElementById('fileList');
-            const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
-            
-            if (files.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding:40px 20px; color:#94a3b8;">
-                        <i class="fas fa-folder-open" style="font-size:3rem; display:block; margin-bottom:10px; color:#e5e7eb;"></i>
-                        <p>No files uploaded yet.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            files.forEach(file => {
-                const size = file.size < 1024 ? file.size + ' B' : 
-                             file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' : 
-                             (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-                const icon = file.type.includes('pdf') ? 'fa-file-pdf' :
-                            file.type.includes('excel') || file.type.includes('spreadsheet') ? 'fa-file-excel' :
-                            file.type.includes('word') ? 'fa-file-word' :
-                            file.type.includes('image') ? 'fa-file-image' : 'fa-file';
-                
-                html += `
-                    <div class="file-item">
-                        <i class="fas ${icon}" style="font-size:1.5rem; color:var(--accent-color);"></i>
-                        <div class="info">
-                            <div class="name">${file.name}</div>
-                            <div class="size">${size}</div>
-                        </div>
-                        <a href="${file.data}" download="${file.name}" class="download">Download</a>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        // ==========================
-        // INIT
-        // ==========================
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!checkAuth()) return;
-            loadUserData();
-            loadFiles();
-            loadClientMessages();
-            
-            document.getElementById('fileInput').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    uploadFile(file).then(() => {
-                        loadFiles();
-                        this.value = '';
-                    });
-                }
-            });
-        });
-
-        // Expose functions
-        window.sendClientMessage = sendClientMessage;
-    </script>
+console.log('✅ Client dashboard loaded');
+</script>
 
 </body>
-
 </html>
