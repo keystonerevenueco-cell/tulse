@@ -802,38 +802,69 @@
                 </div>
 
                 <!-- ==========================
-                TAB: MESSAGES (CHAT)
-                ========================== -->
-                <div class="tab" id="tab-messages" style="display: none;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
-
-                    <div class="chat-container">
-                        <div class="chat-messages" id="messageContainer">
-                            <div class="empty-state">
-                                <i class="fas fa-comment-dots"></i>
-                                <p>No messages yet. Start the conversation!</p>
-                            </div>
-                        </div>
-
-                        <div class="chat-input-area">
-                            <input type="text" id="messageInput" placeholder="Type your message here...">
-                            <button id="sendMessageBtn">
-                                <i class="fas fa-paper-plane"></i> Send
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Admin Reply Area (admin only) -->
-                    <div class="admin-only" id="adminReplyArea" style="margin-top: 20px; padding: 20px; background: #fef3c7; border-radius: 12px; border: 1px solid #fde68a; display: none;">
-                        <p style="font-weight: 600; margin-bottom: 10px;">🛡️ Admin Reply</p>
-                        <p style="font-size: 0.9rem; color: #92400e; margin-bottom: 10px;">Your reply will be sent to the client.</p>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="adminReplyInput" placeholder="Type your admin reply..." style="flex: 1; padding: 12px 16px; border: 1px solid #fde68a; border-radius: 10px; font-size: 0.95rem; outline: none; background: white; font-family: inherit;">
-                            <button id="adminReplyBtn" style="padding: 12px 24px; border-radius: 10px; background: #000; color: white; font-weight: 700; border: none; cursor: pointer;">Send Reply</button>
-                        </div>
+TAB: MESSAGES (CHAT)
+========================= -->
+<div class="tab" id="tab-messages" style="display: none;">
+    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
+    
+    <!-- Admin View: Split screen with client list -->
+    <div id="adminChatView" style="display: none;">
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px; height: 500px; max-height: 70vh;">
+            
+            <!-- Client List -->
+            <div style="background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; display: flex; flex-direction: column;">
+                <div style="padding: 15px 20px; background: white; border-bottom: 1px solid #e5e7eb; font-weight: 700;">
+                    <i class="fas fa-users" style="margin-right: 8px;"></i> Clients
+                    <span id="clientCountBadge" style="background: #e5e7eb; padding: 2px 10px; border-radius: 50px; font-size: 0.7rem; margin-left: 8px;">0</span>
+                </div>
+                <div id="adminClientList" style="flex: 1; overflow-y: auto; padding: 10px;">
+                    <div style="text-align: center; padding: 30px 20px; color: #94a3b8;">
+                        <p>Loading clients...</p>
                     </div>
                 </div>
-
+            </div>
+            
+            <!-- Chat Area -->
+            <div style="background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; display: flex; flex-direction: column;">
+                <div id="adminChatHeader" style="padding: 15px 20px; background: white; border-bottom: 1px solid #e5e7eb; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fas fa-comment" style="margin-right: 8px;"></i> <span id="adminChatClientName">Select a client</span></span>
+                    <button onclick="markClientMessagesAsRead(currentAdminClient)" style="padding: 4px 12px; border-radius: 6px; background: var(--accent-color); color: #000; border: none; cursor: pointer; font-size: 0.75rem; font-weight: 600;">Mark All Read</button>
+                </div>
+                <div id="adminMessageContainer" style="flex: 1; overflow-y: auto; padding: 20px; background: #fafafa;">
+                    <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+                        <i class="fas fa-user-circle" style="font-size: 3rem; display: block; margin-bottom: 15px; color: #e5e7eb;"></i>
+                        <p>Select a client from the list to start chatting.</p>
+                    </div>
+                </div>
+                <div id="adminReplyArea" style="display: none; padding: 15px 20px; background: white; border-top: 1px solid #e5e7eb;">
+                    <p style="font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">🛡️ Reply to <span id="adminReplyClientName">Client</span></p>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="adminReplyInput" placeholder="Type your reply..." style="flex: 1; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 0.95rem; outline: none; font-family: inherit;">
+                        <button id="adminReplyBtn" style="padding: 12px 24px; border-radius: 10px; background: #000; color: white; font-weight: 700; border: none; cursor: pointer;">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Client View: Simple chat -->
+    <div id="clientChatView">
+        <div class="chat-container">
+            <div class="chat-messages" id="messageContainer">
+                <div class="empty-state">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="messageInput" placeholder="Type your message here...">
+                <button id="sendMessageBtn">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
                 <!-- ==========================
                 TAB: FILES
                 ========================== -->
