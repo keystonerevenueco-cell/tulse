@@ -1,5 +1,5 @@
 // ==========================
-// FIREBASE CHAT SYSTEM
+// FIREBASE CHAT - SIMPLIFIED
 // ==========================
 
 let currentAdminClient = null;
@@ -43,24 +43,83 @@ function sendFirebaseMessage(message, targetClientEmail) {
         .add(messageData)
         .then(() => {
             console.log('✅ Message sent to:', chatRoom);
-            if (isAdmin) {
-                setTimeout(updateAdminChatDisplay, 500);
-                setTimeout(updateClientList, 500);
-            } else {
-                setTimeout(updateClientMessageDisplay, 500);
-            }
+            refreshAll();
         })
         .catch((error) => {
             console.error('❌ Error sending message:', error);
-            alert('Failed to send message. Please try again.');
         });
 }
 
 // ==========================
-// CLIENT MESSAGES
+// REFRESH ALL
 // ==========================
 
-function updateClientMessageDisplay() {
+function refreshAll() {
+    console.log('🔄 Refreshing all views...');
+    if (localStorage.getItem('tulse_is_admin') === 'true') {
+        forceClientList();
+    } else {
+        forceClientMessages();
+    }
+}
+
+// ==========================
+// FORCE CLIENT LIST (ADMIN)
+// ==========================
+
+function forceClientList() {
+    console.log('📋 Force updating client list...');
+    const container = document.getElementById('adminClientList');
+    if (!container) {
+        console.log('❌ adminClientList not found');
+        return;
+    }
+    
+    db.collection('chats').get().then((snapshot) => {
+        console.log('📁 Found', snapshot.size, 'chat rooms');
+        
+        if (snapshot.size === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 30px 20px; color: #94a3b8;">
+                    <p>No clients yet. Send a message from client first!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        snapshot.forEach((doc) => {
+            const email = doc.id;
+            const name = email.split('@')[0];
+            const isActive = currentAdminClient === email;
+            
+            html += `
+                <div class="client-item ${isActive ? 'active' : ''}" 
+                     onclick="selectClient('${email}')" 
+                     style="padding: 12px 15px; margin-bottom: 4px; background: ${isActive ? 'var(--accent-color)' : '#f8fafc'}; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: ${isActive ? '#000' : 'var(--accent-color)'}; color: ${isActive ? 'var(--accent-color)' : '#000'}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem;">
+                            ${name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">${name}</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">${email}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        console.log('✅ Client list rendered with', snapshot.size, 'clients');
+    });
+}
+
+// ==========================
+// FORCE CLIENT MESSAGES
+// ==========================
+
+function forceClientMessages() {
     const container = document.getElementById('messageContainer');
     if (!container) return;
     
@@ -71,366 +130,110 @@ function updateClientMessageDisplay() {
         .doc(userEmail)
         .collection('messages')
         .orderBy('timestamp', 'asc')
-        .onSnapshot((snapshot) => {
+        .get()
+        .then((snapshot) => {
             const messages = [];
             snapshot.forEach((doc) => {
                 messages.push({ id: doc.id, ...doc.data() });
             });
-            renderClientMessages(container, messages);
-        }, (error) => {
-            console.error('Error listening to messages:', error);
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #94a3b8;">
+                        <i class="fas fa-comment-dots" style="font-size: 3rem; display: block; margin-bottom: 15px; color: #e5e7eb;"></i>
+                        <p>No messages yet. Start the conversation!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            messages.forEach(msg => {
+                const isClient = msg.sender === 'client';
+                const className = isClient ? 'client' : 'admin';
+                const senderName = isClient ? 'You' : 'Tulse Team';
+                const time = msg.timestamp ? 
+                    new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
+                    '';
+                
+                html += `
+                    <div class="message-bubble ${className}">
+                        <div class="bubble">
+                            <div class="sender">${senderName}</div>
+                            <div class="text">${msg.message}</div>
+                            <div class="time">${time}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
         });
 }
 
-function renderClientMessages(container, messages) {
-    if (messages.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-comment-dots"></i>
-                <p>No messages yet. Start the conversation!</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '';
-    messages.forEach(msg => {
-        const isClient = msg.sender === 'client';
-        const className = isClient ? 'client' : 'admin';
-        const senderName = isClient ? 'You' : 'Tulse Team';
-        const time = msg.timestamp ? 
-            new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
-            '';
-        
-        html += `
-            <div class="message-bubble ${className}">
-                <div class="bubble">
-                    <div class="sender">${escapeHtml(senderName)}</div>
-                    <div class="text">${escapeHtml(msg.message)}</div>
-                    <div class="time">${time}</div>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-    container.scrollTop = container.scrollHeight;
-}
-
 // ==========================
-// ADMIN MESSAGES
+// SELECT CLIENT
 // ==========================
 
-function updateAdminChatDisplay() {
+function selectClient(clientEmail) {
+    console.log('🖱️ Selecting client:', clientEmail);
+    currentAdminClient = clientEmail;
+    forceClientList();
+    
+    // Load messages for this client
     const container = document.getElementById('adminMessageContainer');
     if (!container) return;
-    
-    if (!currentAdminClient) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-user-circle"></i>
-                <p>Select a client from the list to start chatting.</p>
-            </div>
-        `;
-        return;
-    }
-    
-    db.collection('chats')
-        .doc(currentAdminClient)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot((snapshot) => {
-            const messages = [];
-            snapshot.forEach((doc) => {
-                messages.push({ id: doc.id, ...doc.data() });
-            });
-            renderAdminMessages(container, messages);
-            
-            const unread = messages.filter(msg => msg.sender === 'client' && !msg.read);
-            if (unread.length > 0) {
-                markMessagesAsRead(currentAdminClient);
-            }
-        }, (error) => {
-            console.error('Error listening to admin messages:', error);
-        });
-}
-
-function renderAdminMessages(container, messages) {
-    if (!messages || messages.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-comment-dots"></i>
-                <p>No messages with this client yet.</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '';
-    messages.forEach(msg => {
-        const isClient = msg.sender === 'client';
-        const className = isClient ? 'client' : 'admin';
-        const senderName = isClient ? msg.senderName : 'You (Admin)';
-        const time = msg.timestamp ? 
-            new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
-            '';
-        const status = isClient && !msg.read ? ' 🔴' : (isClient && msg.read ? ' ✅' : '');
-        
-        html += `
-            <div class="message-bubble ${className}">
-                <div class="bubble">
-                    <div class="sender">${escapeHtml(senderName)}${status}</div>
-                    <div class="text">${escapeHtml(msg.message)}</div>
-                    <div class="time">${time}</div>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-    container.scrollTop = container.scrollHeight;
-}
-
-// ==========================
-// MARK MESSAGES AS READ
-// ==========================
-
-function markMessagesAsRead(clientEmail) {
-    if (!clientEmail) return;
     
     db.collection('chats')
         .doc(clientEmail)
         .collection('messages')
-        .where('read', '==', false)
-        .where('sender', '==', 'client')
+        .orderBy('timestamp', 'asc')
         .get()
         .then((snapshot) => {
-            if (snapshot.empty) return;
-            
-            const batch = db.batch();
+            const messages = [];
             snapshot.forEach((doc) => {
-                batch.update(doc.ref, { read: true });
+                messages.push({ id: doc.id, ...doc.data() });
             });
-            return batch.commit();
-        })
-        .then(() => {
-            console.log('✅ Messages marked as read for:', clientEmail);
-            updateAdminNotification();
-            updateClientList();
-        })
-        .catch((error) => {
-            console.error('Error marking messages as read:', error);
-        });
-}
-
-// ==========================
-// GET ALL CLIENTS
-// ==========================
-
-function getAllFirebaseClients() {
-    return new Promise((resolve) => {
-        db.collection('chats')
-            .get()
-            .then((snapshot) => {
-                const clients = [];
-                snapshot.forEach((doc) => {
-                    clients.push({ email: doc.id });
-                });
-                resolve(clients);
-            })
-            .catch((error) => {
-                console.error('Error getting clients:', error);
-                resolve([]);
-            });
-    });
-}
-
-// ==========================
-// GET UNREAD COUNT
-// ==========================
-
-function getUnreadCountFirebase(clientEmail) {
-    return new Promise((resolve) => {
-        if (!clientEmail) {
-            resolve(0);
-            return;
-        }
-        
-        db.collection('chats')
-            .doc(clientEmail)
-            .collection('messages')
-            .where('read', '==', false)
-            .where('sender', '==', 'client')
-            .get()
-            .then((snapshot) => {
-                resolve(snapshot.size);
-            })
-            .catch(() => {
-                resolve(0);
-            });
-    });
-}
-
-// ==========================
-// GET TOTAL UNREAD COUNT
-// ==========================
-
-function getTotalUnreadCount() {
-    return new Promise((resolve) => {
-        db.collection('chats')
-            .get()
-            .then((snapshot) => {
-                let total = 0;
-                const promises = [];
-                
-                snapshot.forEach((doc) => {
-                    promises.push(
-                        db.collection('chats')
-                            .doc(doc.id)
-                            .collection('messages')
-                            .where('read', '==', false)
-                            .where('sender', '==', 'client')
-                            .get()
-                            .then((msgSnapshot) => {
-                                total += msgSnapshot.size;
-                            })
-                    );
-                });
-                
-                Promise.all(promises).then(() => {
-                    resolve(total);
-                });
-            })
-            .catch(() => {
-                resolve(0);
-            });
-    });
-}
-
-// ==========================
-// UPDATE ADMIN NOTIFICATION
-// ==========================
-
-function updateAdminNotification() {
-    getTotalUnreadCount().then((total) => {
-        const messageBadge = document.getElementById('messageBadge');
-        if (messageBadge) {
-            if (total > 0) {
-                messageBadge.classList.remove('hidden');
-                messageBadge.textContent = total;
-            } else {
-                messageBadge.classList.add('hidden');
-            }
-        }
-        
-        const adminBadge = document.getElementById('adminBadgeNotification');
-        if (adminBadge) {
-            if (total > 0) {
-                adminBadge.classList.remove('hidden');
-                adminBadge.textContent = total;
-            } else {
-                adminBadge.classList.add('hidden');
-            }
-        }
-    });
-}
-
-// ==========================
-// UPDATE CLIENT LIST (ADMIN)
-// ==========================
-
-function updateClientList() {
-    const container = document.getElementById('adminClientList');
-    if (!container) return;
-    
-    getAllFirebaseClients().then((clients) => {
-        const countBadge = document.getElementById('clientCountBadge');
-        if (countBadge) countBadge.textContent = clients.length;
-        
-        if (clients.length === 0) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 30px 20px; color: #94a3b8;">
-                    <p>No clients yet. They'll appear here when they start chatting.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-        let allHtml = '';
-        let processed = 0;
-        
-        clients.forEach((client) => {
-            const email = client.email;
-            let name = email.split('@')[0];
-            if (email === accountData.client_email && accountData.full_name) {
-                name = accountData.full_name;
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+                        <i class="fas fa-comment-dots" style="font-size: 3rem; display: block; margin-bottom: 15px; color: #e5e7eb;"></i>
+                        <p>No messages with this client yet.</p>
+                    </div>
+                `;
+                return;
             }
             
-            getUnreadCountFirebase(email).then((unread) => {
-                db.collection('chats')
-                    .doc(email)
-                    .collection('messages')
-                    .orderBy('timestamp', 'desc')
-                    .limit(1)
-                    .get()
-                    .then((snapshot) => {
-                        let lastMsg = null;
-                        let lastTime = '';
-                        if (!snapshot.empty) {
-                            const data = snapshot.docs[0].data();
-                            lastMsg = data.message;
-                            if (data.timestamp) {
-                                lastTime = new Date(data.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                            }
-                        }
-                        
-                        const isActive = currentAdminClient === email;
-                        const initial = name.charAt(0).toUpperCase();
-                        const lastMsgDisplay = lastMsg ? 
-                            `<div class="last-msg">${escapeHtml(lastMsg.substring(0, 40))}${lastMsg.length > 40 ? '...' : ''}</div>` : '';
-                        const unreadBadge = unread > 0 ? `<span class="unread-badge">${unread}</span>` : '';
-                        
-                        allHtml += `
-                            <div class="client-item ${isActive ? 'active' : ''}" onclick="selectClient('${email}')">
-                                <div class="avatar-small" style="background: ${isActive ? '#000' : 'var(--accent-color)'}; color: ${isActive ? 'var(--accent-color)' : '#000'};">${initial}</div>
-                                <div class="client-info">
-                                    <div class="name">${escapeHtml(name)} ${unreadBadge}</div>
-                                    ${lastMsgDisplay}
-                                </div>
-                                ${lastTime ? `<div class="client-time">${lastTime}</div>` : ''}
-                            </div>
-                        `;
-                        
-                        processed++;
-                        if (processed === clients.length) {
-                            container.innerHTML = allHtml;
-                        }
-                    });
+            let html = '';
+            messages.forEach(msg => {
+                const isClient = msg.sender === 'client';
+                const className = isClient ? 'client' : 'admin';
+                const senderName = isClient ? msg.senderName : 'You (Admin)';
+                const time = msg.timestamp ? 
+                    new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
+                    '';
+                const status = isClient && !msg.read ? ' 🔴' : (isClient && msg.read ? ' ✅' : '');
+                
+                html += `
+                    <div class="message-bubble ${className}">
+                        <div class="bubble">
+                            <div class="sender">${senderName}${status}</div>
+                            <div class="text">${msg.message}</div>
+                            <div class="time">${time}</div>
+                        </div>
+                    </div>
+                `;
             });
+            
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+            
+            // Show reply area
+            document.getElementById('adminReplyArea').style.display = 'block';
+            document.getElementById('adminReplyClientName').textContent = clientEmail.split('@')[0];
         });
-    });
-}
-
-// ==========================
-// SELECT CLIENT (ADMIN)
-// ==========================
-
-function selectClient(clientEmail) {
-    currentAdminClient = clientEmail;
-    
-    const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-    const name = clientEmail.split('@')[0];
-    const displayName = (clientEmail === accountData.client_email && accountData.full_name) ? accountData.full_name : name;
-    
-    document.getElementById('adminChatClientName').textContent = displayName;
-    document.getElementById('adminReplyClientName').textContent = displayName;
-    document.getElementById('adminReplyArea').style.display = 'block';
-    
-    markMessagesAsRead(clientEmail);
-    updateAdminChatDisplay();
-    updateClientList();
-    updateAdminNotification();
 }
 
 // ==========================
@@ -466,60 +269,34 @@ function sendClientMessage() {
 }
 
 // ==========================
-// ESCAPE HTML
+// INIT
 // ==========================
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// ==========================
-// INIT FIREBASE CHAT
-// ==========================
-
-function initFirebaseChat() {
+function initChat() {
     const isAdmin = localStorage.getItem('tulse_is_admin') === 'true';
-    const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-    
-    console.log('🚀 Initializing Firebase Chat...');
-    console.log('isAdmin:', isAdmin);
-    console.log('accountData:', accountData);
+    console.log('🚀 Init chat - isAdmin:', isAdmin);
     
     if (isAdmin) {
         document.getElementById('adminChatView').style.display = 'block';
         document.getElementById('clientChatView').style.display = 'none';
-        updateClientList();
-        updateAdminNotification();
-        
-        setInterval(() => {
-            updateClientList();
-            updateAdminNotification();
-        }, 5000);
+        forceClientList();
     } else {
         document.getElementById('adminChatView').style.display = 'none';
         document.getElementById('clientChatView').style.display = 'block';
-        if (accountData.client_email) {
-            updateClientMessageDisplay();
-        }
+        forceClientMessages();
     }
 }
 
-// ==========================
-// RUN ON LOAD
-// ==========================
-
+// Run on load
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initFirebaseChat, 500);
+    setTimeout(initChat, 500);
 });
 
-// Expose functions globally
+// Expose
 window.sendAdminReply = sendAdminReply;
 window.sendClientMessage = sendClientMessage;
 window.selectClient = selectClient;
-window.markMessagesAsRead = markMessagesAsRead;
-window.updateClientList = updateClientList;
-window.updateAdminNotification = updateAdminNotification;
+window.forceClientList = forceClientList;
+window.forceClientMessages = forceClientMessages;
+window.refreshAll = refreshAll;
 window.currentAdminClient = currentAdminClient;
