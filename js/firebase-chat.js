@@ -2,6 +2,8 @@
 // FIREBASE CHAT SYSTEM
 // ==========================
 
+let currentAdminClient = null;
+
 // ==========================
 // SEND MESSAGE
 // ==========================
@@ -55,21 +57,17 @@ function sendFirebaseMessage(message, targetClientEmail) {
 }
 
 // ==========================
-// LISTEN FOR MESSAGES (Client)
+// CLIENT MESSAGES
 // ==========================
 
-let clientUnsubscribe = null;
-
-function listenForClientMessages() {
+function updateClientMessageDisplay() {
+    const container = document.getElementById('messageContainer');
+    if (!container) return;
+    
     const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
     const userEmail = accountData.client_email || 'client@example.com';
     
-    if (clientUnsubscribe) {
-        clientUnsubscribe();
-        clientUnsubscribe = null;
-    }
-    
-    clientUnsubscribe = db.collection('chats')
+    db.collection('chats')
         .doc(userEmail)
         .collection('messages')
         .orderBy('timestamp', 'asc')
@@ -78,43 +76,10 @@ function listenForClientMessages() {
             snapshot.forEach((doc) => {
                 messages.push({ id: doc.id, ...doc.data() });
             });
-            updateClientMessageDisplay(messages);
+            renderClientMessages(container, messages);
         }, (error) => {
             console.error('Error listening to messages:', error);
         });
-}
-
-// ==========================
-// UPDATE CLIENT MESSAGE DISPLAY
-// ==========================
-
-function updateClientMessageDisplay(messages) {
-    const container = document.getElementById('messageContainer');
-    if (!container) return;
-    
-    if (!messages) {
-        const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-        const userEmail = accountData.client_email || 'client@example.com';
-        
-        db.collection('chats')
-            .doc(userEmail)
-            .collection('messages')
-            .orderBy('timestamp', 'asc')
-            .get()
-            .then((snapshot) => {
-                const msgs = [];
-                snapshot.forEach((doc) => {
-                    msgs.push({ id: doc.id, ...doc.data() });
-                });
-                renderClientMessages(container, msgs);
-            })
-            .catch(() => {
-                renderClientMessages(container, []);
-            });
-        return;
-    }
-    
-    renderClientMessages(container, messages);
 }
 
 function renderClientMessages(container, messages) {
@@ -153,24 +118,25 @@ function renderClientMessages(container, messages) {
 }
 
 // ==========================
-// LISTEN FOR ADMIN MESSAGES
+// ADMIN MESSAGES
 // ==========================
 
-let adminUnsubscribe = null;
-let currentAdminClient = null;
-
-function listenForAdminMessages(clientEmail) {
-    if (!clientEmail) return;
+function updateAdminChatDisplay() {
+    const container = document.getElementById('adminMessageContainer');
+    if (!container) return;
     
-    currentAdminClient = clientEmail;
-    
-    if (adminUnsubscribe) {
-        adminUnsubscribe();
-        adminUnsubscribe = null;
+    if (!currentAdminClient) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-user-circle"></i>
+                <p>Select a client from the list to start chatting.</p>
+            </div>
+        `;
+        return;
     }
     
-    adminUnsubscribe = db.collection('chats')
-        .doc(clientEmail)
+    db.collection('chats')
+        .doc(currentAdminClient)
         .collection('messages')
         .orderBy('timestamp', 'asc')
         .onSnapshot((snapshot) => {
@@ -178,21 +144,18 @@ function listenForAdminMessages(clientEmail) {
             snapshot.forEach((doc) => {
                 messages.push({ id: doc.id, ...doc.data() });
             });
-            renderAdminMessages(messages);
+            renderAdminMessages(container, messages);
             
             const unread = messages.filter(msg => msg.sender === 'client' && !msg.read);
             if (unread.length > 0) {
-                markMessagesAsRead(clientEmail);
+                markMessagesAsRead(currentAdminClient);
             }
         }, (error) => {
             console.error('Error listening to admin messages:', error);
         });
 }
 
-function renderAdminMessages(messages) {
-    const container = document.getElementById('adminMessageContainer');
-    if (!container) return;
-    
+function renderAdminMessages(container, messages) {
     if (!messages || messages.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -256,12 +219,12 @@ function markMessagesAsRead(clientEmail) {
             updateClientList();
         })
         .catch((error) => {
-            console.error('❌ Error marking messages as read:', error);
+            console.error('Error marking messages as read:', error);
         });
 }
 
 // ==========================
-// GET ALL CLIENTS (Admin)
+// GET ALL CLIENTS
 // ==========================
 
 function getAllFirebaseClients() {
@@ -275,14 +238,15 @@ function getAllFirebaseClients() {
                 });
                 resolve(clients);
             })
-            .catch(() => {
+            .catch((error) => {
+                console.error('Error getting clients:', error);
                 resolve([]);
             });
     });
 }
 
 // ==========================
-// GET UNREAD COUNT (Admin)
+// GET UNREAD COUNT
 // ==========================
 
 function getUnreadCountFirebase(clientEmail) {
@@ -372,7 +336,7 @@ function updateAdminNotification() {
 }
 
 // ==========================
-// UPDATE CLIENT LIST (Admin)
+// UPDATE CLIENT LIST (ADMIN)
 // ==========================
 
 function updateClientList() {
@@ -449,7 +413,7 @@ function updateClientList() {
 }
 
 // ==========================
-// SELECT CLIENT (Admin)
+// SELECT CLIENT (ADMIN)
 // ==========================
 
 function selectClient(clientEmail) {
@@ -464,7 +428,7 @@ function selectClient(clientEmail) {
     document.getElementById('adminReplyArea').style.display = 'block';
     
     markMessagesAsRead(clientEmail);
-    listenForAdminMessages(clientEmail);
+    updateAdminChatDisplay();
     updateClientList();
     updateAdminNotification();
 }
@@ -520,47 +484,42 @@ function initFirebaseChat() {
     const isAdmin = localStorage.getItem('tulse_is_admin') === 'true';
     const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
     
+    console.log('🚀 Initializing Firebase Chat...');
+    console.log('isAdmin:', isAdmin);
+    console.log('accountData:', accountData);
+    
     if (isAdmin) {
         document.getElementById('adminChatView').style.display = 'block';
         document.getElementById('clientChatView').style.display = 'none';
         updateClientList();
         updateAdminNotification();
+        
         setInterval(() => {
             updateClientList();
             updateAdminNotification();
-        }, 10000);
+        }, 5000);
     } else {
         document.getElementById('adminChatView').style.display = 'none';
         document.getElementById('clientChatView').style.display = 'block';
         if (accountData.client_email) {
-            listenForClientMessages();
+            updateClientMessageDisplay();
         }
     }
 }
 
+// ==========================
+// RUN ON LOAD
+// ==========================
+
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initFirebaseChat, 500);
 });
-// ==========================
-// GET ALL FIREBASE CLIENTS
-// ==========================
 
-function getAllFirebaseClients() {
-    return new Promise((resolve) => {
-        console.log('🔍 Fetching all chat rooms...');
-        db.collection('chats')
-            .get()
-            .then((snapshot) => {
-                const clients = [];
-                snapshot.forEach((doc) => {
-                    clients.push({ email: doc.id });
-                });
-                console.log('🔍 Found', clients.length, 'chat rooms');
-                resolve(clients);
-            })
-            .catch((error) => {
-                console.error('Error getting clients:', error);
-                resolve([]);
-            });
-    });
-}
+// Expose functions globally
+window.sendAdminReply = sendAdminReply;
+window.sendClientMessage = sendClientMessage;
+window.selectClient = selectClient;
+window.markMessagesAsRead = markMessagesAsRead;
+window.updateClientList = updateClientList;
+window.updateAdminNotification = updateAdminNotification;
+window.currentAdminClient = currentAdminClient;

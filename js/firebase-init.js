@@ -14,13 +14,19 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+    console.log('✅ Firebase initialized successfully');
+} else if (typeof firebase !== 'undefined') {
+    console.log('✅ Firebase already initialized');
+}
+
 const db = firebase.firestore();
 
-// Enable offline persistence for better performance
+// Enable offline persistence
 db.enablePersistence()
     .catch((err) => {
         console.warn('Firebase persistence error:', err);
     });
 
-console.log('✅ Firebase initialized successfully');
+console.log('✅ Firestore ready');
