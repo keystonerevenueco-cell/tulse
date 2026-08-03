@@ -150,3 +150,109 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+// ==========================
+// UPDATE ADMIN MESSAGE LIST
+// ==========================
+
+function updateAdminMessageList() {
+    const adminMessageList = document.getElementById('adminMessageList');
+    if (!adminMessageList) return;
+    
+    const messages = JSON.parse(localStorage.getItem('tulse_chat_messages') || '[]');
+    const clientMessages = messages.filter(m => m.sender === 'client');
+    
+    if (clientMessages.length === 0) {
+        adminMessageList.innerHTML = '<p style="color: #94a3b8; font-size: 0.9rem;">No client messages yet.</p>';
+        return;
+    }
+    
+    let html = '';
+    clientMessages.slice().reverse().forEach(msg => {
+        const isRead = msg.read ? '✅' : '🔴';
+        const time = new Date(msg.timestamp).toLocaleString();
+        
+        html += `
+            <div class="admin-message-item">
+                <div style="flex: 1;">
+                    <div class="message-sender">${escapeHtml(msg.senderName)}</div>
+                    <div class="message-text">${escapeHtml(msg.message)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="message-status">${isRead}</span>
+                    ${!msg.read ? `<button class="mark-read-btn" onclick="markMessageAsRead(${msg.id})">Mark Read</button>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    adminMessageList.innerHTML = html;
+}
+
+// ==========================
+// UPDATE ADMIN DASHBOARD (updated)
+// ==========================
+
+// Replace your existing updateAdminDashboard function with this:
+function updateAdminDashboard() {
+    if (!isAdmin()) return;
+    
+    // Update client list
+    const clientList = document.getElementById('clientList');
+    if (clientList) {
+        const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
+        const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
+        const clients = [];
+        
+        if (accountData.client_email) {
+            clients.push({
+                email: accountData.client_email,
+                name: accountData.full_name || 'Unknown',
+                project: projectData.target_industry || 'No project',
+                status: 'Active'
+            });
+        }
+        
+        if (clients.length === 0) {
+            clientList.innerHTML = '<p style="color: #94a3b8; font-size: 0.9rem;">No clients yet.</p>';
+        } else {
+            let html = '';
+            clients.forEach(client => {
+                html += `
+                    <div class="admin-client-item">
+                        <div>
+                            <div class="client-name">${escapeHtml(client.name)}</div>
+                            <div class="client-email">${escapeHtml(client.email)}</div>
+                            <div style="font-size: 0.85rem; color: #64748b;">Project: ${escapeHtml(client.project)}</div>
+                        </div>
+                        <span class="client-status">${escapeHtml(client.status)}</span>
+                    </div>
+                `;
+            });
+            clientList.innerHTML = html;
+        }
+    }
+    
+    // Update admin message list
+    updateAdminMessageList();
+    
+    // Update admin file list
+    const adminFileList = document.getElementById('adminFileList');
+    if (adminFileList) {
+        const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
+        if (files.length === 0) {
+            adminFileList.innerHTML = '<p style="color: #94a3b8; font-size: 0.9rem;">No files uploaded yet.</p>';
+        } else {
+            let html = '';
+            files.forEach(file => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f1f5f9;">
+                        <span>📄 ${escapeHtml(file.name)}</span>
+                        <span style="font-size: 0.8rem; color: #64748b;">${(file.size / 1024).toFixed(1)} KB</span>
+                    </div>
+                `;
+            });
+            adminFileList.innerHTML = html;
+        }
+    }
+}
