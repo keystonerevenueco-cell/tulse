@@ -54,7 +54,8 @@ function checkForPaymentSuccess() {
         localStorage.setItem('tulse_payment_verified', 'true');
         localStorage.setItem('tulse_session_id', sessionId);
         setTimeout(() => {
-            window.location.href = '/client-onboarding.html?session_id=' + sessionId;
+            // UPDATED to tulse.agency
+            window.location.href = 'https://tulse.agency/client-onboarding.html?session_id=' + sessionId;
         }, 1500);
     }
 }

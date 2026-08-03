@@ -11,9 +11,6 @@ export default async function handler(req, res) {
     // For Vercel, we need to get the raw body
     const rawBody = req.body;
     
-    // If you're using Vercel's built-in body parser, you may need to use:
-    // const rawBody = JSON.stringify(req.body);
-    
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     const sig = req.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -35,8 +32,8 @@ export default async function handler(req, res) {
         const customerName = session.customer_details.name || 'Customer';
         const packageId = session.metadata?.package_id || 'standard';
 
-        // Build the onboarding link
-        const onboardingLink = `https://tulse.vercel.app/client-onboarding.html?session_id=${session.id}`;
+        // Build the onboarding link - UPDATED to tulse.agency
+        const onboardingLink = `https://tulse.agency/client-onboarding.html?session_id=${session.id}`;
 
         // Send email using Web3Forms
         const emailData = {
