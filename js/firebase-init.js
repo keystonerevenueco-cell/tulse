@@ -14,13 +14,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-    console.log('✅ Firebase initialized successfully');
-} else if (typeof firebase !== 'undefined') {
-    console.log('✅ Firebase already initialized');
-}
-
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // Enable offline persistence
@@ -29,4 +23,4 @@ db.enablePersistence()
         console.warn('Firebase persistence error:', err);
     });
 
-console.log('✅ Firestore ready');
+console.log('✅ Firebase initialized');
