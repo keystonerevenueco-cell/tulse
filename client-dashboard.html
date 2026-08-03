@@ -1242,14 +1242,253 @@
     </footer>
 
     <script src="js/app.js"></script>
-    <script src="js/navbar.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/scroll.js"></script>
-    <script src="js/chat.js"></script>
-    <script src="js/files.js"></script>
-    <script src="js/admin.js"></script>
+<script src="js/navbar.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/scroll.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/files.js"></script>
+<script src="js/admin.js"></script>
 
-    <script>
+<script>
+    // ==========================
+    // AUTHENTICATION CHECK - FIXED
+    // ==========================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all auth data
+        const isLoggedIn = localStorage.getItem('tulse_logged_in') === 'true';
+        const sessionId = localStorage.getItem('tulse_session_id');
+        const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
+        const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
+        const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
+
+        // DEBUG
+        console.log('=== AUTH DEBUG ===');
+        console.log('isLoggedIn:', isLoggedIn);
+        console.log('sessionId:', sessionId);
+        console.log('accountData:', accountData);
+        console.log('isAdminUser:', isAdminUser);
+
+        // Get elements
+        const lockedState = document.getElementById('lockedState');
+        const tabs = document.querySelectorAll('.tab');
+
+        // Check if authenticated
+        if (!isLoggedIn || !sessionId || !accountData.client_email) {
+            // Not authenticated - show locked state
+            if (lockedState) {
+                lockedState.style.display = 'block';
+                console.log('Showing locked state');
+            }
+            tabs.forEach(tab => tab.style.display = 'none');
+            return;
+        }
+
+        // AUTHENTICATED - HIDE LOCKED STATE
+        if (lockedState) {
+            lockedState.style.display = 'none';
+            console.log('Hiding locked state');
+        }
+        tabs.forEach(tab => tab.style.display = 'block');
+
+        // Show admin elements if admin
+        if (isAdminUser) {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+            document.getElementById('adminBadge').classList.add('show');
+            
+            // Show admin chat view
+            const adminChat = document.getElementById('adminChatView');
+            const clientChat = document.getElementById('clientChatView');
+            if (adminChat) adminChat.style.display = 'block';
+            if (clientChat) clientChat.style.display = 'none';
+        } else {
+            // Show client chat view
+            const adminChat = document.getElementById('adminChatView');
+            const clientChat = document.getElementById('clientChatView');
+            if (adminChat) adminChat.style.display = 'none';
+            if (clientChat) clientChat.style.display = 'block';
+        }
+
+        // Load user data
+        const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
+        const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+        
+        const userEmailEl = document.getElementById('userEmail');
+        const userNameEl = document.getElementById('userName');
+        const greetingEl = document.getElementById('greetingName');
+        const avatarEl = document.getElementById('userAvatar');
+        
+        if (userEmailEl) userEmailEl.textContent = accountData.client_email || 'client@example.com';
+        if (userNameEl) userNameEl.textContent = displayName;
+        if (greetingEl) greetingEl.textContent = displayName;
+        if (avatarEl) avatarEl.textContent = displayName.charAt(0);
+
+        // Load project data
+        if (projectData.target_industry) {
+            document.getElementById('projectIndustry').textContent = projectData.target_industry;
+        }
+        if (projectData.target_location) {
+            document.getElementById('projectLocation').textContent = projectData.target_location;
+        }
+
+        // Package info
+        const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
+        const packageNames = {
+            'lead-intelligence-standard': 'Lead Intelligence - Standard',
+            'lead-intelligence-growth': 'Lead Intelligence - Growth',
+            'lead-intelligence-professional': 'Lead Intelligence - Professional',
+            'content-remote-one-time': 'Content - Remote One-Time',
+            'content-remote-monthly': 'Content - Remote Monthly',
+            'content-onsite-one-time': 'Content - On-Site One-Time',
+            'content-onsite-monthly': 'Content - On-Site Monthly'
+        };
+        const packageEl = document.getElementById('projectPackage');
+        if (packageEl) packageEl.textContent = packageNames[packageKey] || 'Lead Intelligence';
+
+        // Admin dashboard update
+        if (isAdminUser && typeof updateAdminDashboard === 'function') {
+            setTimeout(updateAdminDashboard, 500);
+        }
+
+        // If client, update chat
+        if (!isAdminUser && typeof updateClientMessageDisplay === 'function') {
+            setTimeout(updateClientMessageDisplay, 500);
+        }
+
+        console.log('=== AUTH COMPLETE ===');
+    });
+
+    // ==========================
+    // TAB SWITCHING
+    // ==========================
+    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.remove('active'));
+            this.classList.add('active');
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.dashboard-content .tab').forEach(el => el.classList.remove('active'));
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                targetTab.style.display = 'block';
+                if (tabId === 'admin' && typeof updateAdminDashboard === 'function') {
+                    setTimeout(updateAdminDashboard, 200);
+                }
+                if (tabId === 'messages' && typeof updateAdminChatDisplay === 'function') {
+                    setTimeout(updateAdminChatDisplay, 200);
+                    setTimeout(updateClientList, 200);
+                }
+                if (tabId === 'messages' && typeof updateClientMessageDisplay === 'function') {
+                    setTimeout(updateClientMessageDisplay, 200);
+                }
+            }
+        });
+    });
+
+    // ==========================
+    // LOGOUT
+    // ==========================
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('Logout from your client portal?')) {
+            localStorage.removeItem('tulse_logged_in');
+            localStorage.removeItem('tulse_session_id');
+            localStorage.removeItem('tulse_account_data');
+            localStorage.removeItem('tulse_payment_verified');
+            localStorage.removeItem('tulse_is_admin');
+            window.location.href = 'index.html';
+        }
+    });
+
+    // ==========================
+    // CHAT HELPERS (Admin)
+    // ==========================
+    let currentAdminClient = null;
+
+    function selectClient(clientEmail) {
+        currentAdminClient = clientEmail;
+        markClientMessagesAsRead(clientEmail);
+        
+        const clients = getAllClients();
+        const client = clients.find(c => c.email === clientEmail);
+        
+        const nameEl = document.getElementById('adminChatClientName');
+        const replyNameEl = document.getElementById('adminReplyClientName');
+        if (nameEl) nameEl.textContent = client ? client.name : 'Client';
+        if (replyNameEl) replyNameEl.textContent = client ? client.name : 'Client';
+        
+        const replyArea = document.getElementById('adminReplyArea');
+        if (replyArea) replyArea.style.display = 'block';
+        
+        updateAdminChatDisplay();
+        updateClientList();
+        updateAdminNotification();
+    }
+
+    function markAllClientMessagesAsRead() {
+        if (!currentAdminClient) return;
+        markClientMessagesAsRead(currentAdminClient);
+    }
+
+    function sendAdminReply() {
+        const input = document.getElementById('adminReplyInput');
+        if (!input) return;
+        const message = input.value.trim();
+        if (!message) return;
+        sendAdminReplyToClient(currentAdminClient, message);
+        input.value = '';
+    }
+
+    function sendAdminReplyToClient(clientEmail, message) {
+        if (!message || !clientEmail) return;
+        sendMessage(message, clientEmail);
+        updateAdminChatDisplay();
+        updateClientList();
+        updateAdminNotification();
+    }
+
+    // ==========================
+    // CHAT HELPERS (Client)
+    // ==========================
+    document.getElementById('sendMessageBtn')?.addEventListener('click', function() {
+        const input = document.getElementById('messageInput');
+        const message = input?.value.trim();
+        if (message) {
+            sendMessage(message);
+            input.value = '';
+        }
+    });
+
+    document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const message = this.value.trim();
+            if (message) {
+                sendMessage(message);
+                this.value = '';
+            }
+        }
+    });
+
+    // ==========================
+    // FILE UPLOAD
+    // ==========================
+    document.getElementById('uploadFileBtn')?.addEventListener('click', function() {
+        document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            uploadFile(file).then(() => {
+                updateFileDisplay();
+                this.value = '';
+                if (typeof updateAdminDashboard === 'function') {
+                    setTimeout(updateAdminDashboard, 500);
+                }
+            });
+        }
+    });
+</script>
         // ==========================
         // AUTHENTICATION CHECK
         // ==========================
@@ -1454,3 +1693,35 @@
 </body>
 
 </html>
+// ==========================
+// AUTHENTICATION CHECK
+// ==========================
+document.addEventListener('DOMContentLoaded', function() {
+    const isLoggedIn = localStorage.getItem('tulse_logged_in') === 'true';
+    const sessionId = localStorage.getItem('tulse_session_id');
+    const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
+    const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
+    const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
+
+    // DEBUG - log everything to see what's happening
+    console.log('isLoggedIn:', isLoggedIn);
+    console.log('sessionId:', sessionId);
+    console.log('accountData:', accountData);
+    console.log('isAdminUser:', isAdminUser);
+
+    const lockedState = document.getElementById('lockedState');
+    const tabs = document.querySelectorAll('.tab');
+
+    if (!isLoggedIn || !sessionId || !accountData.client_email) {
+        // Show locked state
+        if (lockedState) lockedState.style.display = 'block';
+        tabs.forEach(tab => tab.style.display = 'none');
+        return;
+    }
+
+    // HIDE LOCKED STATE - THIS IS THE KEY FIX
+    if (lockedState) lockedState.style.display = 'none';
+    tabs.forEach(tab => tab.style.display = 'block');
+
+    // ... rest of your code
+});
