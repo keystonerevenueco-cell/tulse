@@ -458,13 +458,16 @@
         // ==========================
         
         document.addEventListener('DOMContentLoaded', function() {
+            // Get session_id from URL
             const urlParams = new URLSearchParams(window.location.search);
             const sessionId = urlParams.get('session_id');
-            const paymentVerified = localStorage.getItem('tulse_payment_verified') === 'true';
             
-            // Check if user came from Stripe checkout with payment verified
-            if (!sessionId || !paymentVerified) {
-                // No payment detected - show payment required state
+            console.log('Session ID found:', sessionId);
+            
+            // Check if user came from Stripe checkout with session_id
+            if (!sessionId) {
+                // No session ID - show payment required state
+                console.log('No session ID found - showing payment required');
                 document.getElementById('paymentRequired').style.display = 'block';
                 document.getElementById('stepIndicator').style.display = 'none';
                 document.querySelector('.package-summary').style.display = 'none';
@@ -472,7 +475,8 @@
                 return;
             }
             
-            // Payment verified - show onboarding
+            // Session ID exists - show onboarding
+            console.log('Session ID found - showing onboarding');
             document.getElementById('paymentRequired').style.display = 'none';
             document.getElementById('stepIndicator').style.display = 'flex';
             document.querySelector('.package-summary').style.display = 'flex';
@@ -480,31 +484,37 @@
             
             // Store session for later verification
             localStorage.setItem('tulse_session_id', sessionId);
+            localStorage.setItem('tulse_payment_verified', 'true');
+            
+            // Check if we have package info
+            const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-standard';
+            loadPackageInfo(packageKey);
         });
 
         // ==========================
-        // PACKAGE INFO
+        // LOAD PACKAGE INFO
         // ==========================
-        const PACKAGE_INFO = {
-            'lead-intelligence-standard': { name: 'Lead Intelligence - Standard', price: '$299', type: 'lead' },
-            'lead-intelligence-growth': { name: 'Lead Intelligence - Growth', price: '$399', type: 'lead' },
-            'lead-intelligence-professional': { name: 'Lead Intelligence - Professional', price: '$699', type: 'lead' },
-            'content-remote-one-time': { name: 'Content - Remote One-Time', price: '$750', type: 'content' },
-            'content-remote-monthly': { name: 'Content - Remote Monthly', price: '$750/mo', type: 'content' },
-            'content-onsite-one-time': { name: 'Content - On-Site One-Time', price: '$1,250', type: 'content' },
-            'content-onsite-monthly': { name: 'Content - On-Site Monthly', price: '$1,250/mo', type: 'content' }
-        };
+        function loadPackageInfo(packageKey) {
+            const PACKAGE_INFO = {
+                'lead-intelligence-standard': { name: 'Lead Intelligence - Standard', price: '$299', type: 'lead' },
+                'lead-intelligence-growth': { name: 'Lead Intelligence - Growth', price: '$399', type: 'lead' },
+                'lead-intelligence-professional': { name: 'Lead Intelligence - Professional', price: '$699', type: 'lead' },
+                'content-remote-one-time': { name: 'Content - Remote One-Time', price: '$750', type: 'content' },
+                'content-remote-monthly': { name: 'Content - Remote Monthly', price: '$750/mo', type: 'content' },
+                'content-onsite-one-time': { name: 'Content - On-Site One-Time', price: '$1,250', type: 'content' },
+                'content-onsite-monthly': { name: 'Content - On-Site Monthly', price: '$1,250/mo', type: 'content' }
+            };
 
-        const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-standard';
-        const packageInfo = PACKAGE_INFO[packageKey] || PACKAGE_INFO['lead-intelligence-standard'];
+            const packageInfo = PACKAGE_INFO[packageKey] || PACKAGE_INFO['lead-intelligence-standard'];
 
-        document.getElementById('packageName').textContent = packageInfo.name;
-        document.getElementById('packagePrice').textContent = packageInfo.price;
+            document.getElementById('packageName').textContent = packageInfo.name;
+            document.getElementById('packagePrice').textContent = packageInfo.price;
 
-        if (packageInfo.type === 'lead') {
-            document.getElementById('leadQuestions').style.display = 'block';
-        } else {
-            document.getElementById('contentQuestions').style.display = 'block';
+            if (packageInfo.type === 'lead') {
+                document.getElementById('leadQuestions').style.display = 'block';
+            } else {
+                document.getElementById('contentQuestions').style.display = 'block';
+            }
         }
 
         // ==========================
