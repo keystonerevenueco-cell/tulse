@@ -111,6 +111,7 @@
             padding-top: 15px;
             margin-top: 15px;
             color: #ef4444;
+            cursor: pointer;
         }
         .sidebar .logout:hover {
             background: #fef2f2;
@@ -591,7 +592,7 @@
                     <div class="project-card">
                         <div>
                             <h4 id="projectName">Orlando Roofing Prospect List</h4>
-                            <p style="font-size:0.85rem; color:#64748b;">Started: Aug 2, 2026</p>
+                            <p style="font-size:0.85rem; color:#64748b;" id="projectDate">Started: Aug 2, 2026</p>
                         </div>
                         <div>
                             <span class="status" id="projectStatus">In Progress</span>
@@ -703,7 +704,7 @@
                 <!-- ==========================
                 TAB: ADMIN
                 ========================== -->
-                <div class="tab" id="tab-admin">
+                <div class="tab" id="tab-admin" style="display:none;">
                     <h2 style="font-size:1.5rem; margin-bottom:20px;">🛡️ Admin Dashboard</h2>
                     
                     <div class="admin-card">
@@ -758,603 +759,32 @@
     FIREBASE INIT
     ========================== -->
     <script>
-// ==========================
-// REAL ADMIN ACCOUNT (HARDCODED)
-// ==========================
-const ADMIN_CREDENTIALS = {
-    email: 'admin@tulse.agency',
-    password: 'TulseAdmin2026!'
-};
-
-// ==========================
-// APP STATE
-// ==========================
-let currentClient = null;
-let isAdmin = false;
-let accountData = {};
-let projectData = {};
-let packageKey = 'lead-intelligence-professional';
-
-const packageNames = {
-    'lead-intelligence-standard': 'Lead Intelligence - Standard',
-    'lead-intelligence-growth': 'Lead Intelligence - Growth',
-    'lead-intelligence-professional': 'Lead Intelligence - Professional',
-    'content-remote-one-time': 'Content - Remote One-Time',
-    'content-remote-monthly': 'Content - Remote Monthly',
-    'content-onsite-one-time': 'Content - On-Site One-Time',
-    'content-onsite-monthly': 'Content - On-Site Monthly'
-};
-
-// ==========================
-// AUTHENTICATION
-// ==========================
-function checkAuth() {
-    const loggedIn = localStorage.getItem('tulse_logged_in') === 'true';
-    const sessionId = localStorage.getItem('tulse_session_id');
-    accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-    projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
-    
-    // CHECK IF THIS IS THE REAL ADMIN
-    const isAdminAccount = accountData.client_email === ADMIN_CREDENTIALS.email;
-    isAdmin = isAdminAccount;
-
-    const locked = document.getElementById('lockedState');
-    const tabs = document.querySelectorAll('.tab');
-
-    if (!loggedIn || !sessionId || !accountData.client_email) {
-        locked.style.display = 'block';
-        tabs.forEach(t => t.style.display = 'none');
-        return false;
-    }
-
-    locked.style.display = 'none';
-    tabs.forEach(t => t.style.display = 'block');
-    return true;
-}
-
-// ==========================
-// LOAD USER DATA
-// ==========================
-function loadUserData() {
-    const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
-    const displayName = name.charAt(0).toUpperCase() + name.slice(1);
-    
-    document.getElementById('avatar').textContent = displayName.charAt(0);
-    document.getElementById('userName').textContent = displayName;
-    document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
-    document.getElementById('greetingName').textContent = displayName;
-    
-    // ONLY SHOW ADMIN TAB IF REAL ADMIN
-    if (isAdmin) {
-        document.getElementById('adminBadge').style.display = 'inline-block';
-        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-        document.getElementById('adminTab').style.display = 'flex';
-        document.getElementById('adminChatView').style.display = 'block';
-        document.getElementById('clientChatView').style.display = 'none';
-    } else {
-        document.getElementById('adminBadge').style.display = 'none';
-        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-        document.getElementById('adminTab').style.display = 'none';
-        document.getElementById('adminChatView').style.display = 'none';
-        document.getElementById('clientChatView').style.display = 'block';
-    }
-    
-    if (projectData.target_industry) {
-        document.getElementById('industry').textContent = projectData.target_industry;
-    }
-    if (projectData.target_location) {
-        document.getElementById('location').textContent = projectData.target_location;
-    }
-    
-    document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence';
-}
-
-// ==========================
-// ADMIN LOGIN (Call this to become admin)
-// ==========================
-function loginAsAdmin() {
-    const adminAccount = {
-        full_name: 'Admin User',
-        client_email: ADMIN_CREDENTIALS.email,
-        client_password: ADMIN_CREDENTIALS.password
-    };
-    localStorage.setItem('tulse_account_data', JSON.stringify(adminAccount));
-    localStorage.setItem('tulse_logged_in', 'true');
-    localStorage.setItem('tulse_payment_verified', 'true');
-    localStorage.setItem('tulse_package', 'lead-intelligence-professional');
-    localStorage.setItem('tulse_session_id', 'admin_' + Date.now());
-    // IMPORTANT: DO NOT set tulse_is_admin - we check by email now
-    localStorage.removeItem('tulse_is_admin');
-    location.reload();
-}
-
-// ==========================
-// LOGOUT
-// ==========================
-document.getElementById('logoutBtn').addEventListener('click', function() {
-    if (confirm('Logout from your client portal?')) {
-        localStorage.removeItem('tulse_logged_in');
-        localStorage.removeItem('tulse_session_id');
-        localStorage.removeItem('tulse_account_data');
-        localStorage.removeItem('tulse_payment_verified');
-        localStorage.removeItem('tulse_is_admin');
-        window.location.href = 'index.html';
-    }
-});
-
-// ==========================
-// TAB SWITCHING
-// ==========================
-document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-    item.addEventListener('click', function() {
-        document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.remove('active'));
-        this.classList.add('active');
-        
-        const tabId = this.dataset.tab;
-        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-        const target = document.getElementById('tab-' + tabId);
-        if (target) target.classList.add('active');
-        
-        if (tabId === 'messages' && isAdmin) {
-            loadAdminClients();
-        }
-        if (tabId === 'messages' && !isAdmin) {
-            loadClientMessages();
-        }
-        if (tabId === 'admin' && isAdmin) {
-            loadAdminDashboard();
-        }
-        if (tabId === 'files') {
-            loadFiles();
-        }
-    });
-});
-
-// ==========================
-// CHAT - CLIENT
-// ==========================
-function sendClientMessage() {
-    const input = document.getElementById('clientMessageInput');
-    const message = input.value.trim();
-    if (!message) return;
-    
-    const userEmail = accountData.client_email || 'client@example.com';
-    const userName = accountData.full_name || 'Client';
-    
-    db.collection('chats')
-        .doc(userEmail)
-        .collection('messages')
-        .add({
-            id: Date.now(),
-            sender: 'client',
-            senderName: userName,
-            senderEmail: userEmail,
-            message: message,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            read: false
-        })
-        .then(() => {
-            input.value = '';
-            loadClientMessages();
-        })
-        .catch(err => console.error('Error sending message:', err));
-}
-
-function loadClientMessages() {
-    const container = document.getElementById('clientMessages');
-    const userEmail = accountData.client_email || 'client@example.com';
-    
-    db.collection('chats')
-        .doc(userEmail)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot((snapshot) => {
-            const messages = [];
-            snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
-            
-            if (messages.length === 0) {
-                container.innerHTML = `
-                    <div class="empty">
-                        <i class="fas fa-comment-dots"></i>
-                        <p>No messages yet. Start the conversation!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            messages.forEach(msg => {
-                const isClient = msg.sender === 'client';
-                html += `
-                    <div class="msg ${isClient ? 'client' : 'admin'}">
-                        <div class="bubble">
-                            <div class="sender">${isClient ? 'You' : 'Tulse Team'}</div>
-                            <div class="text">${msg.message}</div>
-                            <div class="time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : ''}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-            container.scrollTop = container.scrollHeight;
-        });
-}
-
-// ==========================
-// CHAT - ADMIN
-// ==========================
-function loadAdminClients() {
-    const container = document.getElementById('adminClientList');
-    
-    db.collection('chats').get().then((snapshot) => {
-        const count = snapshot.size;
-        document.getElementById('clientCount').textContent = count;
-        
-        if (count === 0) {
-            container.innerHTML = `
-                <div style="text-align:center; padding:30px 10px; color:#94a3b8;">
-                    <p>No clients yet.</p>
-                    <p style="font-size:0.8rem;">Send a message from the client first.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        snapshot.forEach((doc) => {
-            const email = doc.id;
-            const name = email.split('@')[0];
-            const isActive = currentClient === email;
-            
-            html += `
-                <div class="client-item ${isActive ? 'active' : ''}" data-email="${email}" onclick="selectClient('${email}')">
-                    <div>
-                        <div class="name">${name}</div>
-                        <div class="email">${email}</div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-        updateUnreadBadges();
-    });
-}
-
-function selectClient(email) {
-    currentClient = email;
-    
-    document.querySelectorAll('.client-item').forEach(el => {
-        el.classList.toggle('active', el.dataset.email === email);
-    });
-    
-    document.getElementById('chatClientName').textContent = email.split('@')[0];
-    document.getElementById('adminReply').style.display = 'flex';
-    
-    const container = document.getElementById('adminMessages');
-    
-    db.collection('chats')
-        .doc(email)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot((snapshot) => {
-            const messages = [];
-            snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
-            
-            if (messages.length === 0) {
-                container.innerHTML = `
-                    <div class="empty">
-                        <i class="fas fa-comment-dots"></i>
-                        <p>No messages with this client yet.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            messages.forEach(msg => {
-                const isClient = msg.sender === 'client';
-                html += `
-                    <div class="msg ${isClient ? 'client' : 'admin'}">
-                        <div class="bubble">
-                            <div class="sender">${isClient ? msg.senderName : 'You (Admin)'} ${isClient && !msg.read ? '🔴' : ''}</div>
-                            <div class="text">${msg.message}</div>
-                            <div class="time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : ''}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-            container.scrollTop = container.scrollHeight;
-            
-            // Mark as read
-            db.collection('chats')
-                .doc(email)
-                .collection('messages')
-                .where('read', '==', false)
-                .where('sender', '==', 'client')
-                .get()
-                .then((snapshot) => {
-                    const batch = db.batch();
-                    snapshot.forEach(doc => batch.update(doc.ref, { read: true }));
-                    return batch.commit();
-                })
-                .then(() => updateUnreadBadges())
-                .catch(err => console.error('Error marking messages as read:', err));
-        });
-}
-
-function sendAdminReply() {
-    const input = document.getElementById('adminReplyInput');
-    const message = input.value.trim();
-    if (!message || !currentClient) return;
-    
-    db.collection('chats')
-        .doc(currentClient)
-        .collection('messages')
-        .add({
-            id: Date.now(),
-            sender: 'admin',
-            senderName: 'Tulse Team',
-            senderEmail: 'admin@tulse.agency',
-            message: message,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            read: true
-        })
-        .then(() => {
-            input.value = '';
-        })
-        .catch(err => console.error('Error sending reply:', err));
-}
-
-function updateUnreadBadges() {
-    db.collection('chats').get().then((snapshot) => {
-        let total = 0;
-        const promises = [];
-        
-        snapshot.forEach((doc) => {
-            promises.push(
-                db.collection('chats')
-                    .doc(doc.id)
-                    .collection('messages')
-                    .where('read', '==', false)
-                    .where('sender', '==', 'client')
-                    .get()
-                    .then((msgSnapshot) => {
-                        total += msgSnapshot.size;
-                    })
-            );
-        });
-        
-        Promise.all(promises).then(() => {
-            const badge = document.getElementById('msgBadge');
-            const adminBadge = document.getElementById('adminBadgeCount');
-            if (total > 0) {
-                if (badge) { badge.classList.remove('hidden'); badge.textContent = total; }
-                if (adminBadge) { adminBadge.classList.remove('hidden'); adminBadge.textContent = total; }
-            } else {
-                if (badge) { badge.classList.add('hidden'); }
-                if (adminBadge) { adminBadge.classList.add('hidden'); }
-            }
-        });
-    });
-}
-
-// ==========================
-// ADMIN DASHBOARD
-// ==========================
-function loadAdminDashboard() {
-    // Client list
-    db.collection('chats').get().then((snapshot) => {
-        const container = document.getElementById('adminClientListFull');
-        if (snapshot.size === 0) {
-            container.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No clients yet.</p>';
-            return;
-        }
-        
-        let html = '';
-        snapshot.forEach((doc) => {
-            const email = doc.id;
-            const name = email.split('@')[0];
-            html += `
-                <div class="admin-client-item">
-                    <div>
-                        <div class="name">${name}</div>
-                        <div class="email">${email}</div>
-                    </div>
-                    <span class="status">Active</span>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    });
-    
-    // Messages
-    const msgContainer = document.getElementById('adminMessageList');
-    db.collection('chats').get().then((snapshot) => {
-        let allMessages = [];
-        const promises = [];
-        
-        snapshot.forEach((doc) => {
-            promises.push(
-                db.collection('chats')
-                    .doc(doc.id)
-                    .collection('messages')
-                    .orderBy('timestamp', 'desc')
-                    .limit(5)
-                    .get()
-                    .then((msgSnapshot) => {
-                        msgSnapshot.forEach((msgDoc) => {
-                            const data = msgDoc.data();
-                            if (data.sender === 'client') {
-                                allMessages.push({ ...data, clientEmail: doc.id });
-                            }
-                        });
-                    })
-            );
-        });
-        
-        Promise.all(promises).then(() => {
-            allMessages.sort((a, b) => {
-                const timeA = a.timestamp ? a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp) : new Date(0);
-                const timeB = b.timestamp ? b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp) : new Date(0);
-                return timeB - timeA;
-            });
-            
-            if (allMessages.length === 0) {
-                msgContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No client messages yet.</p>';
-                return;
-            }
-            
-            let html = '';
-            allMessages.slice(0, 10).forEach((msg) => {
-                const time = msg.timestamp ? 
-                    (msg.timestamp.toDate ? new Date(msg.timestamp.toDate()).toLocaleString() : new Date(msg.timestamp).toLocaleString()) : 
-                    'Unknown';
-                html += `
-                    <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9;">
-                        <div>
-                            <div style="font-weight:600;">${msg.senderName || 'Client'}</div>
-                            <div style="font-size:0.9rem;">${msg.message}</div>
-                            <div style="font-size:0.75rem; color:#94a3b8;">${time}</div>
-                        </div>
-                        <div style="font-size:0.8rem;">${msg.read ? '✅' : '🔴'}</div>
-                    </div>
-                `;
-            });
-            msgContainer.innerHTML = html;
-        });
-    });
-    
-    // Files
-    const fileContainer = document.getElementById('adminFileList');
-    const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
-    if (files.length === 0) {
-        fileContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No files uploaded yet.</p>';
-    } else {
-        let html = '';
-        files.forEach(file => {
-            const size = file.size < 1024 ? file.size + ' B' : 
-                         file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' : 
-                         (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-            html += `
-                <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #f1f5f9;">
-                    <span>📄 ${file.name}</span>
-                    <span style="font-size:0.8rem; color:#64748b;">${size}</span>
-                </div>
-            `;
-        });
-        fileContainer.innerHTML = html;
-    }
-}
-
-// ==========================
-// FILES
-// ==========================
-function uploadFile(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
-            files.push({
-                id: Date.now(),
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                data: e.target.result,
-                uploadDate: new Date().toISOString()
-            });
-            localStorage.setItem('tulse_project_files', JSON.stringify(files));
-            resolve();
+        // ==========================
+        // FIREBASE CONFIG
+        // ==========================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRkzYNYGXXKsaZmR0Jh9IgQsmTeUP23-g",
+            authDomain: "tulse-chat.firebaseapp.com",
+            projectId: "tulse-chat",
+            storageBucket: "tulse-chat.firebasestorage.app",
+            messagingSenderId: "948935694228",
+            appId: "1:948935694228:web:9f716b4df941a8f387e181",
+            measurementId: "G-HXXMQWJSG0"
         };
-        reader.readAsDataURL(file);
-    });
-}
-
-function loadFiles() {
-    const container = document.getElementById('fileList');
-    const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
-    
-    if (files.length === 0) {
-        container.innerHTML = `
-            <div style="text-align:center; padding:40px 20px; color:#94a3b8;">
-                <i class="fas fa-folder-open" style="font-size:3rem; display:block; margin-bottom:10px; color:#e5e7eb;"></i>
-                <p>No files uploaded yet.</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '';
-    files.forEach(file => {
-        const size = file.size < 1024 ? file.size + ' B' : 
-                     file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' : 
-                     (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-        
-        const icon = file.type.includes('pdf') ? 'fa-file-pdf' :
-                    file.type.includes('excel') || file.type.includes('spreadsheet') ? 'fa-file-excel' :
-                    file.type.includes('word') ? 'fa-file-word' :
-                    file.type.includes('image') ? 'fa-file-image' : 'fa-file';
-        
-        html += `
-            <div class="file-item">
-                <i class="fas ${icon}" style="font-size:1.5rem; color:var(--accent-color);"></i>
-                <div class="info">
-                    <div class="name">${file.name}</div>
-                    <div class="size">${size}</div>
-                </div>
-                <a href="${file.data}" download="${file.name}" class="download">Download</a>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-// ==========================
-// INIT
-// ==========================
-document.addEventListener('DOMContentLoaded', function() {
-    if (!checkAuth()) return;
-    loadUserData();
-    loadFiles();
-    
-    if (isAdmin) {
-        loadAdminClients();
-        updateUnreadBadges();
-        setInterval(() => {
-            if (document.getElementById('tab-messages').classList.contains('active')) {
-                loadAdminClients();
-            }
-        }, 10000);
-    } else {
-        loadClientMessages();
-    }
-    
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            uploadFile(file).then(() => {
-                loadFiles();
-                if (isAdmin) loadAdminDashboard();
-                this.value = '';
-            });
-        }
-    });
-});
-
-// Expose functions
-window.sendClientMessage = sendClientMessage;
-window.sendAdminReply = sendAdminReply;
-window.selectClient = selectClient;
-window.loadAdminClients = loadAdminClients;
-window.loadAdminDashboard = loadAdminDashboard;
-window.loadFiles = loadFiles;
-window.loginAsAdmin = loginAsAdmin;
-</script>
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        console.log('✅ Firebase initialized');
+    </script>
 
     <script>
+        // ==========================
+        // REAL ADMIN ACCOUNT (HARDCODED)
+        // ==========================
+        const ADMIN_CREDENTIALS = {
+            email: 'admin@tulse.agency',
+            password: 'TulseAdmin2026!'
+        };
+
         // ==========================
         // APP STATE
         // ==========================
@@ -1363,7 +793,7 @@ window.loginAsAdmin = loginAsAdmin;
         let accountData = {};
         let projectData = {};
         let packageKey = 'lead-intelligence-professional';
-        
+
         const packageNames = {
             'lead-intelligence-standard': 'Lead Intelligence - Standard',
             'lead-intelligence-growth': 'Lead Intelligence - Growth',
@@ -1382,8 +812,10 @@ window.loginAsAdmin = loginAsAdmin;
             const sessionId = localStorage.getItem('tulse_session_id');
             accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
             projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
-            isAdmin = localStorage.getItem('tulse_is_admin') === 'true';
-            packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
+            
+            // CHECK IF THIS IS THE REAL ADMIN
+            const isAdminAccount = accountData.client_email === ADMIN_CREDENTIALS.email;
+            isAdmin = isAdminAccount;
 
             const locked = document.getElementById('lockedState');
             const tabs = document.querySelectorAll('.tab');
@@ -1406,26 +838,85 @@ window.loginAsAdmin = loginAsAdmin;
             const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
             const displayName = name.charAt(0).toUpperCase() + name.slice(1);
             
-            document.getElementById('avatar').textContent = displayName.charAt(0);
-            document.getElementById('userName').textContent = displayName;
-            document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
-            document.getElementById('greetingName').textContent = displayName;
+            const avatar = document.getElementById('avatar');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+            const greetingName = document.getElementById('greetingName');
             
+            if (avatar) avatar.textContent = displayName.charAt(0);
+            if (userName) userName.textContent = displayName;
+            if (userEmail) userEmail.textContent = accountData.client_email || 'client@example.com';
+            if (greetingName) greetingName.textContent = displayName;
+            
+            // ONLY SHOW ADMIN TAB IF REAL ADMIN
             if (isAdmin) {
-                document.getElementById('adminBadge').style.display = 'inline-block';
+                const adminBadge = document.getElementById('adminBadge');
+                const adminTab = document.getElementById('adminTab');
+                const adminChat = document.getElementById('adminChatView');
+                const clientChat = document.getElementById('clientChatView');
+                
+                if (adminBadge) adminBadge.style.display = 'inline-block';
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                document.getElementById('adminTab').style.display = 'flex';
+                if (adminTab) adminTab.style.display = 'flex';
+                if (adminChat) adminChat.style.display = 'block';
+                if (clientChat) clientChat.style.display = 'none';
+            } else {
+                const adminBadge = document.getElementById('adminBadge');
+                const adminTab = document.getElementById('adminTab');
+                const adminChat = document.getElementById('adminChatView');
+                const clientChat = document.getElementById('clientChatView');
+                
+                if (adminBadge) adminBadge.style.display = 'none';
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                if (adminTab) adminTab.style.display = 'none';
+                if (adminChat) adminChat.style.display = 'none';
+                if (clientChat) clientChat.style.display = 'block';
             }
             
             if (projectData.target_industry) {
-                document.getElementById('industry').textContent = projectData.target_industry;
+                const industryEl = document.getElementById('industry');
+                if (industryEl) industryEl.textContent = projectData.target_industry;
             }
             if (projectData.target_location) {
-                document.getElementById('location').textContent = projectData.target_location;
+                const locationEl = document.getElementById('location');
+                if (locationEl) locationEl.textContent = projectData.target_location;
             }
             
-            document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence';
+            const packageEl = document.getElementById('projectPackage');
+            if (packageEl) packageEl.textContent = packageNames[packageKey] || 'Lead Intelligence';
         }
+
+        // ==========================
+        // ADMIN LOGIN
+        // ==========================
+        function loginAsAdmin() {
+            const adminAccount = {
+                full_name: 'Admin User',
+                client_email: ADMIN_CREDENTIALS.email,
+                client_password: ADMIN_CREDENTIALS.password
+            };
+            localStorage.setItem('tulse_account_data', JSON.stringify(adminAccount));
+            localStorage.setItem('tulse_logged_in', 'true');
+            localStorage.setItem('tulse_payment_verified', 'true');
+            localStorage.setItem('tulse_package', 'lead-intelligence-professional');
+            localStorage.setItem('tulse_session_id', 'admin_' + Date.now());
+            localStorage.removeItem('tulse_is_admin');
+            location.reload();
+        }
+
+        // ==========================
+        // LOGOUT
+        // ==========================
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Logout from your client portal?')) {
+                localStorage.removeItem('tulse_logged_in');
+                localStorage.removeItem('tulse_session_id');
+                localStorage.removeItem('tulse_account_data');
+                localStorage.removeItem('tulse_payment_verified');
+                localStorage.removeItem('tulse_is_admin');
+                window.location.href = 'index.html';
+            }
+        });
 
         // ==========================
         // TAB SWITCHING
@@ -1437,7 +928,8 @@ window.loginAsAdmin = loginAsAdmin;
                 
                 const tabId = this.dataset.tab;
                 document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-                document.getElementById('tab-' + tabId).classList.add('active');
+                const target = document.getElementById('tab-' + tabId);
+                if (target) target.classList.add('active');
                 
                 if (tabId === 'messages' && isAdmin) {
                     loadAdminClients();
@@ -1452,20 +944,6 @@ window.loginAsAdmin = loginAsAdmin;
                     loadFiles();
                 }
             });
-        });
-
-        // ==========================
-        // LOGOUT
-        // ==========================
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            if (confirm('Logout from your client portal?')) {
-                localStorage.removeItem('tulse_logged_in');
-                localStorage.removeItem('tulse_session_id');
-                localStorage.removeItem('tulse_account_data');
-                localStorage.removeItem('tulse_payment_verified');
-                localStorage.removeItem('tulse_is_admin');
-                window.location.href = 'index.html';
-            }
         });
 
         // ==========================
@@ -1544,10 +1022,12 @@ window.loginAsAdmin = loginAsAdmin;
         // ==========================
         function loadAdminClients() {
             const container = document.getElementById('adminClientList');
+            if (!container) return;
             
             db.collection('chats').get().then((snapshot) => {
                 const count = snapshot.size;
-                document.getElementById('clientCount').textContent = count;
+                const countEl = document.getElementById('clientCount');
+                if (countEl) countEl.textContent = count;
                 
                 if (count === 0) {
                     container.innerHTML = `
@@ -1565,85 +1045,36 @@ window.loginAsAdmin = loginAsAdmin;
                     const name = email.split('@')[0];
                     const isActive = currentClient === email;
                     
-                    // Get unread count
-                    db.collection('chats')
-                        .doc(email)
-                        .collection('messages')
-                        .where('read', '==', false)
-                        .where('sender', '==', 'client')
-                        .get()
-                        .then((unreadSnapshot) => {
-                            const unread = unreadSnapshot.size;
-                            const badge = unread > 0 ? `<span class="unread">${unread}</span>` : '';
-                            
-                            // Update the item if it exists
-                            const items = container.querySelectorAll('.client-item');
-                            items.forEach(el => {
-                                if (el.dataset.email === email) {
-                                    const badgeEl = el.querySelector('.unread');
-                                    if (badgeEl) {
-                                        if (unread > 0) {
-                                            badgeEl.textContent = unread;
-                                            badgeEl.style.display = 'inline';
-                                        } else {
-                                            badgeEl.style.display = 'none';
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    
                     html += `
                         <div class="client-item ${isActive ? 'active' : ''}" data-email="${email}" onclick="selectClient('${email}')">
                             <div>
                                 <div class="name">${name}</div>
                                 <div class="email">${email}</div>
                             </div>
-                            <span class="unread" id="unread_${email}">0</span>
                         </div>
                     `;
                 });
                 
                 container.innerHTML = html;
-                
-                // Update unread counts
-                snapshot.forEach((doc) => {
-                    const email = doc.id;
-                    db.collection('chats')
-                        .doc(email)
-                        .collection('messages')
-                        .where('read', '==', false)
-                        .where('sender', '==', 'client')
-                        .get()
-                        .then((unreadSnapshot) => {
-                            const unread = unreadSnapshot.size;
-                            const badge = document.getElementById('unread_' + email);
-                            if (badge) {
-                                if (unread > 0) {
-                                    badge.textContent = unread;
-                                    badge.style.display = 'inline';
-                                } else {
-                                    badge.style.display = 'none';
-                                }
-                            }
-                        });
-                });
+                updateUnreadBadges();
             });
         }
 
         function selectClient(email) {
             currentClient = email;
             
-            // Update UI
             document.querySelectorAll('.client-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.email === email);
             });
             
-            document.getElementById('chatClientName').textContent = email.split('@')[0];
-            document.getElementById('adminReply').style.display = 'flex';
+            const nameEl = document.getElementById('chatClientName');
+            if (nameEl) nameEl.textContent = email.split('@')[0];
             
-            // Load messages
+            const replyEl = document.getElementById('adminReply');
+            if (replyEl) replyEl.style.display = 'flex';
+            
             const container = document.getElementById('adminMessages');
+            if (!container) return;
             
             db.collection('chats')
                 .doc(email)
@@ -1680,7 +1111,7 @@ window.loginAsAdmin = loginAsAdmin;
                     container.innerHTML = html;
                     container.scrollTop = container.scrollHeight;
                     
-                    // Mark messages as read
+                    // Mark as read
                     db.collection('chats')
                         .doc(email)
                         .collection('messages')
@@ -1689,14 +1120,10 @@ window.loginAsAdmin = loginAsAdmin;
                         .get()
                         .then((snapshot) => {
                             const batch = db.batch();
-                            snapshot.forEach(doc => {
-                                batch.update(doc.ref, { read: true });
-                            });
+                            snapshot.forEach(doc => batch.update(doc.ref, { read: true }));
                             return batch.commit();
                         })
-                        .then(() => {
-                            updateUnreadBadges();
-                        })
+                        .then(() => updateUnreadBadges())
                         .catch(err => console.error('Error marking messages as read:', err));
                 });
         }
@@ -1735,19 +1162,14 @@ window.loginAsAdmin = loginAsAdmin;
                 .get()
                 .then((snapshot) => {
                     const batch = db.batch();
-                    snapshot.forEach(doc => {
-                        batch.update(doc.ref, { read: true });
-                    });
+                    snapshot.forEach(doc => batch.update(doc.ref, { read: true }));
                     return batch.commit();
                 })
-                .then(() => {
-                    updateUnreadBadges();
-                })
+                .then(() => updateUnreadBadges())
                 .catch(err => console.error('Error marking messages as read:', err));
         }
 
         function updateUnreadBadges() {
-            // Get total unread count
             db.collection('chats').get().then((snapshot) => {
                 let total = 0;
                 const promises = [];
@@ -1770,13 +1192,11 @@ window.loginAsAdmin = loginAsAdmin;
                     const badge = document.getElementById('msgBadge');
                     const adminBadge = document.getElementById('adminBadgeCount');
                     if (total > 0) {
-                        badge.classList.remove('hidden');
-                        badge.textContent = total;
-                        adminBadge.classList.remove('hidden');
-                        adminBadge.textContent = total;
+                        if (badge) { badge.classList.remove('hidden'); badge.textContent = total; }
+                        if (adminBadge) { adminBadge.classList.remove('hidden'); adminBadge.textContent = total; }
                     } else {
-                        badge.classList.add('hidden');
-                        adminBadge.classList.add('hidden');
+                        if (badge) { badge.classList.add('hidden'); }
+                        if (adminBadge) { adminBadge.classList.add('hidden'); }
                     }
                 });
             });
@@ -1789,6 +1209,7 @@ window.loginAsAdmin = loginAsAdmin;
             // Client list
             db.collection('chats').get().then((snapshot) => {
                 const container = document.getElementById('adminClientListFull');
+                if (!container) return;
                 if (snapshot.size === 0) {
                     container.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No clients yet.</p>';
                     return;
@@ -1813,6 +1234,8 @@ window.loginAsAdmin = loginAsAdmin;
             
             // Messages
             const msgContainer = document.getElementById('adminMessageList');
+            if (!msgContainer) return;
+            
             db.collection('chats').get().then((snapshot) => {
                 let allMessages = [];
                 const promises = [];
@@ -1870,6 +1293,8 @@ window.loginAsAdmin = loginAsAdmin;
             
             // Files
             const fileContainer = document.getElementById('adminFileList');
+            if (!fileContainer) return;
+            
             const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
             if (files.length === 0) {
                 fileContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No files uploaded yet.</p>';
@@ -1915,6 +1340,8 @@ window.loginAsAdmin = loginAsAdmin;
 
         function loadFiles() {
             const container = document.getElementById('fileList');
+            if (!container) return;
+            
             const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
             
             if (files.length === 0) {
@@ -1957,42 +1384,37 @@ window.loginAsAdmin = loginAsAdmin;
         // ==========================
         document.addEventListener('DOMContentLoaded', function() {
             if (!checkAuth()) return;
-            
             loadUserData();
+            loadFiles();
             
-            // Load chat based on role
             if (isAdmin) {
-                document.getElementById('adminChatView').style.display = 'block';
-                document.getElementById('clientChatView').style.display = 'none';
                 loadAdminClients();
                 updateUnreadBadges();
-                
-                // Auto-refresh client list every 10 seconds
                 setInterval(() => {
                     if (document.getElementById('tab-messages').classList.contains('active')) {
                         loadAdminClients();
                     }
                 }, 10000);
             } else {
-                document.getElementById('adminChatView').style.display = 'none';
-                document.getElementById('clientChatView').style.display = 'block';
                 loadClientMessages();
             }
             
-            // Files
-            document.getElementById('fileInput').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    uploadFile(file).then(() => {
-                        loadFiles();
-                        this.value = '';
-                        if (isAdmin) loadAdminDashboard();
-                    });
-                }
-            });
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        uploadFile(file).then(() => {
+                            loadFiles();
+                            if (isAdmin) loadAdminDashboard();
+                            this.value = '';
+                        });
+                    }
+                });
+            }
         });
 
-        // Expose functions
+        // Expose functions globally
         window.sendClientMessage = sendClientMessage;
         window.sendAdminReply = sendAdminReply;
         window.selectClient = selectClient;
@@ -2000,6 +1422,7 @@ window.loginAsAdmin = loginAsAdmin;
         window.loadAdminClients = loadAdminClients;
         window.loadAdminDashboard = loadAdminDashboard;
         window.loadFiles = loadFiles;
+        window.loginAsAdmin = loginAsAdmin;
     </script>
 
 </body>
