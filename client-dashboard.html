@@ -21,9 +21,6 @@
     <link rel="stylesheet" href="css/responsive.css">
     
     <style>
-        /* ==========================
-        DASHBOARD LAYOUT
-        ========================== */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 260px 1fr;
@@ -126,9 +123,6 @@
             100% { opacity: 1; }
         }
 
-        /* ==========================
-        DASHBOARD CONTENT
-        ========================== */
         .dashboard-content {
             background: white;
             border-radius: 16px;
@@ -145,9 +139,6 @@
             animation: fadeUp 0.4s ease forwards;
         }
 
-        /* ==========================
-        PROJECT HEADER
-        ========================== */
         .project-header {
             display: flex;
             justify-content: space-between;
@@ -176,9 +167,6 @@
         .status-completed { background: #d1fae5; color: #065f46; }
         .status-pending { background: #f3f4f6; color: #4b5563; }
 
-        /* ==========================
-        PROGRESS TRACKER
-        ========================== */
         .progress-tracker {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -231,9 +219,6 @@
             color: #000;
         }
 
-        /* ==========================
-        GREETING
-        ========================== */
         .greeting-message {
             background: #f8fafc;
             padding: 20px 25px;
@@ -252,9 +237,6 @@
             color: #000;
         }
 
-        /* ==========================
-        PROJECT SUMMARY
-        ========================== */
         .summary-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -270,9 +252,6 @@
             font-weight: 600;
         }
 
-        /* ==========================
-        CHAT - ADMIN SPLIT VIEW
-        ========================== */
         .chat-split-view {
             display: grid;
             grid-template-columns: 280px 1fr;
@@ -493,9 +472,6 @@
             opacity: 0.8;
         }
 
-        /* ==========================
-        CHAT MESSAGE BUBBLES
-        ========================== */
         .message-bubble {
             display: flex;
             margin-bottom: 12px;
@@ -557,9 +533,6 @@
             margin-left: 6px;
         }
 
-        /* ==========================
-        FILES
-        ========================== */
         .file-upload-area {
             display: flex;
             gap: 15px;
@@ -656,9 +629,6 @@
             opacity: 0.8;
         }
 
-        /* ==========================
-        ADMIN CARDS
-        ========================== */
         .admin-card {
             background: #f8fafc;
             padding: 20px;
@@ -751,9 +721,6 @@
             opacity: 0.8;
         }
 
-        /* ==========================
-        LOCKED STATE
-        ========================== */
         .locked-overlay {
             text-align: center;
             padding: 60px 20px;
@@ -774,9 +741,6 @@
             margin-bottom: 20px;
         }
 
-        /* ==========================
-        ADMIN ONLY
-        ========================== */
         .admin-only {
             display: none;
         }
@@ -796,9 +760,6 @@
             display: inline-block;
         }
 
-        /* ==========================
-        CLIENT CHAT
-        ========================== */
         .client-chat-container {
             border: 1px solid #e5e7eb;
             border-radius: 12px;
@@ -861,9 +822,6 @@
             opacity: 0.8;
         }
 
-        /* ==========================
-        RESPONSIVE
-        ========================== */
         @media (max-width: 1024px) {
             .chat-split-view {
                 grid-template-columns: 220px 1fr;
@@ -959,13 +917,14 @@
             }
         }
     </style>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-    <!-- ==========================
-    NAVBAR
-    ========================== -->
     <header class="header">
         <nav class="navbar">
             <a href="index.html" class="logo">
@@ -988,13 +947,9 @@
         </nav>
     </header>
 
-    <!-- ==========================
-    DASHBOARD
-    ========================== -->
     <section style="background: #f8fafc; padding: 100px 5%; min-height: 80vh;">
         <div class="dashboard-grid">
 
-            <!-- SIDEBAR -->
             <div class="dashboard-sidebar">
                 <div class="user-info">
                     <div class="avatar" id="userAvatar">JD</div>
@@ -1026,10 +981,8 @@
                 </div>
             </div>
 
-            <!-- CONTENT -->
             <div class="dashboard-content">
 
-                <!-- LOCKED STATE -->
                 <div id="lockedState">
                     <div class="locked-overlay">
                         <i class="fas fa-lock"></i>
@@ -1039,9 +992,6 @@
                     </div>
                 </div>
 
-                <!-- ==========================
-                TAB: DASHBOARD
-                ========================== -->
                 <div class="tab active" id="tab-dashboard" style="display: none;">
                     <div class="greeting-message">
                         <p>👋 Hey <strong id="greetingName">John</strong>! Here's what's happening with your project.</p>
@@ -1088,9 +1038,6 @@
                     </div>
                 </div>
 
-                <!-- ==========================
-                TAB: PROJECTS
-                ========================== -->
                 <div class="tab" id="tab-projects" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Your Projects</h2>
                     <div id="projectList">
@@ -1107,13 +1054,9 @@
                     </div>
                 </div>
 
-                <!-- ==========================
-                TAB: MESSAGES
-                ========================== -->
                 <div class="tab" id="tab-messages" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
 
-                    <!-- ADMIN VIEW -->
                     <div id="adminChatView" style="display: none;">
                         <div class="chat-split-view">
                             <div class="chat-client-list">
@@ -1131,7 +1074,7 @@
                             <div class="chat-messages-area">
                                 <div class="chat-header">
                                     <span><i class="fas fa-comment" style="margin-right: 8px;"></i> <span id="adminChatClientName">Select a client</span></span>
-                                    <button class="mark-read-btn" onclick="markAllClientMessagesAsRead()">Mark All Read</button>
+                                    <button class="mark-read-btn" onclick="markMessagesAsRead(currentAdminClient)">Mark All Read</button>
                                 </div>
                                 <div class="messages-container" id="adminMessageContainer">
                                     <div class="empty-state">
@@ -1150,7 +1093,6 @@
                         </div>
                     </div>
 
-                    <!-- CLIENT VIEW -->
                     <div id="clientChatView">
                         <div class="client-chat-container">
                             <div class="client-chat-messages" id="messageContainer">
@@ -1161,15 +1103,12 @@
                             </div>
                             <div class="client-chat-input">
                                 <input type="text" id="messageInput" placeholder="Type your message here...">
-                                <button id="sendMessageBtn"><i class="fas fa-paper-plane"></i> Send</button>
+                                <button id="sendMessageBtn" onclick="sendClientMessage()"><i class="fas fa-paper-plane"></i> Send</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ==========================
-                TAB: FILES
-                ========================== -->
                 <div class="tab" id="tab-files" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Project Files</h2>
 
@@ -1187,9 +1126,6 @@
                     </div>
                 </div>
 
-                <!-- ==========================
-                TAB: ADMIN
-                ========================== -->
                 <div class="tab admin-only" id="tab-admin" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">🛡️ Admin Dashboard</h2>
 
@@ -1222,9 +1158,6 @@
         </div>
     </section>
 
-    <!-- ==========================
-    FOOTER
-    ========================== -->
     <footer class="footer">
         <div class="footer-logo">
             <img src="assets/logo.png" alt="Tulse Logo">
@@ -1242,253 +1175,15 @@
     </footer>
 
     <script src="js/app.js"></script>
-<script src="js/navbar.js"></script>
-<script src="js/animations.js"></script>
-<script src="js/scroll.js"></script>
-<script src="js/chat.js"></script>
-<script src="js/files.js"></script>
-<script src="js/admin.js"></script>
+    <script src="js/navbar.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/scroll.js"></script>
+    <script src="js/files.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/firebase-chat.js"></script>
 
-<script>
-    // ==========================
-    // AUTHENTICATION CHECK - FIXED
-    // ==========================
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get all auth data
-        const isLoggedIn = localStorage.getItem('tulse_logged_in') === 'true';
-        const sessionId = localStorage.getItem('tulse_session_id');
-        const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-        const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
-        const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
-
-        // DEBUG
-        console.log('=== AUTH DEBUG ===');
-        console.log('isLoggedIn:', isLoggedIn);
-        console.log('sessionId:', sessionId);
-        console.log('accountData:', accountData);
-        console.log('isAdminUser:', isAdminUser);
-
-        // Get elements
-        const lockedState = document.getElementById('lockedState');
-        const tabs = document.querySelectorAll('.tab');
-
-        // Check if authenticated
-        if (!isLoggedIn || !sessionId || !accountData.client_email) {
-            // Not authenticated - show locked state
-            if (lockedState) {
-                lockedState.style.display = 'block';
-                console.log('Showing locked state');
-            }
-            tabs.forEach(tab => tab.style.display = 'none');
-            return;
-        }
-
-        // AUTHENTICATED - HIDE LOCKED STATE
-        if (lockedState) {
-            lockedState.style.display = 'none';
-            console.log('Hiding locked state');
-        }
-        tabs.forEach(tab => tab.style.display = 'block');
-
-        // Show admin elements if admin
-        if (isAdminUser) {
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-            document.getElementById('adminBadge').classList.add('show');
-            
-            // Show admin chat view
-            const adminChat = document.getElementById('adminChatView');
-            const clientChat = document.getElementById('clientChatView');
-            if (adminChat) adminChat.style.display = 'block';
-            if (clientChat) clientChat.style.display = 'none';
-        } else {
-            // Show client chat view
-            const adminChat = document.getElementById('adminChatView');
-            const clientChat = document.getElementById('clientChatView');
-            if (adminChat) adminChat.style.display = 'none';
-            if (clientChat) clientChat.style.display = 'block';
-        }
-
-        // Load user data
-        const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
-        const displayName = name.charAt(0).toUpperCase() + name.slice(1);
-        
-        const userEmailEl = document.getElementById('userEmail');
-        const userNameEl = document.getElementById('userName');
-        const greetingEl = document.getElementById('greetingName');
-        const avatarEl = document.getElementById('userAvatar');
-        
-        if (userEmailEl) userEmailEl.textContent = accountData.client_email || 'client@example.com';
-        if (userNameEl) userNameEl.textContent = displayName;
-        if (greetingEl) greetingEl.textContent = displayName;
-        if (avatarEl) avatarEl.textContent = displayName.charAt(0);
-
-        // Load project data
-        if (projectData.target_industry) {
-            document.getElementById('projectIndustry').textContent = projectData.target_industry;
-        }
-        if (projectData.target_location) {
-            document.getElementById('projectLocation').textContent = projectData.target_location;
-        }
-
-        // Package info
-        const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
-        const packageNames = {
-            'lead-intelligence-standard': 'Lead Intelligence - Standard',
-            'lead-intelligence-growth': 'Lead Intelligence - Growth',
-            'lead-intelligence-professional': 'Lead Intelligence - Professional',
-            'content-remote-one-time': 'Content - Remote One-Time',
-            'content-remote-monthly': 'Content - Remote Monthly',
-            'content-onsite-one-time': 'Content - On-Site One-Time',
-            'content-onsite-monthly': 'Content - On-Site Monthly'
-        };
-        const packageEl = document.getElementById('projectPackage');
-        if (packageEl) packageEl.textContent = packageNames[packageKey] || 'Lead Intelligence';
-
-        // Admin dashboard update
-        if (isAdminUser && typeof updateAdminDashboard === 'function') {
-            setTimeout(updateAdminDashboard, 500);
-        }
-
-        // If client, update chat
-        if (!isAdminUser && typeof updateClientMessageDisplay === 'function') {
-            setTimeout(updateClientMessageDisplay, 500);
-        }
-
-        console.log('=== AUTH COMPLETE ===');
-    });
-
-    // ==========================
-    // TAB SWITCHING
-    // ==========================
-    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.remove('active'));
-            this.classList.add('active');
-            const tabId = this.dataset.tab;
-            document.querySelectorAll('.dashboard-content .tab').forEach(el => el.classList.remove('active'));
-            const targetTab = document.getElementById('tab-' + tabId);
-            if (targetTab) {
-                targetTab.classList.add('active');
-                targetTab.style.display = 'block';
-                if (tabId === 'admin' && typeof updateAdminDashboard === 'function') {
-                    setTimeout(updateAdminDashboard, 200);
-                }
-                if (tabId === 'messages' && typeof updateAdminChatDisplay === 'function') {
-                    setTimeout(updateAdminChatDisplay, 200);
-                    setTimeout(updateClientList, 200);
-                }
-                if (tabId === 'messages' && typeof updateClientMessageDisplay === 'function') {
-                    setTimeout(updateClientMessageDisplay, 200);
-                }
-            }
-        });
-    });
-
-    // ==========================
-    // LOGOUT
-    // ==========================
-    document.getElementById('logoutBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        if (confirm('Logout from your client portal?')) {
-            localStorage.removeItem('tulse_logged_in');
-            localStorage.removeItem('tulse_session_id');
-            localStorage.removeItem('tulse_account_data');
-            localStorage.removeItem('tulse_payment_verified');
-            localStorage.removeItem('tulse_is_admin');
-            window.location.href = 'index.html';
-        }
-    });
-
-    // ==========================
-    // CHAT HELPERS (Admin)
-    // ==========================
-    let currentAdminClient = null;
-
-    function selectClient(clientEmail) {
-        currentAdminClient = clientEmail;
-        markClientMessagesAsRead(clientEmail);
-        
-        const clients = getAllClients();
-        const client = clients.find(c => c.email === clientEmail);
-        
-        const nameEl = document.getElementById('adminChatClientName');
-        const replyNameEl = document.getElementById('adminReplyClientName');
-        if (nameEl) nameEl.textContent = client ? client.name : 'Client';
-        if (replyNameEl) replyNameEl.textContent = client ? client.name : 'Client';
-        
-        const replyArea = document.getElementById('adminReplyArea');
-        if (replyArea) replyArea.style.display = 'block';
-        
-        updateAdminChatDisplay();
-        updateClientList();
-        updateAdminNotification();
-    }
-
-    function markAllClientMessagesAsRead() {
-        if (!currentAdminClient) return;
-        markClientMessagesAsRead(currentAdminClient);
-    }
-
-    function sendAdminReply() {
-        const input = document.getElementById('adminReplyInput');
-        if (!input) return;
-        const message = input.value.trim();
-        if (!message) return;
-        sendAdminReplyToClient(currentAdminClient, message);
-        input.value = '';
-    }
-
-    function sendAdminReplyToClient(clientEmail, message) {
-        if (!message || !clientEmail) return;
-        sendMessage(message, clientEmail);
-        updateAdminChatDisplay();
-        updateClientList();
-        updateAdminNotification();
-    }
-
-    // ==========================
-    // CHAT HELPERS (Client)
-    // ==========================
-    document.getElementById('sendMessageBtn')?.addEventListener('click', function() {
-        const input = document.getElementById('messageInput');
-        const message = input?.value.trim();
-        if (message) {
-            sendMessage(message);
-            input.value = '';
-        }
-    });
-
-    document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const message = this.value.trim();
-            if (message) {
-                sendMessage(message);
-                this.value = '';
-            }
-        }
-    });
-
-    // ==========================
-    // FILE UPLOAD
-    // ==========================
-    document.getElementById('uploadFileBtn')?.addEventListener('click', function() {
-        document.getElementById('fileInput').click();
-    });
-
-    document.getElementById('fileInput')?.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            uploadFile(file).then(() => {
-                updateFileDisplay();
-                this.value = '';
-                if (typeof updateAdminDashboard === 'function') {
-                    setTimeout(updateAdminDashboard, 500);
-                }
-            });
-        }
-    });
-</script>
+    <script>
         // ==========================
         // AUTHENTICATION CHECK
         // ==========================
@@ -1499,34 +1194,23 @@
             const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
             const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
 
+            const lockedState = document.getElementById('lockedState');
+            const tabs = document.querySelectorAll('.tab');
+
             if (!isLoggedIn || !sessionId || !accountData.client_email) {
-                document.getElementById('lockedState').style.display = 'block';
-                document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
+                if (lockedState) lockedState.style.display = 'block';
+                tabs.forEach(tab => tab.style.display = 'none');
                 return;
             }
 
-            document.getElementById('lockedState').style.display = 'none';
-            document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'block');
+            if (lockedState) lockedState.style.display = 'none';
+            tabs.forEach(tab => tab.style.display = 'block');
 
-            // Admin setup
             if (isAdminUser) {
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
                 document.getElementById('adminBadge').classList.add('show');
-                
-                // Show admin chat view
-                const adminChat = document.getElementById('adminChatView');
-                const clientChat = document.getElementById('clientChatView');
-                if (adminChat) adminChat.style.display = 'block';
-                if (clientChat) clientChat.style.display = 'none';
-            } else {
-                // Show client chat view
-                const adminChat = document.getElementById('adminChatView');
-                const clientChat = document.getElementById('clientChatView');
-                if (adminChat) adminChat.style.display = 'none';
-                if (clientChat) clientChat.style.display = 'block';
             }
 
-            // Load user data
             const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
             const displayName = name.charAt(0).toUpperCase() + name.slice(1);
             document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
@@ -1534,7 +1218,6 @@
             document.getElementById('greetingName').textContent = displayName;
             document.getElementById('userAvatar').textContent = displayName.charAt(0);
 
-            // Load project data
             if (projectData.target_industry) {
                 document.getElementById('projectIndustry').textContent = projectData.target_industry;
             }
@@ -1554,7 +1237,6 @@
             };
             document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence';
 
-            // Admin dashboard update
             if (isAdminUser && typeof updateAdminDashboard === 'function') {
                 setTimeout(updateAdminDashboard, 500);
             }
@@ -1574,13 +1256,6 @@
                 if (targetTab) {
                     targetTab.classList.add('active');
                     targetTab.style.display = 'block';
-                    if (tabId === 'admin' && typeof updateAdminDashboard === 'function') {
-                        setTimeout(updateAdminDashboard, 200);
-                    }
-                    if (tabId === 'messages' && typeof updateAdminChatDisplay === 'function') {
-                        setTimeout(updateAdminChatDisplay, 200);
-                        setTimeout(updateClientList, 200);
-                    }
                 }
             });
         });
@@ -1597,75 +1272,6 @@
                 localStorage.removeItem('tulse_payment_verified');
                 localStorage.removeItem('tulse_is_admin');
                 window.location.href = 'index.html';
-            }
-        });
-
-        // ==========================
-        // CHAT HELPERS (Admin)
-        // ==========================
-        let currentAdminClient = null;
-
-        function selectClient(clientEmail) {
-            currentAdminClient = clientEmail;
-            markAllClientMessagesAsRead();
-            
-            const clients = getAllClients();
-            const client = clients.find(c => c.email === clientEmail);
-            
-            // Update header
-            document.getElementById('adminChatClientName').textContent = client ? client.name : 'Client';
-            document.getElementById('adminReplyClientName').textContent = client ? client.name : 'Client';
-            
-            // Show reply area
-            document.getElementById('adminReplyArea').style.display = 'block';
-            
-            // Update displays
-            updateAdminChatDisplay();
-            updateClientList();
-            updateAdminNotification();
-        }
-
-        function markAllClientMessagesAsRead() {
-            if (!currentAdminClient) return;
-            markClientMessagesAsRead(currentAdminClient);
-        }
-
-        function sendAdminReply() {
-            const input = document.getElementById('adminReplyInput');
-            if (!input) return;
-            const message = input.value.trim();
-            if (!message) return;
-            sendAdminReplyToClient(currentAdminClient, message);
-            input.value = '';
-        }
-
-        function sendAdminReplyToClient(clientEmail, message) {
-            if (!message || !clientEmail) return;
-            sendMessage(message, clientEmail);
-            updateAdminChatDisplay();
-            updateClientList();
-            updateAdminNotification();
-        }
-
-        // ==========================
-        // CHAT HELPERS (Client)
-        // ==========================
-        document.getElementById('sendMessageBtn')?.addEventListener('click', function() {
-            const input = document.getElementById('messageInput');
-            const message = input?.value.trim();
-            if (message) {
-                sendMessage(message);
-                input.value = '';
-            }
-        });
-
-        document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const message = this.value.trim();
-                if (message) {
-                    sendMessage(message);
-                    this.value = '';
-                }
             }
         });
 
@@ -1693,35 +1299,3 @@
 </body>
 
 </html>
-// ==========================
-// AUTHENTICATION CHECK
-// ==========================
-document.addEventListener('DOMContentLoaded', function() {
-    const isLoggedIn = localStorage.getItem('tulse_logged_in') === 'true';
-    const sessionId = localStorage.getItem('tulse_session_id');
-    const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-    const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
-    const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
-
-    // DEBUG - log everything to see what's happening
-    console.log('isLoggedIn:', isLoggedIn);
-    console.log('sessionId:', sessionId);
-    console.log('accountData:', accountData);
-    console.log('isAdminUser:', isAdminUser);
-
-    const lockedState = document.getElementById('lockedState');
-    const tabs = document.querySelectorAll('.tab');
-
-    if (!isLoggedIn || !sessionId || !accountData.client_email) {
-        // Show locked state
-        if (lockedState) lockedState.style.display = 'block';
-        tabs.forEach(tab => tab.style.display = 'none');
-        return;
-    }
-
-    // HIDE LOCKED STATE - THIS IS THE KEY FIX
-    if (lockedState) lockedState.style.display = 'none';
-    tabs.forEach(tab => tab.style.display = 'block');
-
-    // ... rest of your code
-});
