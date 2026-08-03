@@ -6,24 +6,6 @@ function isAdmin() {
     return localStorage.getItem('tulse_is_admin') === 'true';
 }
 
-function loginAsAdmin(password) {
-    const ADMIN_PASSWORD = 'tulseadmin2026';
-    if (password === ADMIN_PASSWORD) {
-        localStorage.setItem('tulse_is_admin', 'true');
-        localStorage.setItem('tulse_logged_in', 'true');
-        localStorage.setItem('tulse_user_email', 'admin@tulse.agency');
-        window.location.href = 'client-dashboard.html';
-        return true;
-    }
-    return false;
-}
-
-function adminLogout() {
-    localStorage.removeItem('tulse_is_admin');
-    localStorage.removeItem('tulse_logged_in');
-    window.location.href = 'index.html';
-}
-
 // ==========================
 // UPDATE ADMIN DASHBOARD
 // ==========================
@@ -31,7 +13,7 @@ function adminLogout() {
 function updateAdminDashboard() {
     if (!isAdmin()) return;
     
-    // Update client list in admin dashboard
+    // Client List
     const clientList = document.getElementById('clientList');
     if (clientList) {
         const clients = getAllClients();
@@ -55,7 +37,7 @@ function updateAdminDashboard() {
         }
     }
     
-    // Update admin message list
+    // Admin Message List
     const adminMessageList = document.getElementById('adminMessageList');
     if (adminMessageList) {
         const rooms = getAllChatRooms();
@@ -94,7 +76,7 @@ function updateAdminDashboard() {
         }
     }
     
-    // Update admin file list
+    // Admin File List
     const adminFileList = document.getElementById('adminFileList');
     if (adminFileList) {
         const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
@@ -123,19 +105,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('client-dashboard.html')) {
         const isAdminUser = isAdmin();
         
-        // Show/hide admin elements
-        const adminElements = document.querySelectorAll('.admin-only');
-        adminElements.forEach(el => {
-            el.style.display = isAdminUser ? 'block' : 'none';
-        });
-        
-        // Show/hide chat views
-        const adminChatView = document.getElementById('adminChatView');
-        const clientChatView = document.getElementById('clientChatView');
-        if (adminChatView) adminChatView.style.display = isAdminUser ? 'block' : 'none';
-        if (clientChatView) clientChatView.style.display = isAdminUser ? 'none' : 'block';
-        
         if (isAdminUser) {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
             document.getElementById('adminBadge').classList.add('show');
             setTimeout(updateAdminDashboard, 500);
         }

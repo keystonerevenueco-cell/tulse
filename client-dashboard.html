@@ -271,71 +271,290 @@
         }
 
         /* ==========================
-        CHAT
+        CHAT - ADMIN SPLIT VIEW
         ========================== */
-        .chat-container {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
+        .chat-split-view {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            height: 500px;
+            max-height: 70vh;
         }
 
-        .chat-messages {
-            padding: 20px;
-            height: 350px;
+        .chat-client-list {
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-client-list .list-header {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-client-list .list-header .count-badge {
+            background: #e5e7eb;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+        }
+
+        .chat-client-list .client-items {
+            flex: 1;
             overflow-y: auto;
+            padding: 10px;
+        }
+
+        .client-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            margin-bottom: 4px;
+        }
+
+        .client-item:hover {
+            background: #f1f5f9;
+        }
+
+        .client-item.active {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        .client-item .avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        .client-item.active .avatar-small {
+            background: #000;
+            color: var(--accent-color);
+        }
+
+        .client-item .client-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .client-item .client-info .name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .client-item .client-info .last-msg {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .client-item .client-time {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .client-item .unread-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 50px;
+            margin-left: auto;
+        }
+
+        .chat-messages-area {
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages-area .chat-header {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages-area .chat-header .mark-read-btn {
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .chat-messages-area .chat-header .mark-read-btn:hover {
+            opacity: 0.8;
+        }
+
+        .chat-messages-area .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
             background: #fafafa;
         }
 
-        .chat-messages .empty-state {
+        .chat-messages-area .messages-container .empty-state {
             text-align: center;
+            padding: 40px 20px;
             color: #94a3b8;
-            padding: 60px 20px;
         }
 
-        .chat-messages .empty-state i {
+        .chat-messages-area .messages-container .empty-state i {
             font-size: 3rem;
+            display: block;
             margin-bottom: 15px;
             color: #e5e7eb;
         }
 
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
+        .chat-messages-area .reply-area {
+            display: none;
             padding: 15px 20px;
             background: white;
             border-top: 1px solid #e5e7eb;
         }
 
-        .chat-input-area input {
+        .chat-messages-area .reply-area .reply-header {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .chat-messages-area .reply-area .reply-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-messages-area .reply-area .reply-input-group input {
             flex: 1;
             padding: 12px 16px;
             border: 1px solid #d1d5db;
             border-radius: 10px;
             font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.3s ease;
             font-family: inherit;
         }
 
-        .chat-input-area input:focus {
+        .chat-messages-area .reply-area .reply-input-group input:focus {
             border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
         }
 
-        .chat-input-area button {
-            padding: 12px 20px;
+        .chat-messages-area .reply-area .reply-input-group button {
+            padding: 12px 24px;
             border-radius: 10px;
-            background: var(--accent-color);
-            color: #000;
+            background: #000;
+            color: white;
             font-weight: 700;
             border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .chat-input-area button:hover {
-            transform: scale(0.98);
+        .chat-messages-area .reply-area .reply-input-group button:hover {
             opacity: 0.8;
+        }
+
+        /* ==========================
+        CHAT MESSAGE BUBBLES
+        ========================== */
+        .message-bubble {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .message-bubble .bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+        }
+
+        .message-bubble.client .bubble {
+            background: #f1f5f9;
+            color: #1a1a2e;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-bubble.admin .bubble {
+            background: var(--accent-color);
+            color: #000;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-bubble .bubble .sender {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .message-bubble.client .bubble .sender {
+            color: #64748b;
+        }
+
+        .message-bubble.admin .bubble .sender {
+            color: #000;
+        }
+
+        .message-bubble .bubble .text {
+            word-wrap: break-word;
+            font-size: 0.95rem;
+        }
+
+        .message-bubble .bubble .time {
+            font-size: 0.65rem;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message-bubble.client .bubble .time {
+            color: #94a3b8;
+        }
+
+        .message-bubble.admin .bubble .time {
+            color: #555;
+        }
+
+        .message-bubble .bubble .status-indicator {
+            font-size: 0.7rem;
+            margin-left: 6px;
         }
 
         /* ==========================
@@ -420,7 +639,6 @@
 
         .file-item .download-btn:hover {
             opacity: 0.8;
-            transform: scale(0.98);
         }
 
         .file-item .delete-btn {
@@ -432,7 +650,6 @@
             font-size: 0.8rem;
             border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
         .file-item .delete-btn:hover {
@@ -440,52 +657,7 @@
         }
 
         /* ==========================
-        LOCKED STATE
-        ========================== */
-        .locked-overlay {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .locked-overlay i {
-            font-size: 4rem;
-            color: #94a3b8;
-            margin-bottom: 20px;
-        }
-
-        .locked-overlay h2 {
-            margin-bottom: 10px;
-        }
-
-        .locked-overlay p {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        /* ==========================
-        ADMIN ONLY
-        ========================== */
-        .admin-only {
-            display: none;
-        }
-
-        .admin-badge {
-            background: #ef4444;
-            color: white;
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 2px 10px;
-            border-radius: 50px;
-            margin-left: 8px;
-            display: none;
-        }
-
-        .admin-badge.show {
-            display: inline-block;
-        }
-
-        /* ==========================
-        ADMIN DASHBOARD CARDS
+        ADMIN CARDS
         ========================== */
         .admin-card {
             background: #f8fafc;
@@ -580,8 +752,124 @@
         }
 
         /* ==========================
+        LOCKED STATE
+        ========================== */
+        .locked-overlay {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .locked-overlay i {
+            font-size: 4rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .locked-overlay h2 {
+            margin-bottom: 10px;
+        }
+
+        .locked-overlay p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* ==========================
+        ADMIN ONLY
+        ========================== */
+        .admin-only {
+            display: none;
+        }
+
+        .admin-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 50px;
+            margin-left: 8px;
+            display: none;
+        }
+
+        .admin-badge.show {
+            display: inline-block;
+        }
+
+        /* ==========================
+        CLIENT CHAT
+        ========================== */
+        .client-chat-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .client-chat-messages {
+            padding: 20px;
+            height: 350px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .client-chat-messages .empty-state {
+            text-align: center;
+            color: #94a3b8;
+            padding: 60px 20px;
+        }
+
+        .client-chat-messages .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #e5e7eb;
+        }
+
+        .client-chat-input {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .client-chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .client-chat-input input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        }
+
+        .client-chat-input button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+
+        .client-chat-input button:hover {
+            opacity: 0.8;
+        }
+
+        /* ==========================
         RESPONSIVE
         ========================== */
+        @media (max-width: 1024px) {
+            .chat-split-view {
+                grid-template-columns: 220px 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -600,7 +888,21 @@
                 grid-template-columns: 1fr;
             }
 
-            .chat-messages {
+            .chat-split-view {
+                grid-template-columns: 1fr;
+                height: auto;
+                max-height: none;
+            }
+
+            .chat-client-list {
+                max-height: 200px;
+            }
+
+            .chat-messages-area {
+                min-height: 300px;
+            }
+
+            .client-chat-messages {
                 height: 250px;
             }
 
@@ -620,11 +922,11 @@
                 padding: 15px;
             }
 
-            .chat-input-area {
+            .client-chat-input {
                 flex-direction: column;
             }
 
-            .chat-input-area button {
+            .client-chat-input button {
                 width: 100%;
             }
 
@@ -635,6 +937,14 @@
             .file-upload-btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .reply-input-group {
+                flex-direction: column;
+            }
+
+            .reply-input-group button {
+                width: 100%;
             }
         }
 
@@ -654,7 +964,7 @@
 <body>
 
     <!-- ==========================
-    NAVBAR (NO CLIENT LOGIN - HIDDEN FROM PUBLIC)
+    NAVBAR
     ========================== -->
     <header class="header">
         <nav class="navbar">
@@ -682,7 +992,7 @@
     DASHBOARD
     ========================== -->
     <section style="background: #f8fafc; padding: 100px 5%; min-height: 80vh;">
-        <div class="dashboard-grid" id="dashboardContainer">
+        <div class="dashboard-grid">
 
             <!-- SIDEBAR -->
             <div class="dashboard-sidebar">
@@ -690,9 +1000,7 @@
                     <div class="avatar" id="userAvatar">JD</div>
                     <div class="user-name" id="userName">John Doe</div>
                     <div class="user-email" id="userEmail">john@example.com</div>
-                    <div id="adminBadgeContainer">
-                        <span class="admin-badge" id="adminBadge">Admin</span>
-                    </div>
+                    <span class="admin-badge" id="adminBadge">Admin</span>
                 </div>
                 <a href="#" class="nav-item active" data-tab="dashboard">
                     <i class="fas fa-th-large"></i> Dashboard
@@ -719,7 +1027,7 @@
             </div>
 
             <!-- CONTENT -->
-            <div class="dashboard-content" id="dashboardContent">
+            <div class="dashboard-content">
 
                 <!-- LOCKED STATE -->
                 <div id="lockedState">
@@ -727,9 +1035,7 @@
                         <i class="fas fa-lock"></i>
                         <h2>Access Restricted</h2>
                         <p>This portal is for paying clients only.</p>
-                        <a href="services.html" class="primary-btn">
-                            View Our Services
-                        </a>
+                        <a href="services.html" class="primary-btn">View Our Services</a>
                     </div>
                 </div>
 
@@ -748,7 +1054,7 @@
                         </div>
                         <div>
                             <span style="font-size: 0.85rem; color: #64748b;">Package</span>
-                            <div style="font-weight: 700; font-size: 1.1rem;" id="projectPackage">Lead Intelligence - Professional</div>
+                            <div style="font-weight: 700; font-size: 1.1rem;" id="projectPackage">Lead Intelligence</div>
                         </div>
                     </div>
 
@@ -802,85 +1108,77 @@
                 </div>
 
                 <!-- ==========================
-TAB: MESSAGES (CHAT)
-========================= -->
-<div class="tab" id="tab-messages" style="display: none;">
-    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
-    
-    <!-- Admin View: Split screen with client list -->
-    <div id="adminChatView" style="display: none;">
-        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px; height: 500px; max-height: 70vh;">
-            
-            <!-- Client List -->
-            <div style="background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; display: flex; flex-direction: column;">
-                <div style="padding: 15px 20px; background: white; border-bottom: 1px solid #e5e7eb; font-weight: 700;">
-                    <i class="fas fa-users" style="margin-right: 8px;"></i> Clients
-                    <span id="clientCountBadge" style="background: #e5e7eb; padding: 2px 10px; border-radius: 50px; font-size: 0.7rem; margin-left: 8px;">0</span>
-                </div>
-                <div id="adminClientList" style="flex: 1; overflow-y: auto; padding: 10px;">
-                    <div style="text-align: center; padding: 30px 20px; color: #94a3b8;">
-                        <p>Loading clients...</p>
+                TAB: MESSAGES
+                ========================== -->
+                <div class="tab" id="tab-messages" style="display: none;">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
+
+                    <!-- ADMIN VIEW -->
+                    <div id="adminChatView" style="display: none;">
+                        <div class="chat-split-view">
+                            <div class="chat-client-list">
+                                <div class="list-header">
+                                    <span><i class="fas fa-users" style="margin-right: 8px;"></i> Clients</span>
+                                    <span class="count-badge" id="clientCountBadge">0</span>
+                                </div>
+                                <div class="client-items" id="adminClientList">
+                                    <div style="text-align: center; padding: 30px 20px; color: #94a3b8;">
+                                        <p>Loading clients...</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chat-messages-area">
+                                <div class="chat-header">
+                                    <span><i class="fas fa-comment" style="margin-right: 8px;"></i> <span id="adminChatClientName">Select a client</span></span>
+                                    <button class="mark-read-btn" onclick="markAllClientMessagesAsRead()">Mark All Read</button>
+                                </div>
+                                <div class="messages-container" id="adminMessageContainer">
+                                    <div class="empty-state">
+                                        <i class="fas fa-user-circle"></i>
+                                        <p>Select a client from the list to start chatting.</p>
+                                    </div>
+                                </div>
+                                <div class="reply-area" id="adminReplyArea">
+                                    <div class="reply-header">🛡️ Reply to <span id="adminReplyClientName">Client</span></div>
+                                    <div class="reply-input-group">
+                                        <input type="text" id="adminReplyInput" placeholder="Type your reply...">
+                                        <button onclick="sendAdminReply()">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CLIENT VIEW -->
+                    <div id="clientChatView">
+                        <div class="client-chat-container">
+                            <div class="client-chat-messages" id="messageContainer">
+                                <div class="empty-state">
+                                    <i class="fas fa-comment-dots"></i>
+                                    <p>No messages yet. Start the conversation!</p>
+                                </div>
+                            </div>
+                            <div class="client-chat-input">
+                                <input type="text" id="messageInput" placeholder="Type your message here...">
+                                <button id="sendMessageBtn"><i class="fas fa-paper-plane"></i> Send</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Chat Area -->
-            <div style="background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; display: flex; flex-direction: column;">
-                <div id="adminChatHeader" style="padding: 15px 20px; background: white; border-bottom: 1px solid #e5e7eb; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fas fa-comment" style="margin-right: 8px;"></i> <span id="adminChatClientName">Select a client</span></span>
-                    <button onclick="markClientMessagesAsRead(currentAdminClient)" style="padding: 4px 12px; border-radius: 6px; background: var(--accent-color); color: #000; border: none; cursor: pointer; font-size: 0.75rem; font-weight: 600;">Mark All Read</button>
-                </div>
-                <div id="adminMessageContainer" style="flex: 1; overflow-y: auto; padding: 20px; background: #fafafa;">
-                    <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
-                        <i class="fas fa-user-circle" style="font-size: 3rem; display: block; margin-bottom: 15px; color: #e5e7eb;"></i>
-                        <p>Select a client from the list to start chatting.</p>
-                    </div>
-                </div>
-                <div id="adminReplyArea" style="display: none; padding: 15px 20px; background: white; border-top: 1px solid #e5e7eb;">
-                    <p style="font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">🛡️ Reply to <span id="adminReplyClientName">Client</span></p>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="adminReplyInput" placeholder="Type your reply..." style="flex: 1; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 0.95rem; outline: none; font-family: inherit;">
-                        <button id="adminReplyBtn" style="padding: 12px 24px; border-radius: 10px; background: #000; color: white; font-weight: 700; border: none; cursor: pointer;">Send</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Client View: Simple chat -->
-    <div id="clientChatView">
-        <div class="chat-container">
-            <div class="chat-messages" id="messageContainer">
-                <div class="empty-state">
-                    <i class="fas fa-comment-dots"></i>
-                    <p>No messages yet. Start the conversation!</p>
-                </div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="messageInput" placeholder="Type your message here...">
-                <button id="sendMessageBtn">
-                    <i class="fas fa-paper-plane"></i> Send
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
                 <!-- ==========================
                 TAB: FILES
                 ========================== -->
                 <div class="tab" id="tab-files" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Project Files</h2>
 
-                    <!-- File Upload -->
                     <div class="file-upload-area">
-                        <button class="file-upload-btn" id="uploadFileBtn">
-                            <i class="fas fa-upload"></i> Upload File
-                        </button>
+                        <button class="file-upload-btn" id="uploadFileBtn"><i class="fas fa-upload"></i> Upload File</button>
                         <input type="file" id="fileInput">
                         <span style="font-size: 0.85rem; color: #94a3b8; align-self: center;">Upload files for your project</span>
                     </div>
 
-                    <!-- File List -->
                     <div id="fileContainer">
                         <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
                             <i class="fas fa-folder-open" style="font-size: 3rem; color: #e5e7eb; display: block; margin-bottom: 15px;"></i>
@@ -890,12 +1188,11 @@ TAB: MESSAGES (CHAT)
                 </div>
 
                 <!-- ==========================
-                TAB: ADMIN (Admin Only)
+                TAB: ADMIN
                 ========================== -->
                 <div class="tab admin-only" id="tab-admin" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">🛡️ Admin Dashboard</h2>
 
-                    <!-- Client Messages -->
                     <div class="admin-card">
                         <h4>📨 Client Messages</h4>
                         <p>View and respond to client messages.</p>
@@ -904,7 +1201,6 @@ TAB: MESSAGES (CHAT)
                         </div>
                     </div>
 
-                    <!-- Files -->
                     <div class="admin-card">
                         <h4>📁 Files</h4>
                         <p>Manage project files.</p>
@@ -913,7 +1209,6 @@ TAB: MESSAGES (CHAT)
                         </div>
                     </div>
 
-                    <!-- Client Management -->
                     <div class="admin-card">
                         <h4>👥 Client Management</h4>
                         <p>Manage client accounts.</p>
@@ -965,33 +1260,36 @@ TAB: MESSAGES (CHAT)
             const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
             const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
 
-            // Check if user is authenticated with valid session
             if (!isLoggedIn || !sessionId || !accountData.client_email) {
                 document.getElementById('lockedState').style.display = 'block';
                 document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
                 return;
             }
 
-            // Show dashboard
             document.getElementById('lockedState').style.display = 'none';
             document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'block');
 
-            // Show admin elements if admin
+            // Admin setup
             if (isAdminUser) {
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
                 document.getElementById('adminBadge').classList.add('show');
                 
-                // Force admin tab to be visible and active if it's the current tab
-                const adminTab = document.getElementById('tab-admin');
-                if (adminTab) {
-                    adminTab.style.display = 'block';
-                }
+                // Show admin chat view
+                const adminChat = document.getElementById('adminChatView');
+                const clientChat = document.getElementById('clientChatView');
+                if (adminChat) adminChat.style.display = 'block';
+                if (clientChat) clientChat.style.display = 'none';
+            } else {
+                // Show client chat view
+                const adminChat = document.getElementById('adminChatView');
+                const clientChat = document.getElementById('clientChatView');
+                if (adminChat) adminChat.style.display = 'none';
+                if (clientChat) clientChat.style.display = 'block';
             }
 
             // Load user data
             const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
             const displayName = name.charAt(0).toUpperCase() + name.slice(1);
-            
             document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
             document.getElementById('userName').textContent = displayName;
             document.getElementById('greetingName').textContent = displayName;
@@ -1005,7 +1303,6 @@ TAB: MESSAGES (CHAT)
                 document.getElementById('projectLocation').textContent = projectData.target_location;
             }
 
-            // Package info
             const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
             const packageNames = {
                 'lead-intelligence-standard': 'Lead Intelligence - Standard',
@@ -1016,9 +1313,9 @@ TAB: MESSAGES (CHAT)
                 'content-onsite-one-time': 'Content - On-Site One-Time',
                 'content-onsite-monthly': 'Content - On-Site Monthly'
             };
-            document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence - Professional';
+            document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence';
 
-            // Force update admin dashboard if admin
+            // Admin dashboard update
             if (isAdminUser && typeof updateAdminDashboard === 'function') {
                 setTimeout(updateAdminDashboard, 500);
             }
@@ -1038,10 +1335,12 @@ TAB: MESSAGES (CHAT)
                 if (targetTab) {
                     targetTab.classList.add('active');
                     targetTab.style.display = 'block';
-                    
-                    // If admin tab, refresh data
                     if (tabId === 'admin' && typeof updateAdminDashboard === 'function') {
                         setTimeout(updateAdminDashboard, 200);
+                    }
+                    if (tabId === 'messages' && typeof updateAdminChatDisplay === 'function') {
+                        setTimeout(updateAdminChatDisplay, 200);
+                        setTimeout(updateClientList, 200);
                     }
                 }
             });
@@ -1063,7 +1362,54 @@ TAB: MESSAGES (CHAT)
         });
 
         // ==========================
-        // SEND MESSAGE BUTTON (ensure it works)
+        // CHAT HELPERS (Admin)
+        // ==========================
+        let currentAdminClient = null;
+
+        function selectClient(clientEmail) {
+            currentAdminClient = clientEmail;
+            markAllClientMessagesAsRead();
+            
+            const clients = getAllClients();
+            const client = clients.find(c => c.email === clientEmail);
+            
+            // Update header
+            document.getElementById('adminChatClientName').textContent = client ? client.name : 'Client';
+            document.getElementById('adminReplyClientName').textContent = client ? client.name : 'Client';
+            
+            // Show reply area
+            document.getElementById('adminReplyArea').style.display = 'block';
+            
+            // Update displays
+            updateAdminChatDisplay();
+            updateClientList();
+            updateAdminNotification();
+        }
+
+        function markAllClientMessagesAsRead() {
+            if (!currentAdminClient) return;
+            markClientMessagesAsRead(currentAdminClient);
+        }
+
+        function sendAdminReply() {
+            const input = document.getElementById('adminReplyInput');
+            if (!input) return;
+            const message = input.value.trim();
+            if (!message) return;
+            sendAdminReplyToClient(currentAdminClient, message);
+            input.value = '';
+        }
+
+        function sendAdminReplyToClient(clientEmail, message) {
+            if (!message || !clientEmail) return;
+            sendMessage(message, clientEmail);
+            updateAdminChatDisplay();
+            updateClientList();
+            updateAdminNotification();
+        }
+
+        // ==========================
+        // CHAT HELPERS (Client)
         // ==========================
         document.getElementById('sendMessageBtn')?.addEventListener('click', function() {
             const input = document.getElementById('messageInput');
@@ -1081,6 +1427,26 @@ TAB: MESSAGES (CHAT)
                     sendMessage(message);
                     this.value = '';
                 }
+            }
+        });
+
+        // ==========================
+        // FILE UPLOAD
+        // ==========================
+        document.getElementById('uploadFileBtn')?.addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadFile(file).then(() => {
+                    updateFileDisplay();
+                    this.value = '';
+                    if (typeof updateAdminDashboard === 'function') {
+                        setTimeout(updateAdminDashboard, 500);
+                    }
+                });
             }
         });
     </script>
