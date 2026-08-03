@@ -21,6 +21,9 @@
     <link rel="stylesheet" href="css/responsive.css">
     
     <style>
+        /* ==========================
+        DASHBOARD LAYOUT
+        ========================== */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 260px 1fr;
@@ -29,19 +32,24 @@
             margin: 0 auto;
             min-height: 600px;
         }
+
         .dashboard-sidebar {
             background: white;
             border-radius: 16px;
             border: 1px solid #e5e7eb;
             padding: 30px 20px;
             height: fit-content;
+            position: sticky;
+            top: 100px;
         }
+
         .dashboard-sidebar .user-info {
             text-align: center;
             padding-bottom: 20px;
             border-bottom: 1px solid #e5e7eb;
             margin-bottom: 20px;
         }
+
         .dashboard-sidebar .avatar {
             width: 70px;
             height: 70px;
@@ -55,14 +63,18 @@
             color: #000;
             margin: 0 auto 12px;
         }
+
         .dashboard-sidebar .user-name {
             font-weight: 700;
             font-size: 1.1rem;
         }
+
         .dashboard-sidebar .user-email {
             font-size: 0.85rem;
             color: var(--text-muted);
+            word-break: break-all;
         }
+
         .dashboard-sidebar .nav-item {
             display: flex;
             align-items: center;
@@ -75,31 +87,67 @@
             text-decoration: none;
             margin-bottom: 4px;
             font-size: 0.95rem;
+            position: relative;
         }
+
         .dashboard-sidebar .nav-item:hover {
             background: #f8fafc;
             color: #000;
         }
+
         .dashboard-sidebar .nav-item.active {
             background: var(--accent-color);
             color: #000;
             font-weight: 600;
         }
+
         .dashboard-sidebar .nav-item i {
             width: 20px;
         }
+
+        .dashboard-sidebar .nav-item .badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 50px;
+            margin-left: auto;
+            animation: pulse 2s infinite;
+        }
+
+        .dashboard-sidebar .nav-item .badge.hidden {
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* ==========================
+        DASHBOARD CONTENT
+        ========================== */
         .dashboard-content {
             background: white;
             border-radius: 16px;
             border: 1px solid #e5e7eb;
             padding: 30px;
         }
+
         .dashboard-content .tab {
             display: none;
         }
+
         .dashboard-content .tab.active {
             display: block;
+            animation: fadeUp 0.4s ease forwards;
         }
+
+        /* ==========================
+        PROJECT HEADER
+        ========================== */
         .project-header {
             display: flex;
             justify-content: space-between;
@@ -110,10 +158,12 @@
             padding-bottom: 20px;
             border-bottom: 1px solid #e5e7eb;
         }
+
         .project-header h2 {
             font-size: 1.5rem;
             margin-bottom: 4px;
         }
+
         .project-header .status {
             display: inline-block;
             padding: 4px 14px;
@@ -121,31 +171,30 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
-        .status-in-progress {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .status-completed {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .status-pending {
-            background: #f3f4f6;
-            color: #4b5563;
-        }
+
+        .status-in-progress { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-pending { background: #f3f4f6; color: #4b5563; }
+
+        /* ==========================
+        PROGRESS TRACKER
+        ========================== */
         .progress-tracker {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin: 25px 0 30px;
         }
+
         .progress-item {
             text-align: center;
             padding: 15px 10px;
             background: #f8fafc;
             border-radius: 10px;
             border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
         }
+
         .progress-item .check {
             display: inline-block;
             width: 30px;
@@ -155,23 +204,38 @@
             line-height: 30px;
             font-size: 0.8rem;
             margin-bottom: 8px;
+            transition: all 0.3s ease;
         }
+
         .progress-item.completed .check {
             background: #22c55e;
             color: white;
         }
+
         .progress-item.active .check {
             background: var(--accent-color);
             color: #000;
+            animation: spin 1s linear infinite;
         }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .progress-item .label {
             font-size: 0.75rem;
             font-weight: 600;
             color: #64748b;
         }
+
         .progress-item.active .label {
             color: #000;
         }
+
+        /* ==========================
+        GREETING
+        ========================== */
         .greeting-message {
             background: #f8fafc;
             padding: 20px 25px;
@@ -179,32 +243,136 @@
             border-left: 4px solid var(--accent-color);
             margin-bottom: 25px;
         }
+
         .greeting-message p {
             color: var(--text-muted);
             font-size: 0.95rem;
             margin: 0;
         }
+
         .greeting-message strong {
             color: #000;
         }
-        .message-item {
-            padding: 15px 0;
-            border-bottom: 1px solid #f1f5f9;
+
+        /* ==========================
+        PROJECT SUMMARY
+        ========================== */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9rem;
         }
-        .message-item:last-child {
-            border-bottom: none;
-        }
-        .message-item .meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
+
+        .summary-grid .label {
             color: #64748b;
-            margin-bottom: 4px;
         }
-        .message-item .sender {
+
+        .summary-grid .value {
             font-weight: 600;
-            color: #000;
         }
+
+        /* ==========================
+        CHAT
+        ========================== */
+        .chat-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            padding: 20px;
+            height: 350px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .chat-messages .empty-state {
+            text-align: center;
+            color: #94a3b8;
+            padding: 60px 20px;
+        }
+
+        .chat-messages .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #e5e7eb;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .chat-input-area input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        }
+
+        .chat-input-area button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input-area button:hover {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+
+        /* ==========================
+        FILES
+        ========================== */
+        .file-upload-area {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-upload-btn:hover {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+
         .file-item {
             display: flex;
             align-items: center;
@@ -214,22 +382,32 @@
             border-radius: 10px;
             margin-bottom: 10px;
             border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
         }
+
+        .file-item:hover {
+            background: #f1f5f9;
+        }
+
         .file-item i {
             font-size: 1.5rem;
             color: var(--accent-color);
         }
+
         .file-item .file-info {
             flex: 1;
         }
+
         .file-item .file-name {
             font-weight: 600;
             font-size: 0.95rem;
         }
+
         .file-item .file-size {
             font-size: 0.8rem;
             color: #64748b;
         }
+
         .file-item .download-btn {
             padding: 6px 16px;
             border-radius: 8px;
@@ -239,38 +417,137 @@
             font-size: 0.8rem;
             border: none;
             cursor: pointer;
+            text-decoration: none;
             transition: all 0.3s ease;
         }
+
         .file-item .download-btn:hover {
             opacity: 0.8;
+            transform: scale(0.98);
         }
+
+        .file-item .delete-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #ef4444;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-item .delete-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* ==========================
+        LOCKED STATE
+        ========================== */
         .locked-overlay {
             text-align: center;
             padding: 60px 20px;
         }
+
         .locked-overlay i {
             font-size: 4rem;
             color: #94a3b8;
             margin-bottom: 20px;
         }
+
         .locked-overlay h2 {
             margin-bottom: 10px;
         }
+
         .locked-overlay p {
             color: var(--text-muted);
             margin-bottom: 20px;
         }
+
+        /* ==========================
+        ADMIN ONLY
+        ========================== */
+        .admin-only {
+            display: none;
+        }
+
+        .admin-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 50px;
+            margin-left: 8px;
+            display: none;
+        }
+
+        .admin-badge.show {
+            display: inline-block;
+        }
+
+        /* ==========================
+        RESPONSIVE
+        ========================== */
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+
+            .dashboard-sidebar {
+                position: static;
+                padding: 20px 15px;
+            }
+
             .progress-tracker {
                 grid-template-columns: 1fr 1fr;
             }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-messages {
+                height: 250px;
+            }
         }
+
         @media (max-width: 450px) {
             .progress-tracker {
                 grid-template-columns: 1fr;
+            }
+
+            .dashboard-content {
+                padding: 15px;
+            }
+
+            .chat-input-area {
+                flex-direction: column;
+            }
+
+            .chat-input-area button {
+                width: 100%;
+            }
+
+            .file-upload-area {
+                flex-direction: column;
+            }
+
+            .file-upload-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
@@ -304,7 +581,7 @@
     </header>
 
     <!-- ==========================
-    DASHBOARD - AUTHENTICATION REQUIRED
+    DASHBOARD
     ========================== -->
     <section style="background: #f8fafc; padding: 100px 5%; min-height: 80vh;">
         <div class="dashboard-grid" id="dashboardContainer">
@@ -315,6 +592,9 @@
                     <div class="avatar" id="userAvatar">JD</div>
                     <div class="user-name" id="userName">John Doe</div>
                     <div class="user-email" id="userEmail">john@example.com</div>
+                    <div id="adminBadgeContainer">
+                        <span class="admin-badge" id="adminBadge">Admin</span>
+                    </div>
                 </div>
                 <a href="#" class="nav-item active" data-tab="dashboard">
                     <i class="fas fa-th-large"></i> Dashboard
@@ -324,9 +604,14 @@
                 </a>
                 <a href="#" class="nav-item" data-tab="messages">
                     <i class="fas fa-envelope"></i> Messages
+                    <span class="badge hidden" id="messageBadge">0</span>
                 </a>
                 <a href="#" class="nav-item" data-tab="files">
                     <i class="fas fa-file"></i> Files
+                </a>
+                <a href="#" class="nav-item admin-only" data-tab="admin" id="adminTab">
+                    <i class="fas fa-user-shield"></i> Admin
+                    <span class="badge hidden" id="adminBadgeNotification">0</span>
                 </a>
                 <div style="border-top: 1px solid #e5e7eb; margin: 15px 0; padding-top: 15px;">
                     <a href="#" class="nav-item" id="logoutBtn" style="color: #ef4444;">
@@ -338,7 +623,7 @@
             <!-- CONTENT -->
             <div class="dashboard-content" id="dashboardContent">
 
-                <!-- LOCKED STATE (if not authenticated) -->
+                <!-- LOCKED STATE -->
                 <div id="lockedState">
                     <div class="locked-overlay">
                         <i class="fas fa-lock"></i>
@@ -350,7 +635,9 @@
                     </div>
                 </div>
 
-                <!-- DASHBOARD TAB -->
+                <!-- ==========================
+                TAB: DASHBOARD
+                ========================== -->
                 <div class="tab active" id="tab-dashboard" style="display: none;">
                     <div class="greeting-message">
                         <p>👋 Hey <strong id="greetingName">John</strong>! Here's what's happening with your project.</p>
@@ -377,7 +664,7 @@
                             <div class="label">Targeting Confirmed</div>
                         </div>
                         <div class="progress-item active">
-                            <div class="check"><i class="fas fa-spinner fa-spin"></i></div>
+                            <div class="check"><i class="fas fa-spinner"></i></div>
                             <div class="label">Researching Prospects</div>
                         </div>
                         <div class="progress-item">
@@ -388,81 +675,119 @@
 
                     <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
                         <h4 style="margin-bottom: 10px;">Project Summary</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
-                            <div><span style="color: #64748b;">Industry:</span> <strong id="projectIndustry">Roofing</strong></div>
-                            <div><span style="color: #64748b;">Location:</span> <strong id="projectLocation">Orlando, FL</strong></div>
-                            <div><span style="color: #64748b;">Leads:</span> <strong id="projectLeads">500</strong></div>
-                            <div><span style="color: #64748b;">Delivery:</span> <strong id="projectDelivery">CSV</strong></div>
+                        <div class="summary-grid">
+                            <div><span class="label">Industry:</span> <span class="value" id="projectIndustry">Roofing</span></div>
+                            <div><span class="label">Location:</span> <span class="value" id="projectLocation">Orlando, FL</span></div>
+                            <div><span class="label">Leads:</span> <span class="value" id="projectLeads">500</span></div>
+                            <div><span class="label">Delivery:</span> <span class="value" id="projectDelivery">CSV</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- PROJECTS TAB -->
+                <!-- ==========================
+                TAB: PROJECTS
+                ========================== -->
                 <div class="tab" id="tab-projects" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Your Projects</h2>
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                        <div>
-                            <h4 id="projectName2">Orlando Roofing Prospect List</h4>
-                            <p style="font-size: 0.85rem; color: #64748b;">Started: Aug 2, 2026</p>
-                        </div>
-                        <div>
-                            <span class="status status-in-progress">In Progress</span>
-                            <a href="#" style="margin-left: 15px; color: var(--accent-color); font-weight: 600;">View →</a>
+                    <div id="projectList">
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                            <div>
+                                <h4 id="projectName2">Orlando Roofing Prospect List</h4>
+                                <p style="font-size: 0.85rem; color: #64748b;">Started: Aug 2, 2026</p>
+                            </div>
+                            <div>
+                                <span class="status status-in-progress">In Progress</span>
+                                <span style="margin-left: 15px; color: var(--accent-color); font-weight: 600;">View →</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- MESSAGES TAB -->
+                <!-- ==========================
+                TAB: MESSAGES (CHAT)
+                ========================== -->
                 <div class="tab" id="tab-messages" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
-                    <div class="message-item">
-                        <div class="meta">
-                            <span class="sender">Tulse Team</span>
-                            <span>Today, 10:30 AM</span>
+
+                    <div class="chat-container">
+                        <div class="chat-messages" id="messageContainer">
+                            <div class="empty-state">
+                                <i class="fas fa-comment-dots"></i>
+                                <p>No messages yet. Start the conversation!</p>
+                            </div>
                         </div>
-                        <p>We've started research on your prospect list. We'll update you when we have the first batch ready for review.</p>
-                    </div>
-                    <div class="message-item">
-                        <div class="meta">
-                            <span class="sender">Tulse Team</span>
-                            <span>Yesterday, 4:15 PM</span>
+
+                        <div class="chat-input-area">
+                            <input type="text" id="messageInput" placeholder="Type your message here...">
+                            <button id="sendMessageBtn">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
                         </div>
-                        <p>Thanks for confirming the targeting details! We're moving forward with the custom criteria.</p>
                     </div>
-                    <div class="message-item">
-                        <div class="meta">
-                            <span class="sender">You</span>
-                            <span>Yesterday, 2:00 PM</span>
+
+                    <!-- Admin Reply Area (admin only) -->
+                    <div class="admin-only" id="adminReplyArea" style="margin-top: 20px; padding: 20px; background: #fef3c7; border-radius: 12px; border: 1px solid #fde68a; display: none;">
+                        <p style="font-weight: 600; margin-bottom: 10px;">🛡️ Admin Reply</p>
+                        <p style="font-size: 0.9rem; color: #92400e; margin-bottom: 10px;">Your reply will be sent to the client.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="adminReplyInput" placeholder="Type your admin reply..." style="flex: 1; padding: 12px 16px; border: 1px solid #fde68a; border-radius: 10px; font-size: 0.95rem; outline: none; background: white; font-family: inherit;">
+                            <button id="adminReplyBtn" style="padding: 12px 24px; border-radius: 10px; background: #000; color: white; font-weight: 700; border: none; cursor: pointer;">Send Reply</button>
                         </div>
-                        <p>Great, I've confirmed the targeting criteria. Let me know if you need anything else.</p>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <textarea placeholder="Type your message here..." style="width: 100%; padding: 15px; border: 1px solid #e5e7eb; border-radius: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
-                        <button class="primary-btn" style="margin-top: 10px;">
-                            <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
-                            Send Message
-                        </button>
                     </div>
                 </div>
 
-                <!-- FILES TAB -->
+                <!-- ==========================
+                TAB: FILES
+                ========================== -->
                 <div class="tab" id="tab-files" style="display: none;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Project Files</h2>
-                    <div class="file-item">
-                        <i class="fas fa-file-excel"></i>
-                        <div class="file-info">
-                            <div class="file-name">Prospect_List_Sample.xlsx</div>
-                            <div class="file-size">45 KB</div>
-                        </div>
-                        <button class="download-btn">Download</button>
+
+                    <!-- File Upload -->
+                    <div class="file-upload-area">
+                        <button class="file-upload-btn" id="uploadFileBtn">
+                            <i class="fas fa-upload"></i> Upload File
+                        </button>
+                        <input type="file" id="fileInput">
+                        <span style="font-size: 0.85rem; color: #94a3b8; align-self: center;">Upload files for your project</span>
                     </div>
-                    <div class="file-item">
-                        <i class="fas fa-file-pdf"></i>
-                        <div class="file-info">
-                            <div class="file-name">Targeting_Strategy.pdf</div>
-                            <div class="file-size">120 KB</div>
+
+                    <!-- File List -->
+                    <div id="fileContainer">
+                        <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+                            <i class="fas fa-folder-open" style="font-size: 3rem; color: #e5e7eb; display: block; margin-bottom: 15px;"></i>
+                            <p>No files uploaded yet.</p>
                         </div>
-                        <button class="download-btn">Download</button>
+                    </div>
+                </div>
+
+                <!-- ==========================
+                TAB: ADMIN (Admin Only)
+                ========================== -->
+                <div class="tab admin-only" id="tab-admin" style="display: none;">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">🛡️ Admin Dashboard</h2>
+
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
+                        <h4>Client Messages</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">View and respond to client messages.</p>
+                        <div id="adminMessageList" style="margin-top: 15px;">
+                            <p style="color: #94a3b8; font-size: 0.9rem;">No client messages yet.</p>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
+                        <h4>Files</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">Manage project files.</p>
+                        <div id="adminFileList" style="margin-top: 15px;">
+                            <p style="color: #94a3b8; font-size: 0.9rem;">No files uploaded yet.</p>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                        <h4>Client Management</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">Manage client accounts.</p>
+                        <div id="clientList" style="margin-top: 15px;">
+                            <p style="color: #94a3b8; font-size: 0.9rem;">No clients yet.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -471,7 +796,7 @@
     </section>
 
     <!-- ==========================
-    FOOTER (NO CLIENT LOGIN)
+    FOOTER
     ========================== -->
     <footer class="footer">
         <div class="footer-logo">
@@ -489,27 +814,41 @@
         <p>© 2026 Tulse. All Rights Reserved.</p>
     </footer>
 
+    <script src="js/app.js"></script>
+    <script src="js/navbar.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/scroll.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/files.js"></script>
+    <script src="js/admin.js"></script>
+
     <script>
         // ==========================
-        // REAL AUTHENTICATION CHECK
+        // AUTHENTICATION CHECK
         // ==========================
         document.addEventListener('DOMContentLoaded', function() {
             const isLoggedIn = localStorage.getItem('tulse_logged_in') === 'true';
             const sessionId = localStorage.getItem('tulse_session_id');
             const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
             const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
+            const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
 
             // Check if user is authenticated with valid session
             if (!isLoggedIn || !sessionId || !accountData.client_email) {
-                // Not authenticated - show locked state
                 document.getElementById('lockedState').style.display = 'block';
                 document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
                 return;
             }
 
-            // Authenticated - show dashboard
+            // Show dashboard
             document.getElementById('lockedState').style.display = 'none';
             document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'block');
+
+            // Show admin elements if admin
+            if (isAdminUser) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.getElementById('adminBadge').classList.add('show');
+            }
 
             // Load user data
             const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
@@ -558,7 +897,7 @@
         });
 
         // ==========================
-        // LOGOUT - CLEAR SESSION
+        // LOGOUT
         // ==========================
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
@@ -567,6 +906,7 @@
                 localStorage.removeItem('tulse_session_id');
                 localStorage.removeItem('tulse_account_data');
                 localStorage.removeItem('tulse_payment_verified');
+                localStorage.removeItem('tulse_is_admin');
                 window.location.href = 'index.html';
             }
         });

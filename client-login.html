@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Login | Tulse</title>
+    <meta name="description" content="Log in to your Tulse client portal to manage your projects.">
+    
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .login-container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+        .login-container .logo-icon {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .login-container h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        .login-container .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+        .login-container .form-group {
+            margin-bottom: 18px;
+        }
+        .login-container .form-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .login-container .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        .login-container .form-group input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+        }
+        .login-container .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin: 15px 0 25px;
+        }
+        .login-container .form-options a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .login-container .form-options a:hover {
+            text-decoration: underline;
+        }
+        .login-container .primary-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 16px;
+            font-size: 1rem;
+        }
+        .login-container .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .login-container .signup-link a {
+            color: var(--accent-color);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .login-container .signup-link a:hover {
+            text-decoration: underline;
+        }
+        .login-error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 18px;
+            display: none;
+        }
+        .login-error.show {
+            display: block;
+        }
+        .login-success {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .login-success i {
+            font-size: 4rem;
+            color: #22c55e;
+            margin-bottom: 15px;
+        }
+        .login-success h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .login-success p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+        .login-success .primary-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        .login-success .demo-note {
+            margin-top: 20px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ==========================
+    NAVBAR
+    ========================== -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="index.html" class="logo">
+                <img src="assets/logo.png" alt="Tulse Logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="services.html">Services</a></li>
+                <li><a href="process.html">How It Works</a></li>
+                <li><a href="portfolio.html">Results</a></li>
+                <li><a href="free-sample.html">Free Sample</a></li>
+                <li><a href="client-login.html">Client Login</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="free-sample.html" class="nav-btn">Free 10-Lead Sample</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==========================
+    LOGIN PAGE
+    ========================== -->
+    <section style="background: #f8fafc; padding: 120px 5%; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+        <div class="login-container" id="loginContainer">
+            
+            <div class="logo-icon">🔐</div>
+            <h2>Welcome back</h2>
+            <p class="subtitle">Log in to your Tulse client portal</p>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="login-error" id="loginError">
+                    <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                    Invalid email or password. Please try again.
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="you@yourbusiness.com" value="demo@tulse.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" value="password123">
+                </div>
+
+                <div class="form-options">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" checked> Remember me
+                    </label>
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button class="primary-btn" onclick="handleLogin()">
+                    <i class="fas fa-arrow-right" style="margin-right: 10px;"></i>
+                    Log In
+                </button>
+
+                <div class="signup-link">
+                    Don't have an account? <a href="free-sample.html">Start a project</a>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 0.8rem; color: #94a3b8;">
+                    <i class="fas fa-info-circle"></i> Demo: Use any email + "password123"
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div id="loginSuccess" style="display: none;">
+                <div class="login-success">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Welcome back!</h3>
+                    <p>Redirecting you to your dashboard...</p>
+                    <a href="client-dashboard.html" class="primary-btn">
+                        <i class="fas fa-arrow-right" style="margin-right: 10px;"></i>
+                        Go to Dashboard
+                    </a>
+                    <div class="demo-note">
+                        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                        This is a demo. In production, this would use real authentication.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================
+    FOOTER
+    ========================== -->
+    <footer class="footer">
+        <div class="footer-logo">
+            <img src="assets/logo.png" alt="Tulse Logo">
+        </div>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="lead-intelligence.html">Lead Intelligence</a>
+            <a href="free-sample.html">Free Sample</a>
+            <a href="client-login.html">Client Login</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms</a>
+        </div>
+        <p>© 2026 Tulse. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            // Simple validation - any email + password123 works (demo mode)
+            if (email && password === 'password123') {
+                errorDiv.classList.remove('show');
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('loginSuccess').style.display = 'block';
+                
+                // Store session
+                localStorage.setItem('tulse_logged_in', 'true');
+                localStorage.setItem('tulse_user_email', email);
+            } else if (email && password.length > 0) {
+                errorDiv.textContent = '⚠️ Demo password is "password123". Try that!';
+                errorDiv.classList.add('show');
+            } else {
+                errorDiv.textContent = '⚠️ Please enter both email and password.';
+                errorDiv.classList.add('show');
+            }
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('tulse_logged_in') === 'true') {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('loginSuccess').style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+
+</html>
