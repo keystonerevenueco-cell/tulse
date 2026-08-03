@@ -126,3 +126,41 @@ function initFiles() {
 document.addEventListener('DOMContentLoaded', function() {
     initFiles();
 });
+// ==========================
+// ADMIN FILE MANAGEMENT
+// ==========================
+
+function getFileStats() {
+    const files = getProjectFiles();
+    return {
+        total: files.length,
+        totalSize: files.reduce((sum, f) => sum + f.size, 0)
+    };
+}
+
+// Add to existing initFiles function
+function initFiles() {
+    const uploadBtn = document.getElementById('uploadFileBtn');
+    const fileInput = document.getElementById('fileInput');
+    
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadFile(file).then(() => {
+                    updateFileDisplay();
+                    fileInput.value = '';
+                    if (typeof updateAdminDashboard === 'function') {
+                        updateAdminDashboard();
+                    }
+                });
+            }
+        });
+    }
+    
+    updateFileDisplay();
+}
