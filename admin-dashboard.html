@@ -166,6 +166,7 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
         }
         
         .client-card {
@@ -356,6 +357,49 @@
             margin-left: 5px;
         }
         
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--accent-color, #ff6b35);
+        }
+        
+        .register-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-color, #ff6b35);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,107,53,0.3);
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -388,12 +432,13 @@
     <aside class="admin-sidebar">
         <div class="admin-logo">Tulse<span>.</span></div>
         <ul class="admin-nav">
-            <li class="active"><i class="fas fa-chart-line"></i> Dashboard</li>
-            <li><i class="fas fa-users"></i> Clients</li>
-            <li><i class="fas fa-file-alt"></i> Projects</li>
-            <li><i class="fas fa-envelope"></i> Messages <span class="unread-badge" id="totalUnread" style="display:none;">0</span></li>
-            <li><i class="fas fa-upload"></i> Files</li>
-            <li><i class="fas fa-cog"></i> Settings</li>
+            <li class="active" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i> Dashboard</li>
+            <li onclick="showSection('clients')"><i class="fas fa-users"></i> Clients</li>
+            <li onclick="showSection('projects')"><i class="fas fa-folder-open"></i> Projects</li>
+            <li onclick="showSection('create-project')"><i class="fas fa-plus-circle"></i> New Project</li>
+            <li onclick="showSection('messages')"><i class="fas fa-envelope"></i> Messages <span class="unread-badge" id="totalUnread" style="display:none;">0</span></li>
+            <li onclick="showSection('files')"><i class="fas fa-upload"></i> Files</li>
+            <li onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</li>
         </ul>
     </aside>
 
@@ -401,7 +446,7 @@
     <main class="admin-main">
         <!-- Header -->
         <header class="admin-header">
-            <h1>Dashboard</h1>
+            <h1 id="pageTitle">Dashboard</h1>
             <div class="admin-profile">
                 <div class="profile-avatar" id="adminAvatar">A</div>
                 <div class="profile-info">
@@ -414,30 +459,96 @@
             </div>
         </header>
 
-        <!-- Stats -->
-        <div class="dashboard-stats">
-            <div class="stat-card">
-                <h3>Total Clients</h3>
-                <div class="number" id="totalClients">0</div>
+        <!-- Dashboard Section -->
+        <div id="dashboardSection">
+            <!-- Stats -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Total Clients</h3>
+                    <div class="number" id="totalClients">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Clients</h3>
+                    <div class="number" id="activeClients">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Unread Messages</h3>
+                    <div class="number" id="unreadMessages">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Projects</h3>
+                    <div class="number" id="totalProjects">0</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3>Active Clients</h3>
-                <div class="number" id="activeClients">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Unread Messages</h3>
-                <div class="number" id="unreadMessages">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Total Projects</h3>
-                <div class="number" id="totalProjects">0</div>
+
+            <!-- Client List -->
+            <div class="client-list-container">
+                <h2 style="margin-bottom: 20px;">All Clients</h2>
+                <div id="clientListContainer"></div>
             </div>
         </div>
 
-        <!-- Client List -->
-        <div class="client-list-container">
-            <h2 style="margin-bottom: 20px;">All Clients</h2>
-            <div id="clientListContainer"></div>
+        <!-- Projects Section -->
+        <div id="projectsSection" style="display:none;">
+            <div class="client-list-container">
+                <h2 style="margin-bottom: 20px;">All Projects</h2>
+                <div id="allProjectsContainer"></div>
+            </div>
+        </div>
+
+        <!-- Create Project Section -->
+        <div id="createProjectSection" style="display:none;">
+            <div class="client-list-container">
+                <h2 style="margin-bottom: 20px;">Create New Project</h2>
+                <form id="createProjectForm">
+                    <div class="form-group">
+                        <label>Project Name *</label>
+                        <input type="text" id="projectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Client Email *</label>
+                        <input type="email" id="projectClientEmail" placeholder="client@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="projectDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="projectStatus">
+                            <option value="active">Active</option>
+                            <option value="planning">Planning</option>
+                            <option value="completed">Completed</option>
+                            <option value="on-hold">On Hold</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="register-btn">Create Project</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Messages Section -->
+        <div id="messagesSection" style="display:none;">
+            <div class="client-list-container">
+                <h2 style="margin-bottom: 20px;">Messages</h2>
+                <p style="color: #718096;">Select a client to chat with.</p>
+            </div>
+        </div>
+
+        <!-- Files Section -->
+        <div id="filesSection" style="display:none;">
+            <div class="client-list-container">
+                <h2 style="margin-bottom: 20px;">Files</h2>
+                <p style="color: #718096;">File management coming soon.</p>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settingsSection" style="display:none;">
+            <div class="client-list-container">
+                <h2 style="margin-bottom: 20px;">Settings</h2>
+                <p style="color: #718096;">Settings coming soon.</p>
+            </div>
         </div>
     </main>
 </div>
@@ -475,6 +586,7 @@
 import { auth, onAuthStateChangedListener } from './js/firebase/index.js';
 import { logoutUser } from './js/firebase/auth.js';
 import { getAllUsers, getAllChats, sendMessage, getMessages, getUnreadCount, markAllMessagesRead } from './js/firebase/db.js';
+import { createProject, getAllProjects } from './js/firebase/projects.js';
 
 // ==========================
 // GLOBALS
@@ -495,18 +607,15 @@ onAuthStateChangedListener(async (userState) => {
     currentUser = userState.user;
     currentUserData = userState.userData;
     
-    // Check if admin
     if (userState.userData?.role !== 'admin') {
         window.location.href = '/client-dashboard.html';
         return;
     }
     
-    // Update UI
     document.getElementById('adminName').textContent = userState.userData?.fullName || 'Admin';
     document.getElementById('adminEmail').textContent = userState.user.email;
     document.getElementById('adminAvatar').textContent = (userState.userData?.fullName || 'Admin')[0].toUpperCase();
     
-    // Load data
     await loadDashboardData();
 });
 
@@ -515,7 +624,6 @@ onAuthStateChangedListener(async (userState) => {
 // ==========================
 async function loadDashboardData() {
     try {
-        // Get all users
         const usersResult = await getAllUsers();
         if (usersResult.success) {
             const clients = usersResult.data.filter(u => u.role !== 'admin');
@@ -524,7 +632,6 @@ async function loadDashboardData() {
             renderClientList(clients);
         }
         
-        // Get unread messages
         const chatsResult = await getAllChats();
         if (chatsResult.success) {
             let totalUnread = 0;
@@ -542,8 +649,7 @@ async function loadDashboardData() {
             }
         }
         
-        // Count projects (if you have a projects collection)
-        // Add project count logic here if needed
+        await loadAllProjects();
         
     } catch (error) {
         console.error('Error loading dashboard:', error);
@@ -586,6 +692,99 @@ function renderClientList(clients) {
 }
 
 // ==========================
+// LOAD ALL PROJECTS
+// ==========================
+async function loadAllProjects() {
+    const result = await getAllProjects();
+    const container = document.getElementById('allProjectsContainer');
+    
+    if (result.success && result.data.length > 0) {
+        let html = '';
+        result.data.forEach(project => {
+            html += `
+                <div class="client-card">
+                    <div class="client-info" style="flex:1;">
+                        <div class="client-name">${project.name}</div>
+                        <div style="font-size:0.85rem;color:#718096;">
+                            Client: ${project.clientEmail || project.userEmail || 'Unknown'}
+                        </div>
+                        <div style="font-size:0.85rem;color:#718096;margin-top:5px;">
+                            ${project.description || 'No description'}
+                        </div>
+                    </div>
+                    <div class="client-status ${project.status || 'active'}">
+                        ${project.status || 'Active'}
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        document.getElementById('totalProjects').textContent = result.data.length;
+    } else {
+        container.innerHTML = '<p style="color:#718096;padding:20px;">No projects yet.</p>';
+        document.getElementById('totalProjects').textContent = '0';
+    }
+}
+
+// ==========================
+// CREATE PROJECT
+// ==========================
+document.getElementById('createProjectForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('projectName').value;
+    const clientEmail = document.getElementById('projectClientEmail').value;
+    const description = document.getElementById('projectDescription').value;
+    const status = document.getElementById('projectStatus').value;
+    
+    const result = await createProject({
+        name: name,
+        clientEmail: clientEmail,
+        description: description,
+        status: status
+    });
+    
+    if (result.success) {
+        alert('✅ Project created successfully!');
+        document.getElementById('createProjectForm').reset();
+        await loadAllProjects();
+        showSection('projects');
+    } else {
+        alert('❌ Error: ' + result.error);
+    }
+});
+
+// ==========================
+// SHOW/HIDE SECTIONS
+// ==========================
+window.showSection = function(section) {
+    const sections = ['dashboard', 'projects', 'create-project', 'messages', 'files', 'settings'];
+    const titles = {
+        'dashboard': 'Dashboard',
+        'projects': 'Projects',
+        'create-project': 'Create New Project',
+        'messages': 'Messages',
+        'files': 'Files',
+        'settings': 'Settings'
+    };
+    
+    sections.forEach(id => {
+        const el = document.getElementById(id + 'Section');
+        if (el) {
+            el.style.display = id === section ? 'block' : 'none';
+        }
+    });
+    
+    document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+    
+    // Update nav active state
+    document.querySelectorAll('.admin-nav li').forEach(li => li.classList.remove('active'));
+    const navItems = document.querySelectorAll('.admin-nav li');
+    const index = sections.indexOf(section);
+    if (navItems[index]) navItems[index].classList.add('active');
+};
+
+// ==========================
 // CHAT FUNCTIONS
 // ==========================
 window.openChat = async function(email) {
@@ -597,7 +796,6 @@ window.openChat = async function(email) {
     panel.classList.add('active');
     clientName.textContent = email.split('@')[0];
     
-    // Load messages
     const result = await getMessages(email);
     if (result.success) {
         messages.innerHTML = '';
@@ -613,7 +811,6 @@ window.openChat = async function(email) {
         messages.scrollTop = messages.scrollHeight;
     }
     
-    // Mark messages as read
     await markAllMessagesRead(email);
     await loadDashboardData();
 };

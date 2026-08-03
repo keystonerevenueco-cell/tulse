@@ -197,34 +197,85 @@ export async function getAllChats() {
 // PROJECT OPERATIONS
 // ==========================
 
-// Create project
 export async function createProject(projectData) {
     try {
+        const user = getCurrentUser();
+        if (!user) {
+            throw new Error('You must be logged in to create a project');
+        }
+
         const docRef = await addDoc(collection(db, COLLECTIONS.PROJECTS), {
             ...projectData,
+            userId: user.uid,
+            userEmail: user.email,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            status: projectData.status || 'active'
+            status: projectData.status || 'active',
+            progress: projectData.progress || 0,
+            tasks: projectData.tasks || []
         });
-        return { success: true, id: docRef.id };
+
+        return { 
+            success: true, 
+            id: docRef.id,
+            message: 'Project created successfully!'
+        };
     } catch (error) {
+        console.error('Create project error:', error);
         return { success: false, error: error.message };
     }
 }
 
-// Get projects for user
 export async function getUserProjects(userId) {
     try {
         const q = query(
             collection(db, COLLECTIONS.PROJECTS),
-            where('userId', '==', userId)
+            where('userId', '==', userId),
+            orderBy('createdAt', 'desc')
         );
+        
         const querySnapshot = await getDocs(q);
         const projects = [];
         querySnapshot.forEach((doc) => {
             projects.push({ id: doc.id, ...doc.data() });
         });
+        
         return { success: true, data: projects };
+    } catch (error) {
+        console.error('Get projects error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getAllProjects() {
+    try {
+        const querySnapshot = await getDocs(collection(db, COLLECTIONS.PROJECTS));
+        const projects = [];
+        querySnapshot.forEach((doc) => {
+            projects.push({ id: doc.id, ...doc.data() });
+        });
+        return { success: true, data: projects };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateProject(projectId, updateData) {
+    try {
+        await updateDoc(doc(db, COLLECTIONS.PROJECTS, projectId), {
+            ...updateData,
+            updatedAt: new Date().toISOString()
+        });
+        return { success: true, message: 'Project updated!' };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function deleteProject(projectId) {
+    try {
+        await deleteDoc(doc(db, COLLECTIONS.PROJECTS, projectId));
+        return { success: true, message: 'Project deleted!' };
     } catch (error) {
         return { success: false, error: error.message };
     }
