@@ -4,262 +4,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Portal | Tulse</title>
+    <title>Tulse Dashboard</title>
     
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/responsive.css">
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
+        /* ==========================
+        LAYOUT
+        ========================== */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 40px;
+            grid-template-columns: 240px 1fr;
+            gap: 30px;
             max-width: 1200px;
             margin: 0 auto;
-            min-height: 600px;
         }
-
-        .dashboard-sidebar {
+        .sidebar {
             background: white;
             border-radius: 16px;
             border: 1px solid #e5e7eb;
-            padding: 30px 20px;
+            padding: 25px 20px;
             height: fit-content;
             position: sticky;
             top: 100px;
         }
-
-        .dashboard-sidebar .user-info {
+        .sidebar .user {
             text-align: center;
             padding-bottom: 20px;
             border-bottom: 1px solid #e5e7eb;
             margin-bottom: 20px;
         }
-
-        .dashboard-sidebar .avatar {
-            width: 70px;
-            height: 70px;
+        .sidebar .avatar {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: var(--accent-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: #000;
-            margin: 0 auto 12px;
+            margin: 0 auto 10px;
         }
-
-        .dashboard-sidebar .user-name {
+        .sidebar .name {
             font-weight: 700;
-            font-size: 1.1rem;
         }
-
-        .dashboard-sidebar .user-email {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            word-break: break-all;
+        .sidebar .email {
+            font-size: 0.8rem;
+            color: #64748b;
         }
-
-        .dashboard-sidebar .nav-item {
+        .sidebar .admin-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 50px;
+            margin-top: 5px;
+        }
+        .sidebar .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 15px;
+            padding: 10px 15px;
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
             color: #64748b;
-            text-decoration: none;
-            margin-bottom: 4px;
-            font-size: 0.95rem;
-            position: relative;
+            transition: all 0.3s ease;
+            margin-bottom: 2px;
         }
-
-        .dashboard-sidebar .nav-item:hover {
+        .sidebar .nav-item:hover {
             background: #f8fafc;
             color: #000;
         }
-
-        .dashboard-sidebar .nav-item.active {
+        .sidebar .nav-item.active {
             background: var(--accent-color);
             color: #000;
             font-weight: 600;
         }
-
-        .dashboard-sidebar .nav-item i {
-            width: 20px;
-        }
-
-        .dashboard-sidebar .nav-item .badge {
+        .sidebar .nav-item .badge {
             background: #ef4444;
             color: white;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 8px;
+            font-size: 0.6rem;
+            padding: 1px 8px;
             border-radius: 50px;
             margin-left: auto;
-            animation: pulse 2s infinite;
         }
-
-        .dashboard-sidebar .nav-item .badge.hidden {
+        .sidebar .nav-item .badge.hidden {
             display: none;
         }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+        .sidebar .logout {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+            margin-top: 15px;
+            color: #ef4444;
         }
-
-        .dashboard-content {
+        .sidebar .logout:hover {
+            background: #fef2f2;
+        }
+        
+        .main {
             background: white;
             border-radius: 16px;
             border: 1px solid #e5e7eb;
             padding: 30px;
+            min-height: 500px;
         }
-
-        .dashboard-content .tab {
-            display: none;
-        }
-
-        .dashboard-content .tab.active {
-            display: block;
-            animation: fadeUp 0.4s ease forwards;
-        }
-
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .project-header h2 {
-            font-size: 1.5rem;
-            margin-bottom: 4px;
-        }
-
-        .project-header .status {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .status-in-progress { background: #fef3c7; color: #92400e; }
-        .status-completed { background: #d1fae5; color: #065f46; }
-        .status-pending { background: #f3f4f6; color: #4b5563; }
-
-        .progress-tracker {
+        .tab { display: none; }
+        .tab.active { display: block; }
+        
+        /* ==========================
+        CHAT - ADMIN
+        ========================== */
+        .chat-admin {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin: 25px 0 30px;
-        }
-
-        .progress-item {
-            text-align: center;
-            padding: 15px 10px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .progress-item .check {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #e5e7eb;
-            line-height: 30px;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-        }
-
-        .progress-item.completed .check {
-            background: #22c55e;
-            color: white;
-        }
-
-        .progress-item.active .check {
-            background: var(--accent-color);
-            color: #000;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .progress-item .label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #64748b;
-        }
-
-        .progress-item.active .label {
-            color: #000;
-        }
-
-        .greeting-message {
-            background: #f8fafc;
-            padding: 20px 25px;
-            border-radius: 12px;
-            border-left: 4px solid var(--accent-color);
-            margin-bottom: 25px;
-        }
-
-        .greeting-message p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin: 0;
-        }
-
-        .greeting-message strong {
-            color: #000;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 0.9rem;
-        }
-
-        .summary-grid .label {
-            color: #64748b;
-        }
-
-        .summary-grid .value {
-            font-weight: 600;
-        }
-
-        .chat-split-view {
-            display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 250px 1fr;
             gap: 20px;
             height: 500px;
             max-height: 70vh;
         }
-
         .chat-client-list {
             background: #f8fafc;
             border-radius: 12px;
@@ -268,110 +144,50 @@
             display: flex;
             flex-direction: column;
         }
-
-        .chat-client-list .list-header {
-            padding: 15px 20px;
+        .chat-client-list .header {
+            padding: 12px 16px;
             background: white;
             border-bottom: 1px solid #e5e7eb;
             font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-size: 0.9rem;
         }
-
-        .chat-client-list .list-header .count-badge {
-            background: #e5e7eb;
-            padding: 2px 10px;
-            border-radius: 50px;
-            font-size: 0.7rem;
-        }
-
-        .chat-client-list .client-items {
+        .chat-client-list .items {
             flex: 1;
             overflow-y: auto;
-            padding: 10px;
+            padding: 8px;
         }
-
-        .client-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            border-radius: 10px;
+        .chat-client-list .client-item {
+            padding: 10px 14px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f8fafc;
             margin-bottom: 4px;
         }
-
-        .client-item:hover {
+        .chat-client-list .client-item:hover {
             background: #f1f5f9;
         }
-
-        .client-item.active {
+        .chat-client-list .client-item.active {
             background: var(--accent-color);
             color: #000;
         }
-
-        .client-item .avatar-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1rem;
-            flex-shrink: 0;
-            background: var(--accent-color);
-            color: #000;
-        }
-
-        .client-item.active .avatar-small {
-            background: #000;
-            color: var(--accent-color);
-        }
-
-        .client-item .client-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .client-item .client-info .name {
+        .chat-client-list .client-item .name {
             font-weight: 600;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 0.9rem;
         }
-
-        .client-item .client-info .last-msg {
-            font-size: 0.8rem;
+        .chat-client-list .client-item .email {
+            font-size: 0.75rem;
             color: #94a3b8;
-            margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 140px;
         }
-
-        .client-item .client-time {
-            font-size: 0.65rem;
-            color: #94a3b8;
-            white-space: nowrap;
-        }
-
-        .client-item .unread-badge {
+        .chat-client-list .client-item .unread {
             background: #ef4444;
             color: white;
             font-size: 0.6rem;
-            font-weight: 700;
-            padding: 1px 6px;
+            padding: 1px 8px;
             border-radius: 50px;
-            margin-left: auto;
+            float: right;
         }
-
-        .chat-messages-area {
+        
+        .chat-messages {
             background: #f8fafc;
             border-radius: 12px;
             border: 1px solid #e5e7eb;
@@ -379,256 +195,168 @@
             display: flex;
             flex-direction: column;
         }
-
-        .chat-messages-area .chat-header {
-            padding: 15px 20px;
+        .chat-messages .header {
+            padding: 12px 16px;
             background: white;
             border-bottom: 1px solid #e5e7eb;
-            font-weight: 700;
+            font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .chat-messages-area .chat-header .mark-read-btn {
+        .chat-messages .header button {
+            background: var(--accent-color);
+            border: none;
             padding: 4px 12px;
             border-radius: 6px;
-            background: var(--accent-color);
-            color: #000;
-            border: none;
-            cursor: pointer;
-            font-size: 0.75rem;
             font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
         }
-
-        .chat-messages-area .chat-header .mark-read-btn:hover {
-            opacity: 0.8;
-        }
-
-        .chat-messages-area .messages-container {
+        .chat-messages .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px;
             background: #fafafa;
         }
-
-        .chat-messages-area .messages-container .empty-state {
+        .chat-messages .messages .empty {
             text-align: center;
             padding: 40px 20px;
             color: #94a3b8;
         }
-
-        .chat-messages-area .messages-container .empty-state i {
+        .chat-messages .messages .empty i {
             font-size: 3rem;
             display: block;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             color: #e5e7eb;
         }
-
-        .chat-messages-area .reply-area {
-            display: none;
-            padding: 15px 20px;
+        .chat-messages .reply {
+            padding: 12px 16px;
             background: white;
             border-top: 1px solid #e5e7eb;
-        }
-
-        .chat-messages-area .reply-area .reply-header {
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        .chat-messages-area .reply-area .reply-input-group {
             display: flex;
             gap: 10px;
         }
-
-        .chat-messages-area .reply-area .reply-input-group input {
+        .chat-messages .reply input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
             outline: none;
             font-family: inherit;
         }
-
-        .chat-messages-area .reply-area .reply-input-group input:focus {
+        .chat-messages .reply input:focus {
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
         }
-
-        .chat-messages-area .reply-area .reply-input-group button {
-            padding: 12px 24px;
-            border-radius: 10px;
-            background: #000;
-            color: white;
-            font-weight: 700;
+        .chat-messages .reply button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--accent-color);
             border: none;
+            font-weight: 700;
             cursor: pointer;
         }
-
-        .chat-messages-area .reply-area .reply-input-group button:hover {
-            opacity: 0.8;
+        
+        /* ==========================
+        CHAT - CLIENT
+        ========================== */
+        .chat-client {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
         }
-
-        .message-bubble {
-            display: flex;
-            margin-bottom: 12px;
+        .chat-client .messages {
+            padding: 16px;
+            height: 350px;
+            overflow-y: auto;
+            background: #fafafa;
         }
-
-        .message-bubble .bubble {
-            max-width: 80%;
+        .chat-client .messages .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+        .chat-client .messages .empty i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+            color: #e5e7eb;
+        }
+        .chat-client .input {
             padding: 12px 16px;
-            border-radius: 16px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
         }
-
-        .message-bubble.client .bubble {
+        .chat-client .input input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            font-family: inherit;
+        }
+        .chat-client .input input:focus {
+            border-color: var(--accent-color);
+        }
+        .chat-client .input button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--accent-color);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        /* ==========================
+        MESSAGE BUBBLES
+        ========================== */
+        .msg {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .msg .bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 12px;
+        }
+        .msg.client .bubble {
             background: #f1f5f9;
             color: #1a1a2e;
             border-bottom-left-radius: 4px;
         }
-
-        .message-bubble.admin .bubble {
+        .msg.admin .bubble {
             background: var(--accent-color);
             color: #000;
             border-bottom-right-radius: 4px;
+            margin-left: auto;
         }
-
-        .message-bubble .bubble .sender {
-            font-size: 0.8rem;
+        .msg .bubble .sender {
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            opacity: 0.7;
         }
-
-        .message-bubble.client .bubble .sender {
-            color: #64748b;
-        }
-
-        .message-bubble.admin .bubble .sender {
-            color: #000;
-        }
-
-        .message-bubble .bubble .text {
-            word-wrap: break-word;
+        .msg .bubble .text {
             font-size: 0.95rem;
         }
-
-        .message-bubble .bubble .time {
-            font-size: 0.65rem;
+        .msg .bubble .time {
+            font-size: 0.6rem;
+            opacity: 0.6;
             margin-top: 4px;
             text-align: right;
         }
-
-        .message-bubble.client .bubble .time {
-            color: #94a3b8;
-        }
-
-        .message-bubble.admin .bubble .time {
-            color: #555;
-        }
-
-        .message-bubble .bubble .status-indicator {
-            font-size: 0.7rem;
+        .msg .bubble .status {
+            font-size: 0.6rem;
             margin-left: 6px;
         }
-
-        .file-upload-area {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .file-upload-area input[type="file"] {
-            display: none;
-        }
-
-        .file-upload-btn {
-            padding: 12px 24px;
-            border-radius: 10px;
-            background: var(--accent-color);
-            color: #000;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .file-upload-btn:hover {
-            transform: scale(0.98);
-            opacity: 0.8;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 15px;
-            background: #f8fafc;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .file-item:hover {
-            background: #f1f5f9;
-        }
-
-        .file-item i {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-        }
-
-        .file-item .file-info {
-            flex: 1;
-        }
-
-        .file-item .file-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .file-item .file-size {
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-
-        .file-item .download-btn {
-            padding: 6px 16px;
-            border-radius: 8px;
-            background: var(--accent-color);
-            color: #000;
-            font-weight: 600;
-            font-size: 0.8rem;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .file-item .download-btn:hover {
-            opacity: 0.8;
-        }
-
-        .file-item .delete-btn {
-            padding: 6px 12px;
-            border-radius: 8px;
-            background: #ef4444;
-            color: white;
-            font-weight: 600;
-            font-size: 0.8rem;
-            border: none;
-            cursor: pointer;
-        }
-
-        .file-item .delete-btn:hover {
-            opacity: 0.8;
-        }
-
+        
+        /* ==========================
+        ADMIN DASHBOARD
+        ========================== */
         .admin-card {
             background: #f8fafc;
             padding: 20px;
@@ -636,39 +364,18 @@
             border: 1px solid #e5e7eb;
             margin-bottom: 20px;
         }
-
-        .admin-card h4 {
-            margin-bottom: 8px;
-        }
-
-        .admin-card p {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
+        .admin-card h4 { margin-bottom: 8px; }
+        .admin-card p { color: #64748b; font-size: 0.9rem; margin-bottom: 12px; }
         .admin-client-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #e5e7eb;
         }
-
-        .admin-client-item:last-child {
-            border-bottom: none;
-        }
-
-        .admin-client-item .client-name {
-            font-weight: 600;
-        }
-
-        .admin-client-item .client-email {
-            font-size: 0.85rem;
-            color: #64748b;
-        }
-
-        .admin-client-item .client-status {
+        .admin-client-item:last-child { border-bottom: none; }
+        .admin-client-item .name { font-weight: 600; }
+        .admin-client-item .email { font-size: 0.8rem; color: #64748b; }
+        .admin-client-item .status {
             background: #22c55e;
             color: white;
             padding: 2px 10px;
@@ -676,255 +383,127 @@
             font-size: 0.7rem;
             font-weight: 600;
         }
-
-        .admin-message-item {
+        
+        /* ==========================
+        FILES
+        ========================== */
+        .file-upload {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .file-upload input[type="file"] { display: none; }
+        .file-upload .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--accent-color);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 8px;
+        }
+        .file-item .info { flex: 1; }
+        .file-item .info .name { font-weight: 600; font-size: 0.9rem; }
+        .file-item .info .size { font-size: 0.75rem; color: #64748b; }
+        .file-item .download {
+            padding: 4px 14px;
+            border-radius: 6px;
+            background: var(--accent-color);
+            border: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: #000;
+        }
+        
+        /* ==========================
+        LOCKED STATE
+        ========================== */
+        .locked {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .locked i { font-size: 4rem; color: #94a3b8; margin-bottom: 20px; }
+        .locked h2 { margin-bottom: 10px; }
+        .locked p { color: var(--text-muted); margin-bottom: 20px; }
+        
+        /* ==========================
+        PROJECTS
+        ========================== */
+        .project-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .admin-message-item:last-child {
-            border-bottom: none;
-        }
-
-        .admin-message-item .message-sender {
-            font-weight: 600;
-        }
-
-        .admin-message-item .message-text {
-            font-size: 0.9rem;
-        }
-
-        .admin-message-item .message-time {
-            font-size: 0.75rem;
-            color: #94a3b8;
-        }
-
-        .admin-message-item .message-status {
-            font-size: 1rem;
-        }
-
-        .admin-message-item .mark-read-btn {
-            padding: 4px 12px;
-            border-radius: 6px;
-            background: var(--accent-color);
-            color: #000;
-            border: none;
-            cursor: pointer;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .admin-message-item .mark-read-btn:hover {
-            opacity: 0.8;
-        }
-
-        .locked-overlay {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .locked-overlay i {
-            font-size: 4rem;
-            color: #94a3b8;
-            margin-bottom: 20px;
-        }
-
-        .locked-overlay h2 {
-            margin-bottom: 10px;
-        }
-
-        .locked-overlay p {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .admin-only {
-            display: none;
-        }
-
-        .admin-badge {
-            background: #ef4444;
-            color: white;
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 2px 10px;
-            border-radius: 50px;
-            margin-left: 8px;
-            display: none;
-        }
-
-        .admin-badge.show {
-            display: inline-block;
-        }
-
-        .client-chat-container {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .client-chat-messages {
-            padding: 20px;
-            height: 350px;
-            overflow-y: auto;
-            background: #fafafa;
-        }
-
-        .client-chat-messages .empty-state {
-            text-align: center;
-            color: #94a3b8;
-            padding: 60px 20px;
-        }
-
-        .client-chat-messages .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: #e5e7eb;
-        }
-
-        .client-chat-input {
-            display: flex;
+            flex-wrap: wrap;
             gap: 10px;
-            padding: 15px 20px;
-            background: white;
-            border-top: 1px solid #e5e7eb;
         }
-
-        .client-chat-input input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            outline: none;
-            font-family: inherit;
+        .project-card .status {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
-
-        .client-chat-input input:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        .project-card .view {
+            color: var(--accent-color);
+            font-weight: 600;
         }
-
-        .client-chat-input button {
-            padding: 12px 20px;
-            border-radius: 10px;
-            background: var(--accent-color);
-            color: #000;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-        }
-
-        .client-chat-input button:hover {
-            opacity: 0.8;
-        }
-
-        @media (max-width: 1024px) {
-            .chat-split-view {
-                grid-template-columns: 220px 1fr;
-            }
-        }
-
+        
+        /* ==========================
+        RESPONSIVE
+        ========================== */
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-
-            .dashboard-sidebar {
+            .sidebar {
                 position: static;
-                padding: 20px 15px;
             }
-
-            .progress-tracker {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .chat-split-view {
+            .chat-admin {
                 grid-template-columns: 1fr;
                 height: auto;
-                max-height: none;
             }
-
             .chat-client-list {
                 max-height: 200px;
             }
-
-            .chat-messages-area {
+            .chat-messages {
                 min-height: 300px;
             }
-
-            .client-chat-messages {
-                height: 250px;
-            }
-
-            .admin-client-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
         }
-
         @media (max-width: 450px) {
-            .progress-tracker {
-                grid-template-columns: 1fr;
-            }
-
-            .dashboard-content {
-                padding: 15px;
-            }
-
-            .client-chat-input {
-                flex-direction: column;
-            }
-
-            .client-chat-input button {
-                width: 100%;
-            }
-
-            .file-upload-area {
-                flex-direction: column;
-            }
-
-            .file-upload-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .reply-input-group {
-                flex-direction: column;
-            }
-
-            .reply-input-group button {
-                width: 100%;
-            }
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            .main { padding: 15px; }
+            .chat-client .messages { height: 200px; }
+            .chat-client .input { flex-direction: column; }
+            .chat-client .input button { width: 100%; }
+            .file-upload { flex-direction: column; }
+            .file-upload .btn { width: 100%; text-align: center; }
+            .reply { flex-direction: column; }
+            .reply button { width: 100%; }
         }
     </style>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
+    <!-- ==========================
+    NAVBAR
+    ========================== -->
     <header class="header">
         <nav class="navbar">
             <a href="index.html" class="logo">
@@ -947,44 +526,54 @@
         </nav>
     </header>
 
+    <!-- ==========================
+    DASHBOARD
+    ========================== -->
     <section style="background: #f8fafc; padding: 100px 5%; min-height: 80vh;">
-        <div class="dashboard-grid">
 
-            <div class="dashboard-sidebar">
-                <div class="user-info">
-                    <div class="avatar" id="userAvatar">JD</div>
-                    <div class="user-name" id="userName">John Doe</div>
-                    <div class="user-email" id="userEmail">john@example.com</div>
-                    <span class="admin-badge" id="adminBadge">Admin</span>
+        <div class="dashboard-grid" id="app">
+
+            <!-- ==========================
+            SIDEBAR
+            ========================== -->
+            <div class="sidebar">
+                <div class="user">
+                    <div class="avatar" id="avatar">JD</div>
+                    <div class="name" id="userName">John Doe</div>
+                    <div class="email" id="userEmail">john@example.com</div>
+                    <div class="admin-badge" id="adminBadge" style="display:none;">Admin</div>
                 </div>
-                <a href="#" class="nav-item active" data-tab="dashboard">
+                
+                <div class="nav-item active" data-tab="dashboard">
                     <i class="fas fa-th-large"></i> Dashboard
-                </a>
-                <a href="#" class="nav-item" data-tab="projects">
+                </div>
+                <div class="nav-item" data-tab="projects">
                     <i class="fas fa-folder"></i> Projects
-                </a>
-                <a href="#" class="nav-item" data-tab="messages">
+                </div>
+                <div class="nav-item" data-tab="messages">
                     <i class="fas fa-envelope"></i> Messages
-                    <span class="badge hidden" id="messageBadge">0</span>
-                </a>
-                <a href="#" class="nav-item" data-tab="files">
+                    <span class="badge hidden" id="msgBadge">0</span>
+                </div>
+                <div class="nav-item" data-tab="files">
                     <i class="fas fa-file"></i> Files
-                </a>
-                <a href="#" class="nav-item admin-only" data-tab="admin" id="adminTab">
+                </div>
+                <div class="nav-item admin-only" data-tab="admin" id="adminTab" style="display:none;">
                     <i class="fas fa-user-shield"></i> Admin
-                    <span class="badge hidden" id="adminBadgeNotification">0</span>
-                </a>
-                <div style="border-top: 1px solid #e5e7eb; margin: 15px 0; padding-top: 15px;">
-                    <a href="#" class="nav-item" id="logoutBtn" style="color: #ef4444;">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
+                    <span class="badge hidden" id="adminBadgeCount">0</span>
+                </div>
+                <div class="nav-item logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </div>
             </div>
 
-            <div class="dashboard-content">
+            <!-- ==========================
+            MAIN CONTENT
+            ========================== -->
+            <div class="main">
 
+                <!-- LOCKED STATE -->
                 <div id="lockedState">
-                    <div class="locked-overlay">
+                    <div class="locked">
                         <i class="fas fa-lock"></i>
                         <h2>Access Restricted</h2>
                         <p>This portal is for paying clients only.</p>
@@ -992,164 +581,152 @@
                     </div>
                 </div>
 
-                <div class="tab active" id="tab-dashboard" style="display: none;">
-                    <div class="greeting-message">
-                        <p>👋 Hey <strong id="greetingName">John</strong>! Here's what's happening with your project.</p>
-                    </div>
-
-                    <div class="project-header">
+                <!-- ==========================
+                TAB: DASHBOARD
+                ========================== -->
+                <div class="tab active" id="tab-dashboard">
+                    <h2 style="font-size:1.5rem; margin-bottom:4px;">👋 Hey <span id="greetingName">John</span>!</h2>
+                    <p style="color:#64748b; margin-bottom:25px;">Here's what's happening with your project.</p>
+                    
+                    <div class="project-card">
                         <div>
-                            <h2 id="projectName">Orlando Roofing Prospect List</h2>
-                            <span class="status status-in-progress" id="projectStatus">In Progress</span>
+                            <h4 id="projectName">Orlando Roofing Prospect List</h4>
+                            <p style="font-size:0.85rem; color:#64748b;">Started: Aug 2, 2026</p>
                         </div>
                         <div>
-                            <span style="font-size: 0.85rem; color: #64748b;">Package</span>
-                            <div style="font-weight: 700; font-size: 1.1rem;" id="projectPackage">Lead Intelligence</div>
+                            <span class="status" id="projectStatus">In Progress</span>
+                            <span class="view" style="margin-left:15px;">View →</span>
                         </div>
                     </div>
-
-                    <div class="progress-tracker">
-                        <div class="progress-item completed">
-                            <div class="check"><i class="fas fa-check"></i></div>
-                            <div class="label">Payment Received</div>
-                        </div>
-                        <div class="progress-item completed">
-                            <div class="check"><i class="fas fa-check"></i></div>
-                            <div class="label">Targeting Confirmed</div>
-                        </div>
-                        <div class="progress-item active">
-                            <div class="check"><i class="fas fa-spinner"></i></div>
-                            <div class="label">Researching Prospects</div>
-                        </div>
-                        <div class="progress-item">
-                            <div class="check">4</div>
-                            <div class="label">Quality Review</div>
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
-                        <h4 style="margin-bottom: 10px;">Project Summary</h4>
-                        <div class="summary-grid">
-                            <div><span class="label">Industry:</span> <span class="value" id="projectIndustry">Roofing</span></div>
-                            <div><span class="label">Location:</span> <span class="value" id="projectLocation">Orlando, FL</span></div>
-                            <div><span class="label">Leads:</span> <span class="value" id="projectLeads">500</span></div>
-                            <div><span class="label">Delivery:</span> <span class="value" id="projectDelivery">CSV</span></div>
+                    
+                    <div style="margin-top:20px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e5e7eb;">
+                        <h4 style="margin-bottom:10px;">Project Summary</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.9rem;">
+                            <div><span style="color:#64748b;">Industry:</span> <strong id="industry">Roofing</strong></div>
+                            <div><span style="color:#64748b;">Location:</span> <strong id="location">Orlando, FL</strong></div>
+                            <div><span style="color:#64748b;">Leads:</span> <strong id="leads">500</strong></div>
+                            <div><span style="color:#64748b;">Delivery:</span> <strong id="delivery">CSV</strong></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab" id="tab-projects" style="display: none;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Your Projects</h2>
-                    <div id="projectList">
-                        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                            <div>
-                                <h4 id="projectName2">Orlando Roofing Prospect List</h4>
-                                <p style="font-size: 0.85rem; color: #64748b;">Started: Aug 2, 2026</p>
-                            </div>
-                            <div>
-                                <span class="status status-in-progress">In Progress</span>
-                                <span style="margin-left: 15px; color: var(--accent-color); font-weight: 600;">View →</span>
-                            </div>
+                <!-- ==========================
+                TAB: PROJECTS
+                ========================== -->
+                <div class="tab" id="tab-projects">
+                    <h2 style="font-size:1.5rem; margin-bottom:20px;">Your Projects</h2>
+                    <div class="project-card">
+                        <div>
+                            <h4>Orlando Roofing Prospect List</h4>
+                            <p style="font-size:0.85rem; color:#64748b;">Started: Aug 2, 2026</p>
+                        </div>
+                        <div>
+                            <span class="status">In Progress</span>
+                            <span class="view" style="margin-left:15px;">View →</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab" id="tab-messages" style="display: none;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Private Project Messaging</h2>
-
-                    <div id="adminChatView" style="display: none;">
-                        <div class="chat-split-view">
+                <!-- ==========================
+                TAB: MESSAGES
+                ========================== -->
+                <div class="tab" id="tab-messages">
+                    <h2 style="font-size:1.5rem; margin-bottom:20px;">Private Messaging</h2>
+                    
+                    <!-- ADMIN CHAT VIEW -->
+                    <div id="adminChatView" style="display:none;">
+                        <div class="chat-admin">
                             <div class="chat-client-list">
-                                <div class="list-header">
-                                    <span><i class="fas fa-users" style="margin-right: 8px;"></i> Clients</span>
-                                    <span class="count-badge" id="clientCountBadge">0</span>
-                                </div>
-                                <div class="client-items" id="adminClientList">
-                                    <div style="text-align: center; padding: 30px 20px; color: #94a3b8;">
-                                        <p>Loading clients...</p>
-                                    </div>
+                                <div class="header"><i class="fas fa-users"></i> Clients <span id="clientCount" style="font-size:0.7rem; background:#e5e7eb; padding:1px 10px; border-radius:50px; margin-left:8px;">0</span></div>
+                                <div class="items" id="adminClientList">
+                                    <div style="text-align:center; padding:30px 10px; color:#94a3b8;">Loading clients...</div>
                                 </div>
                             </div>
-
-                            <div class="chat-messages-area">
-                                <div class="chat-header">
-                                    <span><i class="fas fa-comment" style="margin-right: 8px;"></i> <span id="adminChatClientName">Select a client</span></span>
-                                    <button class="mark-read-btn" onclick="markMessagesAsRead(currentAdminClient)">Mark All Read</button>
+                            <div class="chat-messages">
+                                <div class="header">
+                                    <span id="chatClientName">Select a client</span>
+                                    <button onclick="markAllRead()">Mark All Read</button>
                                 </div>
-                                <div class="messages-container" id="adminMessageContainer">
-                                    <div class="empty-state">
+                                <div class="messages" id="adminMessages">
+                                    <div class="empty">
                                         <i class="fas fa-user-circle"></i>
-                                        <p>Select a client from the list to start chatting.</p>
+                                        <p>Select a client to start chatting.</p>
                                     </div>
                                 </div>
-                                <div class="reply-area" id="adminReplyArea">
-                                    <div class="reply-header">🛡️ Reply to <span id="adminReplyClientName">Client</span></div>
-                                    <div class="reply-input-group">
-                                        <input type="text" id="adminReplyInput" placeholder="Type your reply...">
-                                        <button onclick="sendAdminReply()">Send</button>
-                                    </div>
+                                <div class="reply" id="adminReply" style="display:none;">
+                                    <input type="text" id="adminReplyInput" placeholder="Type your reply...">
+                                    <button onclick="sendAdminReply()">Send</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-
+                    
+                    <!-- CLIENT CHAT VIEW -->
                     <div id="clientChatView">
-                        <div class="client-chat-container">
-                            <div class="client-chat-messages" id="messageContainer">
-                                <div class="empty-state">
+                        <div class="chat-client">
+                            <div class="messages" id="clientMessages">
+                                <div class="empty">
                                     <i class="fas fa-comment-dots"></i>
                                     <p>No messages yet. Start the conversation!</p>
                                 </div>
                             </div>
-                            <div class="client-chat-input">
-                                <input type="text" id="messageInput" placeholder="Type your message here...">
-                                <button id="sendMessageBtn" onclick="sendClientMessage()"><i class="fas fa-paper-plane"></i> Send</button>
+                            <div class="input">
+                                <input type="text" id="clientMessageInput" placeholder="Type your message...">
+                                <button onclick="sendClientMessage()"><i class="fas fa-paper-plane"></i> Send</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab" id="tab-files" style="display: none;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">Project Files</h2>
-
-                    <div class="file-upload-area">
-                        <button class="file-upload-btn" id="uploadFileBtn"><i class="fas fa-upload"></i> Upload File</button>
+                <!-- ==========================
+                TAB: FILES
+                ========================== -->
+                <div class="tab" id="tab-files">
+                    <h2 style="font-size:1.5rem; margin-bottom:20px;">Project Files</h2>
+                    
+                    <div class="file-upload">
+                        <button class="btn" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-upload"></i> Upload File
+                        </button>
                         <input type="file" id="fileInput">
-                        <span style="font-size: 0.85rem; color: #94a3b8; align-self: center;">Upload files for your project</span>
+                        <span style="font-size:0.8rem; color:#94a3b8; align-self:center;">Upload files for your project</span>
                     </div>
-
-                    <div id="fileContainer">
-                        <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
-                            <i class="fas fa-folder-open" style="font-size: 3rem; color: #e5e7eb; display: block; margin-bottom: 15px;"></i>
+                    
+                    <div id="fileList">
+                        <div style="text-align:center; padding:40px 20px; color:#94a3b8;">
+                            <i class="fas fa-folder-open" style="font-size:3rem; display:block; margin-bottom:10px; color:#e5e7eb;"></i>
                             <p>No files uploaded yet.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab admin-only" id="tab-admin" style="display: none;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 20px;">🛡️ Admin Dashboard</h2>
-
+                <!-- ==========================
+                TAB: ADMIN
+                ========================== -->
+                <div class="tab" id="tab-admin">
+                    <h2 style="font-size:1.5rem; margin-bottom:20px;">🛡️ Admin Dashboard</h2>
+                    
                     <div class="admin-card">
                         <h4>📨 Client Messages</h4>
-                        <p>View and respond to client messages.</p>
+                        <p>Recent client messages.</p>
                         <div id="adminMessageList">
-                            <p style="color: #94a3b8; font-size: 0.9rem;">No client messages yet.</p>
+                            <p style="color:#94a3b8; font-size:0.9rem;">No client messages yet.</p>
                         </div>
                     </div>
-
+                    
                     <div class="admin-card">
                         <h4>📁 Files</h4>
-                        <p>Manage project files.</p>
+                        <p>All project files.</p>
                         <div id="adminFileList">
-                            <p style="color: #94a3b8; font-size: 0.9rem;">No files uploaded yet.</p>
+                            <p style="color:#94a3b8; font-size:0.9rem;">No files uploaded yet.</p>
                         </div>
                     </div>
-
+                    
                     <div class="admin-card">
-                        <h4>👥 Client Management</h4>
-                        <p>Manage client accounts.</p>
-                        <div id="clientList">
-                            <p style="color: #94a3b8; font-size: 0.9rem;">No clients yet.</p>
+                        <h4>👥 Clients</h4>
+                        <p>All registered clients.</p>
+                        <div id="adminClientListFull">
+                            <p style="color:#94a3b8; font-size:0.9rem;">No clients yet.</p>
                         </div>
                     </div>
                 </div>
@@ -1158,6 +735,9 @@
         </div>
     </section>
 
+    <!-- ==========================
+    FOOTER
+    ========================== -->
     <footer class="footer">
         <div class="footer-logo">
             <img src="assets/logo.png" alt="Tulse Logo">
@@ -1174,88 +754,123 @@
         <p>© 2026 Tulse. All Rights Reserved.</p>
     </footer>
 
-    <script src="js/app.js"></script>
-    <script src="js/navbar.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/scroll.js"></script>
-    <script src="js/files.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/firebase-init.js"></script>
-    <script src="js/firebase-chat.js"></script>
+    <!-- ==========================
+    FIREBASE INIT
+    ========================== -->
+    <script>
+        // ==========================
+        // FIREBASE CONFIG
+        // ==========================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRkzYNYGXXKsaZmR0Jh9IgQsmTeUP23-g",
+            authDomain: "tulse-chat.firebaseapp.com",
+            projectId: "tulse-chat",
+            storageBucket: "tulse-chat.firebasestorage.app",
+            messagingSenderId: "948935694228",
+            appId: "1:948935694228:web:9f716b4df941a8f387e181",
+            measurementId: "G-HXXMQWJSG0"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        console.log('✅ Firebase initialized');
+    </script>
 
     <script>
         // ==========================
-        // AUTHENTICATION CHECK
+        // APP STATE
         // ==========================
-        document.addEventListener('DOMContentLoaded', function() {
-            const isLoggedIn = localStorage.getItem('tulse_logged_in') === 'true';
-            const sessionId = localStorage.getItem('tulse_session_id');
-            const accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
-            const projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
-            const isAdminUser = localStorage.getItem('tulse_is_admin') === 'true';
+        let currentClient = null;
+        let isAdmin = false;
+        let accountData = {};
+        let projectData = {};
+        let packageKey = 'lead-intelligence-professional';
+        
+        const packageNames = {
+            'lead-intelligence-standard': 'Lead Intelligence - Standard',
+            'lead-intelligence-growth': 'Lead Intelligence - Growth',
+            'lead-intelligence-professional': 'Lead Intelligence - Professional',
+            'content-remote-one-time': 'Content - Remote One-Time',
+            'content-remote-monthly': 'Content - Remote Monthly',
+            'content-onsite-one-time': 'Content - On-Site One-Time',
+            'content-onsite-monthly': 'Content - On-Site Monthly'
+        };
 
-            const lockedState = document.getElementById('lockedState');
+        // ==========================
+        // AUTHENTICATION
+        // ==========================
+        function checkAuth() {
+            const loggedIn = localStorage.getItem('tulse_logged_in') === 'true';
+            const sessionId = localStorage.getItem('tulse_session_id');
+            accountData = JSON.parse(localStorage.getItem('tulse_account_data') || '{}');
+            projectData = JSON.parse(localStorage.getItem('tulse_project_data') || '{}');
+            isAdmin = localStorage.getItem('tulse_is_admin') === 'true';
+            packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
+
+            const locked = document.getElementById('lockedState');
             const tabs = document.querySelectorAll('.tab');
 
-            if (!isLoggedIn || !sessionId || !accountData.client_email) {
-                if (lockedState) lockedState.style.display = 'block';
-                tabs.forEach(tab => tab.style.display = 'none');
-                return;
+            if (!loggedIn || !sessionId || !accountData.client_email) {
+                locked.style.display = 'block';
+                tabs.forEach(t => t.style.display = 'none');
+                return false;
             }
 
-            if (lockedState) lockedState.style.display = 'none';
-            tabs.forEach(tab => tab.style.display = 'block');
+            locked.style.display = 'none';
+            tabs.forEach(t => t.style.display = 'block');
+            return true;
+        }
 
-            if (isAdminUser) {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                document.getElementById('adminBadge').classList.add('show');
-            }
-
+        // ==========================
+        // LOAD USER DATA
+        // ==========================
+        function loadUserData() {
             const name = accountData.full_name || accountData.client_email?.split('@')[0] || 'Client';
             const displayName = name.charAt(0).toUpperCase() + name.slice(1);
-            document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
+            
+            document.getElementById('avatar').textContent = displayName.charAt(0);
             document.getElementById('userName').textContent = displayName;
+            document.getElementById('userEmail').textContent = accountData.client_email || 'client@example.com';
             document.getElementById('greetingName').textContent = displayName;
-            document.getElementById('userAvatar').textContent = displayName.charAt(0);
-
+            
+            if (isAdmin) {
+                document.getElementById('adminBadge').style.display = 'inline-block';
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.getElementById('adminTab').style.display = 'flex';
+            }
+            
             if (projectData.target_industry) {
-                document.getElementById('projectIndustry').textContent = projectData.target_industry;
+                document.getElementById('industry').textContent = projectData.target_industry;
             }
             if (projectData.target_location) {
-                document.getElementById('projectLocation').textContent = projectData.target_location;
+                document.getElementById('location').textContent = projectData.target_location;
             }
-
-            const packageKey = localStorage.getItem('tulse_package') || 'lead-intelligence-professional';
-            const packageNames = {
-                'lead-intelligence-standard': 'Lead Intelligence - Standard',
-                'lead-intelligence-growth': 'Lead Intelligence - Growth',
-                'lead-intelligence-professional': 'Lead Intelligence - Professional',
-                'content-remote-one-time': 'Content - Remote One-Time',
-                'content-remote-monthly': 'Content - Remote Monthly',
-                'content-onsite-one-time': 'Content - On-Site One-Time',
-                'content-onsite-monthly': 'Content - On-Site Monthly'
-            };
+            
             document.getElementById('projectPackage').textContent = packageNames[packageKey] || 'Lead Intelligence';
-
-            if (isAdminUser && typeof updateAdminDashboard === 'function') {
-                setTimeout(updateAdminDashboard, 500);
-            }
-        });
+        }
 
         // ==========================
         // TAB SWITCHING
         // ==========================
         document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
+            item.addEventListener('click', function() {
                 document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.remove('active'));
                 this.classList.add('active');
+                
                 const tabId = this.dataset.tab;
-                document.querySelectorAll('.dashboard-content .tab').forEach(el => el.classList.remove('active'));
-                const targetTab = document.getElementById('tab-' + tabId);
-                if (targetTab) {
-                    targetTab.classList.add('active');
-                    targetTab.style.display = 'block';
+                document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+                document.getElementById('tab-' + tabId).classList.add('active');
+                
+                if (tabId === 'messages' && isAdmin) {
+                    loadAdminClients();
+                }
+                if (tabId === 'messages' && !isAdmin) {
+                    loadClientMessages();
+                }
+                if (tabId === 'admin' && isAdmin) {
+                    loadAdminDashboard();
+                }
+                if (tabId === 'files') {
+                    loadFiles();
                 }
             });
         });
@@ -1263,8 +878,7 @@
         // ==========================
         // LOGOUT
         // ==========================
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
-            e.preventDefault();
+        document.getElementById('logoutBtn').addEventListener('click', function() {
             if (confirm('Logout from your client portal?')) {
                 localStorage.removeItem('tulse_logged_in');
                 localStorage.removeItem('tulse_session_id');
@@ -1276,24 +890,537 @@
         });
 
         // ==========================
-        // FILE UPLOAD
+        // CHAT - CLIENT
         // ==========================
-        document.getElementById('uploadFileBtn')?.addEventListener('click', function() {
-            document.getElementById('fileInput').click();
-        });
+        function sendClientMessage() {
+            const input = document.getElementById('clientMessageInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const userEmail = accountData.client_email || 'client@example.com';
+            const userName = accountData.full_name || 'Client';
+            
+            db.collection('chats')
+                .doc(userEmail)
+                .collection('messages')
+                .add({
+                    id: Date.now(),
+                    sender: 'client',
+                    senderName: userName,
+                    senderEmail: userEmail,
+                    message: message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                })
+                .then(() => {
+                    input.value = '';
+                    loadClientMessages();
+                })
+                .catch(err => console.error('Error sending message:', err));
+        }
 
-        document.getElementById('fileInput')?.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                uploadFile(file).then(() => {
-                    updateFileDisplay();
-                    this.value = '';
-                    if (typeof updateAdminDashboard === 'function') {
-                        setTimeout(updateAdminDashboard, 500);
+        function loadClientMessages() {
+            const container = document.getElementById('clientMessages');
+            const userEmail = accountData.client_email || 'client@example.com';
+            
+            db.collection('chats')
+                .doc(userEmail)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    const messages = [];
+                    snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
+                    
+                    if (messages.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-comment-dots"></i>
+                                <p>No messages yet. Start the conversation!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    let html = '';
+                    messages.forEach(msg => {
+                        const isClient = msg.sender === 'client';
+                        html += `
+                            <div class="msg ${isClient ? 'client' : 'admin'}">
+                                <div class="bubble">
+                                    <div class="sender">${isClient ? 'You' : 'Tulse Team'}</div>
+                                    <div class="text">${msg.message}</div>
+                                    <div class="time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : ''}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight;
+                });
+        }
+
+        // ==========================
+        // CHAT - ADMIN
+        // ==========================
+        function loadAdminClients() {
+            const container = document.getElementById('adminClientList');
+            
+            db.collection('chats').get().then((snapshot) => {
+                const count = snapshot.size;
+                document.getElementById('clientCount').textContent = count;
+                
+                if (count === 0) {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:30px 10px; color:#94a3b8;">
+                            <p>No clients yet.</p>
+                            <p style="font-size:0.8rem;">Send a message from the client first.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                snapshot.forEach((doc) => {
+                    const email = doc.id;
+                    const name = email.split('@')[0];
+                    const isActive = currentClient === email;
+                    
+                    // Get unread count
+                    db.collection('chats')
+                        .doc(email)
+                        .collection('messages')
+                        .where('read', '==', false)
+                        .where('sender', '==', 'client')
+                        .get()
+                        .then((unreadSnapshot) => {
+                            const unread = unreadSnapshot.size;
+                            const badge = unread > 0 ? `<span class="unread">${unread}</span>` : '';
+                            
+                            // Update the item if it exists
+                            const items = container.querySelectorAll('.client-item');
+                            items.forEach(el => {
+                                if (el.dataset.email === email) {
+                                    const badgeEl = el.querySelector('.unread');
+                                    if (badgeEl) {
+                                        if (unread > 0) {
+                                            badgeEl.textContent = unread;
+                                            badgeEl.style.display = 'inline';
+                                        } else {
+                                            badgeEl.style.display = 'none';
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    
+                    html += `
+                        <div class="client-item ${isActive ? 'active' : ''}" data-email="${email}" onclick="selectClient('${email}')">
+                            <div>
+                                <div class="name">${name}</div>
+                                <div class="email">${email}</div>
+                            </div>
+                            <span class="unread" id="unread_${email}">0</span>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                
+                // Update unread counts
+                snapshot.forEach((doc) => {
+                    const email = doc.id;
+                    db.collection('chats')
+                        .doc(email)
+                        .collection('messages')
+                        .where('read', '==', false)
+                        .where('sender', '==', 'client')
+                        .get()
+                        .then((unreadSnapshot) => {
+                            const unread = unreadSnapshot.size;
+                            const badge = document.getElementById('unread_' + email);
+                            if (badge) {
+                                if (unread > 0) {
+                                    badge.textContent = unread;
+                                    badge.style.display = 'inline';
+                                } else {
+                                    badge.style.display = 'none';
+                                }
+                            }
+                        });
+                });
+            });
+        }
+
+        function selectClient(email) {
+            currentClient = email;
+            
+            // Update UI
+            document.querySelectorAll('.client-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.email === email);
+            });
+            
+            document.getElementById('chatClientName').textContent = email.split('@')[0];
+            document.getElementById('adminReply').style.display = 'flex';
+            
+            // Load messages
+            const container = document.getElementById('adminMessages');
+            
+            db.collection('chats')
+                .doc(email)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    const messages = [];
+                    snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
+                    
+                    if (messages.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-comment-dots"></i>
+                                <p>No messages with this client yet.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    let html = '';
+                    messages.forEach(msg => {
+                        const isClient = msg.sender === 'client';
+                        html += `
+                            <div class="msg ${isClient ? 'client' : 'admin'}">
+                                <div class="bubble">
+                                    <div class="sender">${isClient ? msg.senderName : 'You (Admin)'} ${isClient && !msg.read ? '🔴' : ''}</div>
+                                    <div class="text">${msg.message}</div>
+                                    <div class="time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : ''}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight;
+                    
+                    // Mark messages as read
+                    db.collection('chats')
+                        .doc(email)
+                        .collection('messages')
+                        .where('read', '==', false)
+                        .where('sender', '==', 'client')
+                        .get()
+                        .then((snapshot) => {
+                            const batch = db.batch();
+                            snapshot.forEach(doc => {
+                                batch.update(doc.ref, { read: true });
+                            });
+                            return batch.commit();
+                        })
+                        .then(() => {
+                            updateUnreadBadges();
+                        })
+                        .catch(err => console.error('Error marking messages as read:', err));
+                });
+        }
+
+        function sendAdminReply() {
+            const input = document.getElementById('adminReplyInput');
+            const message = input.value.trim();
+            if (!message || !currentClient) return;
+            
+            db.collection('chats')
+                .doc(currentClient)
+                .collection('messages')
+                .add({
+                    id: Date.now(),
+                    sender: 'admin',
+                    senderName: 'Tulse Team',
+                    senderEmail: 'admin@tulse.agency',
+                    message: message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: true
+                })
+                .then(() => {
+                    input.value = '';
+                })
+                .catch(err => console.error('Error sending reply:', err));
+        }
+
+        function markAllRead() {
+            if (!currentClient) return;
+            
+            db.collection('chats')
+                .doc(currentClient)
+                .collection('messages')
+                .where('read', '==', false)
+                .where('sender', '==', 'client')
+                .get()
+                .then((snapshot) => {
+                    const batch = db.batch();
+                    snapshot.forEach(doc => {
+                        batch.update(doc.ref, { read: true });
+                    });
+                    return batch.commit();
+                })
+                .then(() => {
+                    updateUnreadBadges();
+                })
+                .catch(err => console.error('Error marking messages as read:', err));
+        }
+
+        function updateUnreadBadges() {
+            // Get total unread count
+            db.collection('chats').get().then((snapshot) => {
+                let total = 0;
+                const promises = [];
+                
+                snapshot.forEach((doc) => {
+                    promises.push(
+                        db.collection('chats')
+                            .doc(doc.id)
+                            .collection('messages')
+                            .where('read', '==', false)
+                            .where('sender', '==', 'client')
+                            .get()
+                            .then((msgSnapshot) => {
+                                total += msgSnapshot.size;
+                            })
+                    );
+                });
+                
+                Promise.all(promises).then(() => {
+                    const badge = document.getElementById('msgBadge');
+                    const adminBadge = document.getElementById('adminBadgeCount');
+                    if (total > 0) {
+                        badge.classList.remove('hidden');
+                        badge.textContent = total;
+                        adminBadge.classList.remove('hidden');
+                        adminBadge.textContent = total;
+                    } else {
+                        badge.classList.add('hidden');
+                        adminBadge.classList.add('hidden');
                     }
                 });
+            });
+        }
+
+        // ==========================
+        // ADMIN DASHBOARD
+        // ==========================
+        function loadAdminDashboard() {
+            // Client list
+            db.collection('chats').get().then((snapshot) => {
+                const container = document.getElementById('adminClientListFull');
+                if (snapshot.size === 0) {
+                    container.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No clients yet.</p>';
+                    return;
+                }
+                
+                let html = '';
+                snapshot.forEach((doc) => {
+                    const email = doc.id;
+                    const name = email.split('@')[0];
+                    html += `
+                        <div class="admin-client-item">
+                            <div>
+                                <div class="name">${name}</div>
+                                <div class="email">${email}</div>
+                            </div>
+                            <span class="status">Active</span>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            });
+            
+            // Messages
+            const msgContainer = document.getElementById('adminMessageList');
+            db.collection('chats').get().then((snapshot) => {
+                let allMessages = [];
+                const promises = [];
+                
+                snapshot.forEach((doc) => {
+                    promises.push(
+                        db.collection('chats')
+                            .doc(doc.id)
+                            .collection('messages')
+                            .orderBy('timestamp', 'desc')
+                            .limit(5)
+                            .get()
+                            .then((msgSnapshot) => {
+                                msgSnapshot.forEach((msgDoc) => {
+                                    const data = msgDoc.data();
+                                    if (data.sender === 'client') {
+                                        allMessages.push({ ...data, clientEmail: doc.id });
+                                    }
+                                });
+                            })
+                    );
+                });
+                
+                Promise.all(promises).then(() => {
+                    allMessages.sort((a, b) => {
+                        const timeA = a.timestamp ? a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp) : new Date(0);
+                        const timeB = b.timestamp ? b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp) : new Date(0);
+                        return timeB - timeA;
+                    });
+                    
+                    if (allMessages.length === 0) {
+                        msgContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No client messages yet.</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    allMessages.slice(0, 10).forEach((msg) => {
+                        const time = msg.timestamp ? 
+                            (msg.timestamp.toDate ? new Date(msg.timestamp.toDate()).toLocaleString() : new Date(msg.timestamp).toLocaleString()) : 
+                            'Unknown';
+                        html += `
+                            <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9;">
+                                <div>
+                                    <div style="font-weight:600;">${msg.senderName || 'Client'}</div>
+                                    <div style="font-size:0.9rem;">${msg.message}</div>
+                                    <div style="font-size:0.75rem; color:#94a3b8;">${time}</div>
+                                </div>
+                                <div style="font-size:0.8rem;">${msg.read ? '✅' : '🔴'}</div>
+                            </div>
+                        `;
+                    });
+                    msgContainer.innerHTML = html;
+                });
+            });
+            
+            // Files
+            const fileContainer = document.getElementById('adminFileList');
+            const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
+            if (files.length === 0) {
+                fileContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No files uploaded yet.</p>';
+            } else {
+                let html = '';
+                files.forEach(file => {
+                    const size = file.size < 1024 ? file.size + ' B' : 
+                                 file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' : 
+                                 (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                    html += `
+                        <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #f1f5f9;">
+                            <span>📄 ${file.name}</span>
+                            <span style="font-size:0.8rem; color:#64748b;">${size}</span>
+                        </div>
+                    `;
+                });
+                fileContainer.innerHTML = html;
             }
+        }
+
+        // ==========================
+        // FILES
+        // ==========================
+        function uploadFile(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
+                    files.push({
+                        id: Date.now(),
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        data: e.target.result,
+                        uploadDate: new Date().toISOString()
+                    });
+                    localStorage.setItem('tulse_project_files', JSON.stringify(files));
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function loadFiles() {
+            const container = document.getElementById('fileList');
+            const files = JSON.parse(localStorage.getItem('tulse_project_files') || '[]');
+            
+            if (files.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:40px 20px; color:#94a3b8;">
+                        <i class="fas fa-folder-open" style="font-size:3rem; display:block; margin-bottom:10px; color:#e5e7eb;"></i>
+                        <p>No files uploaded yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            files.forEach(file => {
+                const size = file.size < 1024 ? file.size + ' B' : 
+                             file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' : 
+                             (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                
+                const icon = file.type.includes('pdf') ? 'fa-file-pdf' :
+                            file.type.includes('excel') || file.type.includes('spreadsheet') ? 'fa-file-excel' :
+                            file.type.includes('word') ? 'fa-file-word' :
+                            file.type.includes('image') ? 'fa-file-image' : 'fa-file';
+                
+                html += `
+                    <div class="file-item">
+                        <i class="fas ${icon}" style="font-size:1.5rem; color:var(--accent-color);"></i>
+                        <div class="info">
+                            <div class="name">${file.name}</div>
+                            <div class="size">${size}</div>
+                        </div>
+                        <a href="${file.data}" download="${file.name}" class="download">Download</a>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ==========================
+        // INIT
+        // ==========================
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkAuth()) return;
+            
+            loadUserData();
+            
+            // Load chat based on role
+            if (isAdmin) {
+                document.getElementById('adminChatView').style.display = 'block';
+                document.getElementById('clientChatView').style.display = 'none';
+                loadAdminClients();
+                updateUnreadBadges();
+                
+                // Auto-refresh client list every 10 seconds
+                setInterval(() => {
+                    if (document.getElementById('tab-messages').classList.contains('active')) {
+                        loadAdminClients();
+                    }
+                }, 10000);
+            } else {
+                document.getElementById('adminChatView').style.display = 'none';
+                document.getElementById('clientChatView').style.display = 'block';
+                loadClientMessages();
+            }
+            
+            // Files
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFile(file).then(() => {
+                        loadFiles();
+                        this.value = '';
+                        if (isAdmin) loadAdminDashboard();
+                    });
+                }
+            });
         });
+
+        // Expose functions
+        window.sendClientMessage = sendClientMessage;
+        window.sendAdminReply = sendAdminReply;
+        window.selectClient = selectClient;
+        window.markAllRead = markAllRead;
+        window.loadAdminClients = loadAdminClients;
+        window.loadAdminDashboard = loadAdminDashboard;
+        window.loadFiles = loadFiles;
     </script>
 
 </body>
