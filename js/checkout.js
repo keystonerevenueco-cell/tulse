@@ -1,18 +1,18 @@
 // ==========================
-// STRIPE CHECKOUT INTEGRATION
+// STRIPE CHECKOUT INTEGRATION - TEST MODE
 // ==========================
 
 const STRIPE_PAYMENT_LINKS = {
-    // LEAD INTELLIGENCE PACKAGES
-    'lead-intelligence-standard': 'https://buy.stripe.com/eVqfZgbzNboe2d96bX5Ne00',
-    'lead-intelligence-growth': 'https://buy.stripe.com/6oU4gyavJ8c27xteIt5Ne02',
-    'lead-intelligence-professional': 'https://buy.stripe.com/6oU4gyavJ8c27xteIt5Ne02',
+    // LEAD INTELLIGENCE PACKAGES - TEST MODE
+    'lead-intelligence-standard': 'https://buy.stripe.com/test_eVqfZgbzNboe2d96bX5Ne00',
+    'lead-intelligence-growth': 'https://buy.stripe.com/test/YOUR_TEST_LINK_HERE',
+    'lead-intelligence-professional': 'https://buy.stripe.com/test/YOUR_TEST_LINK_HERE',
     
-    // CONTENT PRODUCTION PACKAGES
-    'content-remote-one-time': 'https://buy.stripe.com/6oUbJ07jx2RI7xt2ZL5Ne03',
-    'content-remote-monthly': 'https://buy.stripe.com/4gMcN4dHVboedVR43P5Ne04',
-    'content-onsite-one-time': 'https://buy.stripe.com/14A00iavJ77YaJFdEp5Ne05',
-    'content-onsite-monthly': 'https://buy.stripe.com/aFa4gy5bp8c23hdcAl5Ne06'
+    // CONTENT PRODUCTION PACKAGES - TEST MODE
+    'content-remote-one-time': 'https://buy.stripe.com/test/YOUR_TEST_LINK_HERE',
+    'content-remote-monthly': 'https://buy.stripe.com/test/YOUR_TEST_LINK_HERE',
+    'content-onsite-one-time': 'https://buy.stripe.com/test/YOUR_TEST_LINK_HERE',
+    'content-onsite-monthly': 'https://buy.stripe.com/test/YOUR_TEST_LINK_HERE'
 };
 
 // ==========================
@@ -54,7 +54,6 @@ function checkForPaymentSuccess() {
         localStorage.setItem('tulse_payment_verified', 'true');
         localStorage.setItem('tulse_session_id', sessionId);
         setTimeout(() => {
-            // UPDATED to tulse.agency
             window.location.href = 'https://tulse.agency/client-onboarding.html?session_id=' + sessionId;
         }, 1500);
     }
